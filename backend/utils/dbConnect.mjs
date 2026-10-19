@@ -8,7 +8,9 @@ const dbConnection = async () => {
         const connection = await mongoose.connect(process.env.MONGO_DB);
         return connection;
     } catch (error) {
-        console.log(`Hiba: ${error.message}`);
+        throw new Error(`Adatbázis-kapcsolódási hiba: ${error.message}`, {
+            cause: error,
+        });
     }
 };
 

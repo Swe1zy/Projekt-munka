@@ -27,15 +27,17 @@
                     <label>Képek:</label>
                     <button type="button" id="kep-hozzaad">Új kép hozzáadása</button>
                 </div>
+
+                <div id="kepek-inputok">
+                    <div class="kep-mezo">
+                        <input type="text" class="kep-input" placeholder="Kép URL-je (vagy válassz fájlt)" />
+                        <input type="file" class="kep-fajl" accept="image/*" aria-label="Kép kiválasztása" />
+                        <button type="button" class="kep-eltavolit" aria-label="Képmező eltávolítása">Eltávolít</button>
+                    </div>
+                </div>
                 <div class="ar">
                     <label>Ár:</label>
                     <input type="number" id="ar" step="0.01" />
-                </div>
-                <div id="kepek-inputok">
-                    <div class="kep-mezo">
-                        <input type="text" class="kep-input" placeholder="Kép URL-je vagy fájlneve" />
-                        <button type="button" class="kep-eltavolit" aria-label="Képmező eltávolítása">Eltávolít</button>
-                    </div>
                 </div>
 
                 <button type="button" id="feltolt">Feltölt</button>

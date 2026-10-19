@@ -27,7 +27,7 @@ const getOneTermek = async (req, res) => {
 
         return res
             .status(200)
-            .render('termek/one-termek.ejs', { termek });
+            .render('building/one-termek.ejs', { termek });
     } catch (error) {
         return res.status(500).json({ msg: `Hiba: ${error.msg}` });
     }
@@ -37,7 +37,7 @@ const updateOneTermek = async (req, res) => {
     try {
         const id = req.params.id;
         const updates = {};
-        for (const field of ['nev', 'leiras', 'kepek']) {
+        for (const field of ['nev', 'leiras', 'kepek', 'ar']) {
             if (Object.prototype.hasOwnProperty.call(req.body, field)) {
                 updates[field] = req.body[field];
             }
@@ -59,7 +59,7 @@ const updateOneTermek = async (req, res) => {
 
         return res.status(200).json({ msg: 'Sikeres termékmódosítás!' });
     } catch (error) {
-        return res.status(500).json({ msg: `Hiba: ${error.msg}` });
+        return res.status(500).json({ msg: `Hiba: ${error.message}` });
     }
 };
 

@@ -10,9 +10,13 @@ const termekSchema = new mongoose.Schema(
             type: String,
             required: true,
         },
+        kepek: {
+            type: [String],
+            default: [],
+        },
+        // Régi rekordok kompatibilitásához; az új termékek a `kepek` mezőt használják.
         kep: {
             type: String,
-            required: true,
         },
         ar: {
             type: Number,

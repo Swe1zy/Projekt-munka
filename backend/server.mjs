@@ -12,4 +12,7 @@ dbConnect()
         });
         console.log('Sikeres adatbázis csatlakozás!');
     })
-    .catch((error) => console.log(error.message));
+    .catch((error) => {
+        console.error(error.message);
+        process.exitCode = 1;
+    });
