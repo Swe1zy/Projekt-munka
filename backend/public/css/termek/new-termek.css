@@ -1,0 +1,158 @@
+@import url("/css/main.css");
+
+#new-termek-container {
+	width: min(100% - 2rem, 760px);
+	margin: clamp(2rem, 5vw, 4rem) auto;
+	padding: clamp(1.35rem, 4vw, 2.6rem);
+	border: 1px solid var(--line);
+	border-radius: 22px;
+	background: var(--surface);
+	box-shadow: var(--shadow);
+}
+
+#new-termek-container h1 {
+	margin: 0 0 1.6rem;
+	font-size: clamp(1.8rem, 4vw, 2.7rem);
+	letter-spacing: -0.045em;
+	line-height: 1.15;
+}
+
+.termek-form {
+	display: grid;
+	gap: 0.55rem;
+}
+
+.termek-form > label,
+.kepmezok-fejlec > label,
+.ar label {
+	margin-top: 0.5rem;
+	color: #39464c;
+	font-size: 0.9rem;
+	font-weight: 750;
+}
+
+.termek-form input,
+.termek-form textarea,
+#ide input {
+	width: 100%;
+	min-height: 48px;
+	padding: 0.75rem 0.9rem;
+	border: 1px solid #d8dad6;
+	border-radius: 10px;
+	outline: none;
+	color: var(--ink);
+	background: #fcfcfa;
+	transition: border-color 150ms ease, box-shadow 150ms ease, background 150ms ease;
+}
+
+.termek-form textarea {
+	min-height: 150px;
+	resize: vertical;
+}
+
+.termek-form input:focus,
+.termek-form textarea:focus,
+#ide input:focus {
+	border-color: var(--accent);
+	background: white;
+	box-shadow: 0 0 0 4px rgba(230, 108, 44, 0.12);
+}
+
+.termek-form input::placeholder {
+	color: #9aa1a1;
+}
+
+.kepmezok-fejlec {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.7rem;
+	margin-top: 0.8rem;
+}
+
+.kepmezok-fejlec label {
+	margin: 0;
+}
+
+#new-termek-container button,
+#ide button {
+	border-color: #f1c6ae;
+	color: var(--accent-dark);
+	background: #fff7f2;
+}
+
+#kepek-inputok {
+	display: grid;
+	gap: 0.65rem;
+}
+
+.kep-mezo {
+	display: flex;
+	align-items: stretch;
+	gap: 0.55rem;
+}
+
+.kep-mezo .kep-input {
+	flex: 1;
+	min-width: 0;
+}
+
+.kep-mezo .kep-eltavolit {
+	flex: 0 0 auto;
+}
+
+.termek-form > button#feltolt,
+.termek-form > button[onclick] {
+	min-height: 51px;
+	margin-top: 1rem;
+	border-color: var(--accent);
+	color: white;
+	background: var(--accent);
+}
+
+.termek-form > button#feltolt:hover,
+.termek-form > button[onclick]:hover {
+	border-color: var(--accent-dark);
+	background: var(--accent-dark);
+}
+
+#new-termek-container form:not(.termek-form) {
+	overflow-x: auto;
+}
+
+#ide table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0 0.65rem;
+}
+
+#ide td {
+	padding-right: 0.75rem;
+	color: var(--muted);
+}
+
+#ide td:first-child {
+	width: 1%;
+	white-space: nowrap;
+}
+
+#ide td:last-child {
+	padding-right: 0;
+}
+
+@media (max-width: 540px) {
+	#new-termek-container {
+		width: min(100% - 1.25rem, 760px);
+		padding: 1.25rem;
+		border-radius: 16px;
+	}
+
+	.kep-mezo {
+		flex-direction: column;
+	}
+
+	.kep-mezo .kep-eltavolit {
+		align-self: flex-start;
+	}
+}
