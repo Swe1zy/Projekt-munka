@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="hu">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+        <link rel="stylesheet" href="/css/termek/termekek.css" />
+        <title>Termékek</title>
+    </head>
+    <body class="page-buildings">
+		<%- include('../nav.ejs') %>
+        <header class="page-intro">
+            <span class="page-eyebrow">TERMÉKEK</span>
+            <h1>Termékeink</h1>
+            <p>A termékek adatai és fényképei egy helyen. Válassz ki egy kártyát a részletek módosításához.</p>
+        </header>
+		<div id="termekek-container">
+            <% if (!termekek.length) { %>
+                <div class="empty-state">Még nincs felvett termék. Használd az „Új termék” menüpontot az első adatlap létrehozásához.</div>
+            <% } %>
+            <% termekek.forEach(termek => { %>
+                <div class="termek-container">
+                    <h2><%= termek.nev %></h2>
+                    <% const kepek = Array.isArray(termek.kepek) && termek.kepek.length ? termek.kepek : [termek.kep1, termek.kep2, termek.kep3, termek.kep].filter(Boolean); %>
+                    <% if (kepek.length) { %>
+                        <div class="termek-gallery kepek-<%= kepek.length %>">
+                            <% kepek.forEach((kep) => { %>
+                                <img src="<%= kep %>" alt="<%= termek.nev %>" />
+                            <% }) %>
+                        </div>
+                    <% } %>
+                    <p><%= termek.leiras %></p>
+                    <div class="termek-gombs">
+                        <button onclick="torol('<%= termek._id %>')">Töröl</button>
+                        <a href="/api/termek/<%= termek._id %>">Lekér módosításra</a>
+                    </div>
+                </div>
+			<% }) %>
+		</div>
+        <script src="/js/building/building-torol.js"></script>
+	</body>
+</html>

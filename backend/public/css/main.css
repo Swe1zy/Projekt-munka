@@ -1,0 +1,23 @@
+* {
+    font-family: Consolas;
+}
+
+#fo-kontener {
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: 90vh;
+}
+
+nav {
+    display: flex;
+    flex-direction: row;
+    gap: 3em;
+    justify-content: center;
+}
+
+nav a {
+    color: blue;
+    font-weight: bold;
+    text-decoration: none;
+}

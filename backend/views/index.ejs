@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="hu">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+        <link
+            rel="stylesheet"
+            href="/css/main.css"
+        />
+        <title>Kezdőlap | Épületkezelő</title>
+    </head>
+    <body class="page-home">
+        <%- include('./nav.ejs') %>
+        <div id="main-container">
+            <section class="home-hero">
+                <span class="home-eyebrow">TERMÉKEK</span>
+                <h1>Termékek, minden fontos részlettel.</h1>
+                <p>Tartsd egy helyen a termékek adatait és képeit. Válaszd ki, hogy megtekinted a nyilvántartást, vagy rögtön felveszel egy új terméket.</p>
+                <div class="home-actions">
+                    <a href="/api/termekek">Termékek megtekintése</a>
+                    <a href="/api/new-termek">Új termék felvétele</a>
+                </div>
+            </section>
+        </div>
+    </body>
+</html>

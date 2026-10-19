@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="hu">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+        <link
+            rel="stylesheet"
+            href="/css/termek/new-termek.css"
+        />
+        <title>Új termék felvétele</title>
+    </head>
+    <body>
+        <%- include('../nav.ejs') %>
+        <div id="new-termek-container">
+            <h1>Új képek felvétele</h1>
+            <form>
+                <tr>
+                    <td>
+                        <input
+                            type="hidden"
+                            id="termek-id"
+                            value="<%= termek._id %>"
+                        />
+                    </td>
+                    <td>
+                        <input
+                            type="hidden"
+                            id="termek-kepek"
+                            value="<%= termek.kepek %>"
+                        />
+                    </td>
+                </tr>
+                <div id="ide"></div>
+            </form>
+        </div>
+        <script src="/js/termek/termek-pictures-feltolt.js"></script>
+    </body>
+</html>

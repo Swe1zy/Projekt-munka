@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="hu">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        />
+        <link
+            rel="stylesheet"
+            href="/css/termek/new-termek.css"
+        />
+        <title>Egy termék módosítása</title>
+    </head>
+    <body class="page-edit-termek">
+        <%- include('../nav.ejs') %>
+        <div id="new-termek-container">
+            <h1>Egy termék módosítása</h1>
+            <form class="termek-form">
+                <input type="hidden" id="id-value" value="<%= termek._id %>" />
+                <label for="nev">Név:</label>
+                <input type="text" id="nev" value="<%= termek.nev %>" />
+
+                <label for="leiras">Leírás:</label>
+                <textarea id="leiras" rows="10"><%= termek.leiras %></textarea>
+
+                <label for="ar">Ár:</label>
+                <input type="number" id="ar" value="<%= termek.ar %>" step="0.01" />
+
+                <% const kepek = Array.isArray(termek.kepek) && termek.kepek.length ? termek.kepek : [termek.kep1, termek.kep2, termek.kep3, termek.kep].filter(Boolean); %>
+                <div class="kepmezok-fejlec">
+                    <label>Képek:</label>
+                    <button type="button" id="kep-hozzaad">Új kép hozzáadása</button>
+                </div>
+                <div id="kepek-inputok">
+                    <% (kepek.length ? kepek : ['']).forEach((kep) => { %>
+                        <div class="kep-mezo">
+                            <input type="text" class="kep-input" value="<%= kep %>" placeholder="Kép URL-je vagy fájlneve" />
+                            <button type="button" class="kep-eltavolit" aria-label="Képmező eltávolítása">Eltávolít</button>
+                        </div>
+                    <% }) %>
+                </div>
+
+                <button type="button" onclick="modosit(event)">Módosít</button>
+            </form>
+        </div>
+        <script src="/js/termek/termek-modosit.js"></script>
+    </body>
+</html>
