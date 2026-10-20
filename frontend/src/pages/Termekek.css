@@ -1,0 +1,19 @@
+.termekek-kontener {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+    margin: auto;
+    width: 80%;
+
+    h1 {
+        text-align: center;
+    }
+}
+
+#termekek-kontener {
+    display: grid;
+    gap: 2em;
+    grid-template-columns: repeat(3, 1fr);
+    margin: auto;
+    width: 80%;
+}

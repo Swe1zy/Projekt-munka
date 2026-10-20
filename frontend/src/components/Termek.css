@@ -1,0 +1,18 @@
+.termek-kontener {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+
+    p {
+        text-align: justify;
+    }
+}
+
+.kep-kontener {
+    margin: auto;
+    width: 60%;
+
+    img {
+        width: 100%;
+    }
+}
