@@ -2,6 +2,7 @@
     background-color: blue;
     display: flex;
     flex-direction: row;
+    gap: 2em;
     justify-content: center;
     padding: 1em;
 
@@ -9,4 +10,21 @@
         color: white;
         text-decoration: none;
     }
+}
+
+@media screen and (max-width: 700px) {
+  .nav-kontener {
+    display: grid;
+    gap: 2px;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 2px;
+  }
+
+  .nav-kontener a {
+    text-align: center;
+  }
+
+  .item4 {
+    grid-column: 1 / span 2;
+  }
 }
