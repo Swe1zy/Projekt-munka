@@ -3,7 +3,7 @@ import './Home.css';
 const Home = () => {
     return (
         <div className="home-kontener">
-            <h1>Üdvözlünk a híres épületekkel foglalkozó oldalunkon!</h1>
+            <h1>Üdvözlünk az oldalunkon!!</h1>
         </div>
     );
 };
