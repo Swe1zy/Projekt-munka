@@ -20,10 +20,6 @@ const Termek = ({ termek }) => {
                     <p>{termek.kontinens}</p>
                     <h4>Leírás:</h4>
                     <p>{termek.leiras}</p>
-                    <h4>Építés ideje:</h4>
-                    <p>{termek.epitesi_ido}</p>
-                    <h4>Évente odalátogatók száma:</h4>
-                    <p>{termek.latogatok_szama}</p>
                 </div>
             </div>
         </div>

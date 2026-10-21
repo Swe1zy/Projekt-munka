@@ -1,30 +1,125 @@
 .nav-kontener {
-    background-color: blue;
+    --nav-bg: rgba(15, 23, 42, 0.85);
+    --nav-border: rgba(255, 255, 255, 0.08);
+    --nav-text: #cbd5e1;
+    --nav-text-hover: #ffffff;
+    --nav-hover-bg: rgba(255, 255, 255, 0.08);
+    --nav-accent: #6366f1;
+    --nav-accent-2: #22d3ee;
+    --nav-danger: #f87171;
+
+    position: sticky;
+    top: 0;
+    z-index: 100;
     display: flex;
     flex-direction: row;
-    gap: 2em;
+    flex-wrap: wrap;
+    align-items: center;
     justify-content: center;
-    padding: 1em;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--nav-bg);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border-bottom: 1px solid var(--nav-border);
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.18);
+}
 
-    a {
-        color: white;
-        text-decoration: none;
-    }
+.nav-kontener a {
+    position: relative;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    color: var(--nav-text);
+    font-size: 0.95rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+        color 0.2s ease,
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+/* Alsó, színátmenetes csík hover / aktív állapotban */
+.nav-kontener a::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0.25rem;
+    width: 0;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--nav-accent), var(--nav-accent-2));
+    transform: translateX(-50%);
+    transition: width 0.25s ease;
+}
+
+.nav-kontener a:hover {
+    color: var(--nav-text-hover);
+    background-color: var(--nav-hover-bg);
+    transform: translateY(-1px);
+}
+
+.nav-kontener a:hover::after,
+.nav-kontener a.active::after,
+.nav-kontener a[aria-current='page']::after {
+    width: 40%;
+}
+
+.nav-kontener a.active,
+.nav-kontener a[aria-current='page'] {
+    color: var(--nav-text-hover);
+    background-color: var(--nav-hover-bg);
+}
+
+.nav-kontener a:focus-visible {
+    outline: 2px solid var(--nav-accent-2);
+    outline-offset: 2px;
+}
+
+.nav-kontener a:active {
+    transform: translateY(0) scale(0.97);
+}
+
+/* Kilépés */
+.nav-kontener .item5:hover {
+    color: var(--nav-danger);
+    background-color: rgba(248, 113, 113, 0.12);
+}
+
+.nav-kontener .item5::after {
+    background: var(--nav-danger);
 }
 
 @media screen and (max-width: 700px) {
-  .nav-kontener {
-    display: grid;
-    gap: 2px;
-    grid-template-columns: repeat(3, 1fr);
-    padding: 2px;
-  }
+    .nav-kontener {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.35rem;
+        padding: 0.5rem;
+    }
 
-  .nav-kontener a {
-    text-align: center;
-  }
+    .nav-kontener a {
+        padding: 0.65rem 0.5rem;
+        border-radius: 0.75rem;
+        font-size: 0.875rem;
+        text-align: center;
+    }
 
-  .item4 {
-    grid-column: 1 / span 2;
-  }
+    .nav-kontener .item4 {
+        grid-column: 1 / span 2;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav-kontener a,
+    .nav-kontener a::after {
+        transition: none;
+    }
+
+    .nav-kontener a:hover,
+    .nav-kontener a:active {
+        transform: none;
+    }
 }
