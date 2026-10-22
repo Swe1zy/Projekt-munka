@@ -27,13 +27,6 @@ const kepekLista = (termek) => {
     return [termek.kep, termek.kep1, termek.kep2, termek.kep3].filter(Boolean);
 };
 
-const fajlDataUrl = (file) => new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = () => reject(new Error(`Nem sikerült beolvasni: ${file.name}`));
-    reader.readAsDataURL(file);
-});
-
 const AdminTermekek = () => {
     const { user, authReady } = useAuth();
     const location = useLocation();
@@ -87,32 +80,6 @@ const AdminTermekek = () => {
         });
         setHiba('');
         window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
-    const fajlokHozzaadasa = async (event) => {
-        const fajlok = [...event.target.files];
-        event.target.value = '';
-        const totalSize = fajlok.reduce((total, file) => total + file.size, 0);
-        if (fajlok.some((file) => !file.type.startsWith('image/'))) {
-            setHiba('Csak képfájl tölthető fel.');
-            return;
-        }
-        const tulmeretes = fajlok.find((file) => file.size > 8 * 1024 * 1024);
-        if (tulmeretes) {
-            setHiba(`${tulmeretes.name}: egy kép legfeljebb 8 MB lehet.`);
-            return;
-        }
-        if (totalSize > 20 * 1024 * 1024) {
-            setHiba('A képek együttes mérete legfeljebb 20 MB lehet egy feltöltésnél.');
-            return;
-        }
-        try {
-            const ujKepek = await Promise.all(fajlok.map(fajlDataUrl));
-            setUrlap((elozo) => ({ ...elozo, kepek: [...elozo.kepek.filter(Boolean), ...ujKepek] }));
-            setHiba('');
-        } catch (error) {
-            setHiba(error.message);
-        }
     };
 
     const mentes = async (event) => {
@@ -193,12 +160,15 @@ const AdminTermekek = () => {
                 </label>
                 <label>Leírás<textarea rows="4" value={urlap.leiras} onChange={(event) => mezoFrissitese('leiras', event.target.value)} required /></label>
                 <label>Ár (Ft)<input type="number" min="0" step="0.01" value={urlap.ar} onChange={(event) => mezoFrissitese('ar', event.target.value)} required /></label>
-                <div className="admin-kepek-fejlec"><strong>Termékképek</strong><label className="admin-fajl-gomb">Képek kiválasztása<input type="file" accept="image/*" multiple onChange={fajlokHozzaadasa} /></label></div>
+                <div className="admin-kepek-fejlec">
+                    <strong>Termékképek URL-jei</strong>
+                    <button type="button" className="admin-kep-hozzaad" onClick={() => setUrlap((elozo) => ({ ...elozo, kepek: [...elozo.kepek, ''] }))}>+ Kép URL hozzáadása</button>
+                </div>
                 <div className="admin-kepek-lista">
                     {urlap.kepek.map((kep, index) => (
                         <div className="admin-kep-sor" key={`kep-${index}`}>
-                            {kep.startsWith('data:image/') && <img src={kep} alt={`Feltöltendő kép ${index + 1}`} />}
-                            <input aria-label={`Kép URL ${index + 1}`} value={kep.startsWith('data:image/') ? `Kiválasztott kép ${index + 1}` : kep} readOnly={kep.startsWith('data:image/')} placeholder="Kép URL-je" onChange={(event) => setUrlap((elozo) => ({ ...elozo, kepek: elozo.kepek.map((elem, i) => i === index ? event.target.value : elem) }))} />
+                            {kep.startsWith('http') && <img src={kep} alt={`Termékkép ${index + 1}`} onError={(event) => { event.currentTarget.hidden = true; }} />}
+                            <input type="url" aria-label={`Kép URL ${index + 1}`} value={kep} placeholder="https://…" onChange={(event) => setUrlap((elozo) => ({ ...elozo, kepek: elozo.kepek.map((elem, i) => i === index ? event.target.value : elem) }))} />
                             <button type="button" onClick={() => setUrlap((elozo) => ({ ...elozo, kepek: elozo.kepek.filter((_, i) => i !== index) }))}>Eltávolít</button>
                         </div>
                     ))}

@@ -1,12 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { v2 as cloudinary } from 'cloudinary';
-import fs from 'node:fs/promises';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_API_CLOUD_NAME,
@@ -50,21 +44,17 @@ const pictureUploader = async (req, res, next) => {
 
             // A már Cloudinaryben tárolt kép URL-jét nem kell újra feltölteni.
             if (/^https?:\/\/res\.cloudinary\.com\//i.test(image)) continue;
-            if (/^data:image\//i.test(image) && image.length > 11 * 1024 * 1024) {
-                return res.status(413).json({ msg: 'Egy kép legfeljebb 8 MB lehet.' });
+            let imageUrl;
+            try {
+                imageUrl = new URL(image);
+            } catch {
+                return res.status(400).json({ msg: 'Minden képhez érvényes http vagy https URL-t adj meg.' });
+            }
+            if (!['http:', 'https:'].includes(imageUrl.protocol)) {
+                return res.status(400).json({ msg: 'Minden képhez érvényes http vagy https URL-t adj meg.' });
             }
 
-            let source = image;
-            if (!/^https?:\/\//i.test(image) && !/^data:image\//i.test(image)) {
-                const imageDirectory = path.resolve(__dirname, '..', 'public', 'images');
-                source = path.resolve(imageDirectory, image);
-                if (!source.startsWith(`${imageDirectory}${path.sep}`)) {
-                    return res.status(400).json({ msg: 'Érvénytelen képfájlnév.' });
-                }
-                await fs.access(source);
-            }
-
-            const result = await cloudinary.uploader.upload(source, {
+            const result = await cloudinary.uploader.upload(imageUrl.toString(), {
                 resource_type: 'image',
             });
             kepek[index] = result.secure_url;

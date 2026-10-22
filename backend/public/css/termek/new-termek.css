@@ -100,14 +100,6 @@
 	min-width: 0;
 }
 
-.kep-mezo .kep-fajl {
-	flex: 0 1 230px;
-	width: auto;
-	min-width: 150px;
-	padding: 0.55rem;
-	font-size: 0.82rem;
-}
-
 .kep-mezo .kep-eltavolit {
 	flex: 0 0 auto;
 }
