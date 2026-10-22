@@ -1,24 +1,147 @@
 .termekek-kontener {
     display: flex;
     flex-direction: column;
-    gap: 2em;
-    margin: auto;
-    width: 80%;
+    gap: 1.5rem;
+    width: min(100% - 3rem, 1440px);
+    margin: 2rem auto;
 
     h1 {
-        text-align: center;
+        margin: 0;
+        text-align: left;
     }
 
     @media screen and (max-width: 1200px) {
-        width: 90%;
+        width: min(100% - 2rem, 1440px);
     }
+}
+
+.termekek-elrendezes {
+    display: grid;
+    grid-template-columns: minmax(230px, 280px) minmax(0, 1fr);
+    align-items: start;
+    gap: 1.5rem;
+}
+
+.termek-szuro-oldalsav {
+    position: sticky;
+    top: 1.25rem;
+    display: grid;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background-color: #ffffff;
+    color: #0f172a;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+}
+
+.termek-szuro-fejlec {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+
+    h2 {
+        margin: 0;
+        font-size: 1.15rem;
+    }
+}
+
+.termek-szuro-aktiv {
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    color: #9a3412;
+    background: #fff7ed;
+    font-size: 0.75rem;
+    font-weight: 750;
+}
+
+.termek-szuro-kategoriak,
+.termek-ar-szuro {
+    display: grid;
+    gap: 0.7rem;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+
+    legend {
+        width: 100%;
+        margin-bottom: 0.6rem;
+        font-size: 0.95rem;
+        font-weight: 800;
+    }
+}
+
+.termek-szuro-kategoria {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+    color: #334155;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    cursor: pointer;
+
+    input {
+        flex: 0 0 auto;
+        width: 1rem;
+        height: 1rem;
+        margin: 0.1rem 0 0;
+        accent-color: #ea580c;
+    }
+}
+
+.termek-ar-szuro label {
+    display: grid;
+    gap: 0.35rem;
+    color: #475569;
+    font-size: 0.82rem;
+    font-weight: 700;
+
+    input {
+        width: 100%;
+        min-height: 42px;
+        padding: 0.55rem 0.65rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 9px;
+        background: #ffffff;
+        color: #0f172a;
+        font: inherit;
+    }
+
+    input:focus-visible {
+        border-color: #ea580c;
+        outline: 3px solid rgba(234, 88, 12, 0.15);
+    }
+}
+
+.termek-szuro-torles {
+    min-height: 42px;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #fed7aa;
+    border-radius: 9px;
+    color: #9a3412;
+    background: #fff7ed;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 750;
+    cursor: pointer;
+
+    &:hover {
+        border-color: #ea580c;
+        background: #ffedd5;
+    }
+}
+
+.termekek-tartalom {
+    min-width: 0;
 }
 
 .termek-kereso {
     display: grid;
     gap: 0.45rem;
-    width: min(100%, 720px);
-    margin: 0 auto;
+    min-width: 0;
+    margin-bottom: 1.25rem;
 
     label {
         color: var(--ink);
@@ -46,7 +169,7 @@
 
 .termek-keresesi-allapot,
 .termek-keresesi-hiba {
-    margin: -1rem auto 0;
+    margin: 0 auto 1rem;
     color: var(--muted);
     text-align: center;
 }
@@ -58,17 +181,34 @@
 #termekek-kontener {
     display: grid;
     gap: 2em;
-    grid-template-columns: repeat(3, 1fr);
-    margin: auto;
-    width: 80%;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+    width: 100%;
 
     @media screen and (max-width: 1200px) {
-        grid-template-columns: repeat(2, 1fr);
-        width: 90%;
+        gap: 1.25rem;
     }
 
-    @media screen and (max-width: 700px) {
-        grid-template-columns: repeat(1, 1fr);
-        width: 100%;
+    @media screen and (max-width: 760px) {
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+    }
+}
+
+@media screen and (max-width: 760px) {
+    .termekek-elrendezes {
+        grid-template-columns: 1fr;
+    }
+
+    .termek-szuro-oldalsav {
+        position: static;
+    }
+
+    .termek-szuro-kategoriak {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .termek-szuro-kategoriak {
+        grid-template-columns: 1fr;
     }
 }

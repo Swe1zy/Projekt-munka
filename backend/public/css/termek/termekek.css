@@ -25,8 +25,17 @@
 .termek-kereso {
 	display: grid;
 	gap: 0.45rem;
-	width: min(100% - 2.5rem, 720px);
-	margin: 0 auto 1.5rem;
+	min-width: 0;
+	margin-bottom: 1.25rem;
+}
+
+.termek-oldal-elrendezes {
+	display: grid;
+	grid-template-columns: minmax(230px, 280px) minmax(0, 1fr);
+	align-items: start;
+	gap: 1.5rem;
+	width: min(100% - 2.5rem, 1280px);
+	margin: 0 auto clamp(3rem, 7vw, 6rem);
 }
 
 .termek-kereso label {
@@ -52,12 +61,124 @@
 	outline: 3px solid rgba(230, 108, 44, 0.16);
 }
 
+.termek-szuro-oldalsav {
+	position: sticky;
+	top: 1.25rem;
+	display: grid;
+	gap: 1.25rem;
+	padding: 1.25rem;
+	border: 1px solid #e2e8f0;
+	border-radius: 16px;
+	background: #ffffff;
+	box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+}
+
+.termek-szuro-oldalsav h2 {
+	margin: 0;
+	font-size: 1.15rem;
+}
+
+.termek-szuro-oldalsav fieldset {
+	display: grid;
+	gap: 0.7rem;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.termek-szuro-oldalsav legend {
+	width: 100%;
+	margin-bottom: 0.6rem;
+	font-size: 0.95rem;
+	font-weight: 800;
+}
+
+.szuro-kategoria {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.65rem;
+	color: #334155;
+	font-size: 0.92rem;
+	line-height: 1.4;
+	cursor: pointer;
+}
+
+.szuro-kategoria input {
+	flex: 0 0 auto;
+	width: 1rem;
+	height: 1rem;
+	margin: 0.1rem 0 0;
+	accent-color: #ea580c;
+}
+
+.ar-szuro label {
+	display: grid;
+	gap: 0.35rem;
+	color: #475569;
+	font-size: 0.82rem;
+	font-weight: 700;
+}
+
+.ar-szuro input {
+	width: 100%;
+	min-height: 42px;
+	padding: 0.55rem 0.65rem;
+	border: 1px solid #cbd5e1;
+	border-radius: 9px;
+	background: #ffffff;
+	color: #0f172a;
+	font: inherit;
+}
+
+.termek-eredmenyek {
+	min-width: 0;
+}
+
+.szuro-torles {
+	min-height: 42px;
+	padding: 0.6rem 0.8rem;
+	border: 1px solid #fed7aa;
+	border-radius: 9px;
+	color: #9a3412;
+	background: #fff7ed;
+	font: inherit;
+	font-size: 0.9rem;
+	font-weight: 750;
+	cursor: pointer;
+}
+
+.szuro-torles:hover {
+	border-color: #ea580c;
+	background: #ffedd5;
+}
+
+/* Existing button styles used elsewhere on the product administration pages. */
+.szuro-gomb,
+.szuro-torles {
+	min-height: 50px;
+	padding: 0.7rem 1rem;
+	border: 1px solid var(--line);
+	border-radius: 12px;
+	color: var(--ink);
+	background: var(--surface);
+	font: inherit;
+	.szuro-gomb:hover {
+}
+
+.szuro-gomb:hover,
+
+	.ar-szuro {
+		grid-template-columns: 1fr;
+	}
+}
+
 #termekek-container {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
 	gap: 1.25rem;
-	width: min(100% - 2.5rem, 1120px);
-	margin: 0 auto clamp(3rem, 7vw, 6rem);
+	width: 100%;
+	margin: 0;
 }
 
 .termek-container {
@@ -209,4 +330,24 @@
 	color: var(--muted);
 	background: rgba(255, 255, 255, 0.65);
 	text-align: center;
+}
+
+@media (max-width: 760px) {
+	.termek-oldal-elrendezes {
+		grid-template-columns: 1fr;
+	}
+
+	.termek-szuro-oldalsav {
+		position: static;
+	}
+
+	.termek-szuro-oldalsav fieldset:first-of-type {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 480px) {
+	.termek-szuro-oldalsav fieldset:first-of-type {
+		grid-template-columns: 1fr;
+	}
 }

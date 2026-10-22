@@ -16,16 +16,32 @@
             <h1>Termékeink</h1>
             <p>A termékek adatai és fényképei egy helyen. Válassz ki egy kártyát a részletek módosításához.</p>
         </header>
-		<div class="termek-kereso">
-			<label for="termek-kereses">Termék keresése</label>
-			<input id="termek-kereses" type="search" placeholder="Keresés név vagy kategória alapján…" autocomplete="off" />
-		</div>
-		<div id="termekek-container">
+        <div class="termek-oldal-elrendezes">
+            <aside id="szuro-panel" class="termek-szuro-oldalsav" aria-label="Termékek szűrése">
+                <h2>Szűrők</h2>
+                    <fieldset>
+                        <legend>Kategóriák</legend>
+                        <% ['Falazóanyagok', 'Cement és kötőanyagok', 'Faanyagok', 'Tetőfedés', 'Hőszigetelés', 'Szerszámok és kellékek'].forEach((kategoria) => { %>
+                            <label class="szuro-kategoria"><input type="checkbox" name="kategoria" value="<%= kategoria %>" /><%= kategoria %></label>
+                        <% }) %>
+                    </fieldset>
+                    <div class="ar-szuro">
+                        <label>Minimum ár (Ft) <input id="min-ar" type="number" min="0" step="0.01" placeholder="Nincs minimum" /></label>
+                        <label>Maximum ár (Ft) <input id="max-ar" type="number" min="0" step="0.01" placeholder="Nincs maximum" /></label>
+                    </div>
+                    <button id="szuro-torles" class="szuro-torles" type="button">Szűrők törlése</button>
+            </aside>
+            <main class="termek-eredmenyek">
+                <div class="termek-kereso">
+                    <label for="termek-kereses">Termék keresése</label>
+                    <input id="termek-kereses" type="search" placeholder="Keresés név vagy kategória alapján…" autocomplete="off" />
+                </div>
+                <div id="termekek-container">
             <% if (!termekek.length) { %>
                 <div class="empty-state">Még nincs felvett termék. Használd az „Új termék” menüpontot az első adatlap létrehozásához.</div>
             <% } %>
             <% termekek.forEach(termek => { %>
-                <div class="termek-container" data-keresendo="<%= `${termek.nev} ${termek.kategoria || ''}` %>">
+                <div class="termek-container" data-keresendo="<%= `${termek.nev} ${termek.kategoria || ''}` %>" data-kategoria="<%= termek.kategoria || '' %>" data-ar="<%= termek.ar %>">
                     <h2><%= termek.nev %></h2>
                     <% if (termek.kategoria) { %><span class="termek-kategoria"><%= termek.kategoria %></span><% } %>
                     <% const kepek = Array.isArray(termek.kepek) && termek.kepek.length ? termek.kepek : [termek.kep1, termek.kep2, termek.kep3, termek.kep].filter(Boolean); %>
@@ -43,7 +59,9 @@
                     </div>
                 </div>
 			<% }) %>
-            <div id="nincs-talalat" class="empty-state" hidden>Nincs a keresésnek megfelelő termék.</div>
+                    <div id="nincs-talalat" class="empty-state" hidden>Nincs a keresésnek megfelelő termék.</div>
+                </div>
+            </main>
 		</div>
         <script src="/js/termek/termek-kereses.js"></script>
         <script src="/js/termek/termek-torol.js"></script>
