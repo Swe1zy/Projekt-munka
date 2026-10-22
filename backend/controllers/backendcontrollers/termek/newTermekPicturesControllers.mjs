@@ -1,4 +1,4 @@
-import BuildingModel from '../../../models/Termek.mjs';
+import TermekModel from '../../../models/Termek.mjs';
 
 const getOneTermek = async (req, res) => {
     try {

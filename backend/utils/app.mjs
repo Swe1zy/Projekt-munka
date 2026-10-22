@@ -27,7 +27,13 @@ app.use('/api/new-termek', newTermekRouter);
 import termekekRouter from '../routes/backendroutes/termek/termekekRoutes.mjs';
 app.use('/api/termekek', termekekRouter);
 
-// import buildingsFRouter from '../routes/frontendroutes/building/buildingsRoutes.mjs';
-// app.use('/api/buildings-frontend', buildingsFRouter);
+import newTermekPicturesRouter from '../routes/backendroutes/termek/newTermekPicturesRoutes.mjs';
+app.use('/api/termek-pictures', newTermekPicturesRouter);
+
+import termekekFRouter from '../routes/frontendroutes/termek/termekekRoutes.mjs';
+app.use('/api/frontend-termekek', termekekFRouter);
+
+import authRouter from '../routes/frontendroutes/auth/authRoutes.mjs';
+app.use('/api/auth', authRouter);
 
 export default app;

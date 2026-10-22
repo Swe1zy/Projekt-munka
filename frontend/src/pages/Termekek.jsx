@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react';
 import './Termekek.css';
-import Building from '../components/Termek';
+import Termek from '../components/Termek';
+import { API_URL } from '../config';
 
 const Termekek = () => {
     const [termekek, setTermekek] = useState([]);
 
     useEffect(() => {
         const leker = async () => {
-            const response = await fetch(
-                'http://localhost:3600/api/frontend-buildings',
-            );
+            try {
+                const response = await fetch(`${API_URL}/frontend-termekek`);
 
-            const valasz = await response.json();
+                const valasz = await response.json();
 
-            if (response.ok) setTermekek(valasz.buildings);
-            else window.alert(`Hiba: ${valasz.msg}`);
+                if (response.ok) setTermekek(valasz.termekek);
+                else window.alert(`Hiba: ${valasz.msg}`);
+            } catch {
+                window.alert('A szerver nem érhető el. Próbáld újra később!');
+            }
         };
 
         leker();
@@ -26,9 +29,9 @@ const Termekek = () => {
             <div id="termekek-kontener">
                 {termekek.map((termek) => {
                     return (
-                        <Building
+                        <Termek
                             key={termek._id}
-                            building={termek}
+                            termek={termek}
                         />
                     );
                 })}

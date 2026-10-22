@@ -1,19 +1,19 @@
 import express from 'express';
 import {
-    getOneTermekek,
-    updateOneTermekek,
+    getOneTermek,
+    updateOneTermek,
 } from '../../../controllers/backendcontrollers/termek/newTermekPicturesControllers.mjs';
 import pictureUploader from '../../../middlewares/morePicturesToCloudinary.mjs';
 import pictureDeleter from '../../../middlewares/morePicturesDeleteFromCloudinary.mjs';
 
 const newTermekekPicturesRouter = express.Router();
 
-newTermekekPicturesRouter.get('/:id', getOneTermekek);
+newTermekekPicturesRouter.get('/:id', getOneTermek);
 newTermekekPicturesRouter.patch(
     '/:id',
     pictureUploader,
     pictureDeleter,
-    updateOneTermekek,
+    updateOneTermek,
 );
 
 export default newTermekekPicturesRouter;

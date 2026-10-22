@@ -1,7 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { v2 as cloudinary } from 'cloudinary';
-import BuildingModel from '../models/Termek.mjs';
+import TermekModel from '../models/Termek.mjs';
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_API_CLOUD_NAME,
@@ -12,7 +12,7 @@ cloudinary.config({
 const pictureDeleter = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const building = await BuildingModel.findById(id);
+        const building = await TermekModel.findById(id);
         if (!building) {
             return res.status(404).json({ msg: 'Az termék nem található!' });
         }

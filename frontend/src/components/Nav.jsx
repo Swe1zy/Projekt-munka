@@ -1,40 +1,52 @@
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Nav.css';
 
 const Nav = () => {
+    const { user } = useAuth();
+
     return (
-        <div className="nav-kontener">
-            <Link
+        <nav
+            className="nav-kontener"
+            aria-label="Főmenü"
+        >
+            <NavLink
                 to="/"
+                end
                 className="item1"
             >
                 Főoldal
-            </Link>
-            <Link
+            </NavLink>
+            <NavLink
                 to="/termekek"
                 className="item2"
             >
-                Teremékek
-            </Link>
-            <Link
-                to="/register"
-                className="item3"
-            >
-                Regisztráció
-            </Link>
-            <Link
-                to="/login"
-                className="item4"
-            >
-                Bejelentkezés
-            </Link>
-            <Link
-                to="/logout"
-                className="item5"
-            >
-                Kilépés
-            </Link>
-        </div>
+                Termékek
+            </NavLink>
+            {user ? (
+                <NavLink
+                    to="/logout"
+                    className="item5"
+                >
+                    Kilépés
+                </NavLink>
+            ) : (
+                <>
+                    <NavLink
+                        to="/register"
+                        className="item3"
+                    >
+                        Regisztráció
+                    </NavLink>
+                    <NavLink
+                        to="/login"
+                        className="item4"
+                    >
+                        Bejelentkezés
+                    </NavLink>
+                </>
+            )}
+        </nav>
     );
 };
 

@@ -94,21 +94,17 @@
 
 @media screen and (max-width: 700px) {
     .nav-kontener {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
         gap: 0.35rem;
         padding: 0.5rem;
     }
 
+    /* A linkek szétosztják a sort, így 3 vagy 4 link esetén is szépen kitöltik a sávot */
     .nav-kontener a {
+        flex: 1 1 30%;
         padding: 0.65rem 0.5rem;
         border-radius: 0.75rem;
         font-size: 0.875rem;
         text-align: center;
-    }
-
-    .nav-kontener .item4 {
-        grid-column: 1 / span 2;
     }
 }
 
