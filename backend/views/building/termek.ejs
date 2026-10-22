@@ -16,13 +16,18 @@
             <h1>Termékeink</h1>
             <p>A termékek adatai és fényképei egy helyen. Válassz ki egy kártyát a részletek módosításához.</p>
         </header>
+		<div class="termek-kereso">
+			<label for="termek-kereses">Termék keresése</label>
+			<input id="termek-kereses" type="search" placeholder="Keresés név vagy kategória alapján…" autocomplete="off" />
+		</div>
 		<div id="termekek-container">
             <% if (!termekek.length) { %>
                 <div class="empty-state">Még nincs felvett termék. Használd az „Új termék” menüpontot az első adatlap létrehozásához.</div>
             <% } %>
             <% termekek.forEach(termek => { %>
-                <div class="termek-container">
+                <div class="termek-container" data-keresendo="<%= `${termek.nev} ${termek.kategoria || ''}` %>">
                     <h2><%= termek.nev %></h2>
+                    <% if (termek.kategoria) { %><span class="termek-kategoria"><%= termek.kategoria %></span><% } %>
                     <% const kepek = Array.isArray(termek.kepek) && termek.kepek.length ? termek.kepek : [termek.kep1, termek.kep2, termek.kep3, termek.kep].filter(Boolean); %>
                     <% if (kepek.length) { %>
                         <div class="termek-gallery kepek-<%= kepek.length %>">
@@ -38,7 +43,9 @@
                     </div>
                 </div>
 			<% }) %>
+            <div id="nincs-talalat" class="empty-state" hidden>Nincs a keresésnek megfelelő termék.</div>
 		</div>
+        <script src="/js/termek/termek-kereses.js"></script>
         <script src="/js/termek/termek-torol.js"></script>
 	</body>
 </html>

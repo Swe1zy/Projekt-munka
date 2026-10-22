@@ -22,6 +22,36 @@
 	color: var(--muted);
 }
 
+.termek-kereso {
+	display: grid;
+	gap: 0.45rem;
+	width: min(100% - 2.5rem, 720px);
+	margin: 0 auto 1.5rem;
+}
+
+.termek-kereso label {
+	color: var(--ink);
+	font-size: 0.9rem;
+	font-weight: 700;
+}
+
+.termek-kereso input {
+	width: 100%;
+	min-height: 50px;
+	padding: 0.75rem 1rem;
+	border: 1px solid var(--line);
+	border-radius: 12px;
+	background: var(--surface);
+	color: var(--ink);
+	font: inherit;
+	box-shadow: 0 5px 18px rgba(32, 42, 50, 0.04);
+}
+
+.termek-kereso input:focus-visible {
+	border-color: var(--accent);
+	outline: 3px solid rgba(230, 108, 44, 0.16);
+}
+
 #termekek-container {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
@@ -52,6 +82,22 @@
 	margin: 0 0 0.9rem;
 	font-size: 1.25rem;
 	letter-spacing: -0.02em;
+}
+
+.termek-kategoria {
+	align-self: flex-start;
+	margin-bottom: 0.8rem;
+	padding: 0.3rem 0.65rem;
+	border-radius: 999px;
+	color: var(--accent-dark);
+	background: #fff7f2;
+	font-size: 0.8rem;
+	font-weight: 750;
+}
+
+.termek-container[hidden],
+#nincs-talalat[hidden] {
+	display: none;
 }
 
 .termek-container p {

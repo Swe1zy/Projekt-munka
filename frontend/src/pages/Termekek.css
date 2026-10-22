@@ -14,6 +14,47 @@
     }
 }
 
+.termek-kereso {
+    display: grid;
+    gap: 0.45rem;
+    width: min(100%, 720px);
+    margin: 0 auto;
+
+    label {
+        color: var(--ink);
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    input {
+        width: 100%;
+        min-height: 50px;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--surface);
+        color: var(--ink);
+        font: inherit;
+        box-shadow: 0 5px 18px rgba(32, 42, 50, 0.04);
+    }
+
+    input:focus-visible {
+        border-color: var(--accent);
+        outline: 3px solid rgba(230, 108, 44, 0.16);
+    }
+}
+
+.termek-keresesi-allapot,
+.termek-keresesi-hiba {
+    margin: -1rem auto 0;
+    color: var(--muted);
+    text-align: center;
+}
+
+.termek-keresesi-hiba {
+    color: #a7431b;
+}
+
 #termekek-kontener {
     display: grid;
     gap: 2em;
