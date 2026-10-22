@@ -1,18 +1,67 @@
 .termekek-kontener {
+    --termek-ink: #0f172a;
+    --termek-text: #334155;
+    --termek-muted: #64748b;
+    --termek-bg: #f6f7f2;
+    --termek-surface: #ffffff;
+    --termek-border: #e2e8f0;
+    --termek-accent: #e87524;
+    --termek-accent-ink: #a84417;
+    --termek-accent-soft: #fff1e4;
+    --termek-green: #35634c;
+    --termek-green-soft: #eaf2eb;
+    --termek-sand: #f3ead9;
+    --termek-blue: #426b7d;
+
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
-    width: min(100% - 3rem, 1440px);
-    margin: 2rem auto;
+    gap: 1.75rem;
+    width: 100%;
+    min-height: calc(100vh - 4rem);
+    margin: 0;
+    padding: clamp(1.25rem, 4vw, 3rem) max(1rem, calc((100vw - 1440px) / 2));
+    background: var(--termek-bg);
+    color: var(--termek-text);
 
     h1 {
         margin: 0;
-        text-align: left;
+        color: var(--termek-ink);
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        line-height: 1.1;
+    }
+}
+
+.termekek-fejlec {
+    width: min(100%, 1440px);
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 2.75rem);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 1.5rem;
+    background:
+        radial-gradient(ellipse at 92% 0%, rgba(232, 117, 36, 0.16), transparent 42%),
+        radial-gradient(ellipse at 5% 100%, rgba(53, 99, 76, 0.08), transparent 36%),
+        linear-gradient(135deg, #fffdf8 0%, #f5f7f2 75%);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 30px rgba(15, 23, 42, 0.05);
+
+    h1 {
+        margin: 0.35rem 0 0.55rem;
     }
 
-    @media screen and (max-width: 1200px) {
-        width: min(100% - 2rem, 1440px);
+    p {
+        max-width: 42rem;
+        margin: 0;
+        color: var(--termek-muted);
+        font-size: 1.02rem;
     }
+}
+
+.termekek-felirat {
+    color: var(--termek-accent-ink);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
 }
 
 .termekek-elrendezes {
@@ -20,6 +69,8 @@
     grid-template-columns: minmax(230px, 280px) minmax(0, 1fr);
     align-items: start;
     gap: 1.5rem;
+    width: min(100%, 1440px);
+    margin: 0 auto;
 }
 
 .termek-szuro-oldalsav {
@@ -28,11 +79,11 @@
     display: grid;
     gap: 1.25rem;
     padding: 1.25rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
-    background-color: #ffffff;
-    color: #0f172a;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.07);
+    border: 1px solid var(--termek-border);
+    border-radius: 1.1rem;
+    background: linear-gradient(160deg, #ffffff 60%, #f3f7f1);
+    color: var(--termek-ink);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.055);
 }
 
 .termek-szuro-fejlec {
@@ -50,8 +101,8 @@
 .termek-szuro-aktiv {
     padding: 0.2rem 0.55rem;
     border-radius: 999px;
-    color: #9a3412;
-    background: #fff7ed;
+    color: var(--termek-green);
+    background: var(--termek-green-soft);
     font-size: 0.75rem;
     font-weight: 750;
 }
@@ -87,14 +138,14 @@
         width: 1rem;
         height: 1rem;
         margin: 0.1rem 0 0;
-        accent-color: #ea580c;
+        accent-color: var(--termek-green);
     }
 }
 
 .termek-ar-szuro label {
     display: grid;
     gap: 0.35rem;
-    color: #475569;
+    color: #475b51;
     font-size: 0.82rem;
     font-weight: 700;
 
@@ -110,26 +161,26 @@
     }
 
     input:focus-visible {
-        border-color: #ea580c;
-        outline: 3px solid rgba(234, 88, 12, 0.15);
+        border-color: var(--termek-green);
+        outline: 3px solid rgba(53, 99, 76, 0.15);
     }
 }
 
 .termek-szuro-torles {
     min-height: 42px;
     padding: 0.6rem 0.8rem;
-    border: 1px solid #fed7aa;
+    border: 1px solid #c8dacd;
     border-radius: 9px;
-    color: #9a3412;
-    background: #fff7ed;
+    color: #2f5d45;
+    background: #edf5ed;
     font: inherit;
     font-size: 0.9rem;
     font-weight: 750;
     cursor: pointer;
 
     &:hover {
-        border-color: #ea580c;
-        background: #ffedd5;
+        border-color: #70917a;
+        background: #e1eee2;
     }
 }
 
@@ -144,7 +195,7 @@
     margin-bottom: 1.25rem;
 
     label {
-        color: var(--ink);
+        color: var(--termek-ink);
         font-size: 0.9rem;
         font-weight: 700;
     }
@@ -153,16 +204,16 @@
         width: 100%;
         min-height: 50px;
         padding: 0.75rem 1rem;
-        border: 1px solid var(--line);
+        border: 1px solid var(--termek-border);
         border-radius: 12px;
-        background: var(--surface);
-        color: var(--ink);
+        background: var(--termek-surface);
+        color: var(--termek-ink);
         font: inherit;
         box-shadow: 0 5px 18px rgba(32, 42, 50, 0.04);
     }
 
     input:focus-visible {
-        border-color: var(--accent);
+        border-color: var(--termek-accent);
         outline: 3px solid rgba(230, 108, 44, 0.16);
     }
 }
@@ -180,7 +231,7 @@
 
 #termekek-kontener {
     display: grid;
-    gap: 2em;
+    gap: 1.25rem;
     grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
     width: 100%;
 
@@ -193,7 +244,35 @@
     }
 }
 
+#termekek-kontener > :nth-child(4n + 1) {
+    --termek-accent-ink: #a84417;
+    --termek-accent-soft: #fff0df;
+    --termek-card-accent: #e87524;
+}
+
+#termekek-kontener > :nth-child(4n + 2) {
+    --termek-accent-ink: #35634c;
+    --termek-accent-soft: #eaf2eb;
+    --termek-card-accent: #548466;
+}
+
+#termekek-kontener > :nth-child(4n + 3) {
+    --termek-accent-ink: #426b7d;
+    --termek-accent-soft: #eaf2f5;
+    --termek-card-accent: #668fa0;
+}
+
+#termekek-kontener > :nth-child(4n + 4) {
+    --termek-accent-ink: #80612b;
+    --termek-accent-soft: #f5efdf;
+    --termek-card-accent: #b39250;
+}
+
 @media screen and (max-width: 760px) {
+    .termekek-fejlec {
+        border-radius: 1.1rem;
+    }
+
     .termekek-elrendezes {
         grid-template-columns: 1fr;
     }

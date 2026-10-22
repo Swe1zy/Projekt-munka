@@ -6,9 +6,11 @@ const Termek = ({ termek }) => {
         : [termek.kep, termek.kep1, termek.kep2, termek.kep3].filter(Boolean);
 
     return (
-        <div className="termek-kontener">
-            <h2>{termek.nev}</h2>
-            {termek.kategoria && <p className="termek-kategoria">{termek.kategoria}</p>}
+        <article className="termek-kontener">
+            <header className="termek-kartya-fejlec">
+                {termek.kategoria && <span className="termek-kategoria">{termek.kategoria}</span>}
+                <h2>{termek.nev}</h2>
+            </header>
             <div className="termek-belso-kontener">
                 {kepek.length > 0 && (
                     <div className="kepek-kontener">
@@ -29,7 +31,7 @@ const Termek = ({ termek }) => {
                     <p>{termek.leiras}</p>
                 </div>
             </div>
-        </div>
+        </article>
     );
 };
 

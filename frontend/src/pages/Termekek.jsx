@@ -75,7 +75,11 @@ const Termekek = () => {
 
     return (
         <div className="termekek-kontener">
-            <h1>Termékek</h1>
+            <header className="termekek-fejlec">
+                <span className="termekek-felirat">VÁLASZTÉKUNK</span>
+                <h1>Termékeink</h1>
+                <p>Fedezd fel építőanyagainkat, és találd meg gyorsan, amire a munkádhoz szükséged van.</p>
+            </header>
             <div className="termekek-elrendezes">
                 <aside className="termek-szuro-oldalsav" aria-label="Termékek szűrése">
                     <div className="termek-szuro-fejlec">

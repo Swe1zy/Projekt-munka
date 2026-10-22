@@ -1,7 +1,25 @@
 .admin-termekek {
-    width: min(100% - 2rem, 1100px);
-    margin: 2rem auto 4rem;
-    color: #0f172a;
+    --admin-ink: #0f172a;
+    --admin-text: #334155;
+    --admin-muted: #64748b;
+    --admin-border: #e2e8f0;
+    --admin-accent: #e87524;
+    --admin-accent-dark: #a84417;
+    --admin-accent-soft: #fff1e4;
+    --admin-green: #35634c;
+    --admin-green-soft: #eaf2eb;
+
+    display: block;
+    box-sizing: border-box;
+    width: min(100%, 1100px);
+    min-height: calc(100vh - 4rem);
+    margin: 0 auto;
+    padding: clamp(1.25rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem);
+    color: var(--admin-ink);
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(232, 117, 36, 0.09), transparent 32rem),
+        radial-gradient(ellipse at 0% 100%, rgba(53, 99, 76, 0.06), transparent 28rem),
+        #f6f7f2;
 }
 
 .admin-termekek-fejlec {
@@ -10,11 +28,19 @@
     align-items: end;
     justify-content: space-between;
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    margin: 0 auto 1.5rem;
+    padding: clamp(1.4rem, 3vw, 2.2rem);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 1.5rem;
+    background:
+        radial-gradient(ellipse at 92% 0%, rgba(232, 117, 36, 0.17), transparent 42%),
+        radial-gradient(ellipse at 5% 100%, rgba(53, 99, 76, 0.09), transparent 38%),
+        linear-gradient(135deg, #fffdf8, #f3f6f1);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 12px 30px rgba(15, 23, 42, 0.05);
 }
 
 .admin-termekek-fejlec span {
-    color: #c2410c;
+    color: var(--admin-accent-dark);
     font-size: 0.75rem;
     font-weight: 800;
     letter-spacing: 0.12em;
@@ -23,47 +49,95 @@
 .admin-termekek-fejlec h1 {
     margin: 0.25rem 0;
     font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
 }
 
 .admin-termekek-fejlec p {
     margin: 0;
-    color: #64748b;
+    color: var(--admin-muted);
 }
 
 .admin-termekek-fejlec > a {
-    padding: 0.65rem 0.9rem;
+    padding: 0.65rem 0.95rem;
     border: 1px solid #fed7aa;
-    border-radius: 10px;
-    color: #9a3412;
-    background: #fff7ed;
+    border-radius: 999px;
+    color: var(--admin-accent-dark);
+    background: var(--admin-accent-soft);
     font-weight: 700;
     text-decoration: none;
+    transition: transform 180ms ease, background-color 180ms ease;
+}
+
+.admin-termekek-fejlec > a:hover {
+    background: #ffedd5;
+    transform: translateY(-2px);
 }
 
 .admin-termek-urlap,
 .admin-termeklista {
     display: grid;
     gap: 1rem;
-    margin-bottom: 1.5rem;
-    padding: clamp(1rem, 3vw, 1.5rem);
-    border: 1px solid #e2e8f0;
-    border-radius: 16px;
+    margin: 0 0 1.5rem;
+    padding: clamp(1.15rem, 2.5vw, 1.7rem);
+    border: 1px solid var(--admin-border);
+    border-radius: 1.25rem;
     background: #ffffff;
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 28px rgba(15, 23, 42, 0.055);
+    transition: box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.admin-termek-urlap {
+    width: 100%;
+}
+
+.admin-termeklista {
+    position: static;
+    width: 100%;
+    max-height: none;
+    overflow: visible;
+}
+
+.admin-termek-urlap:focus-within,
+.admin-termeklista:hover {
+    border-color: rgba(232, 117, 36, 0.4);
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.085);
 }
 
 .admin-termek-urlap h2,
 .admin-termeklista h2 {
     margin: 0;
+    color: var(--admin-ink);
     font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.015em;
+}
+
+.admin-termek-urlap h2 {
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid #edf0f2;
+}
+
+.admin-termeklista h2 {
+    position: sticky;
+    z-index: 1;
+    top: -1.7rem;
+    padding: 0.35rem 0 0.8rem;
+    border-bottom: 1px solid #edf0f2;
+    background: #ffffff;
 }
 
 .admin-termek-urlap > label {
     display: grid;
     gap: 0.4rem;
-    color: #334155;
+    color: var(--admin-text);
     font-size: 0.9rem;
     font-weight: 700;
+}
+
+.admin-termek-urlap > label small {
+    color: var(--admin-muted);
+    font-weight: 500;
 }
 
 .admin-termek-urlap input,
@@ -75,8 +149,9 @@
     border: 1px solid #cbd5e1;
     border-radius: 9px;
     background: #ffffff;
-    color: #0f172a;
+    color: var(--admin-ink);
     font: inherit;
+    transition: border-color 160ms ease, box-shadow 160ms ease;
 }
 
 .admin-termek-urlap textarea {
@@ -86,8 +161,8 @@
 .admin-termek-urlap input:focus-visible,
 .admin-termek-urlap select:focus-visible,
 .admin-termek-urlap textarea:focus-visible {
-    border-color: #ea580c;
-    outline: 3px solid rgba(234, 88, 12, 0.14);
+    border-color: var(--admin-accent);
+    outline: 3px solid rgba(249, 115, 22, 0.15);
 }
 
 .admin-kepek-fejlec,
@@ -101,14 +176,20 @@
 
 .admin-kepek-fejlec {
     justify-content: space-between;
+    padding-top: 0.25rem;
 }
 
 .admin-kepek-fejlec .admin-kep-hozzaad {
     min-height: 38px;
     padding: 0.45rem 0.7rem;
-    border-color: #fed7aa;
-    color: #9a3412;
-    background: #fff7ed;
+    border-color: #c8dacd;
+    color: var(--admin-green);
+    background: var(--admin-green-soft);
+}
+
+.admin-kepek-fejlec .admin-kep-hozzaad:hover {
+    border-color: #91b29a;
+    background: #dcebdd;
 }
 
 .admin-kepek-lista,
@@ -117,18 +198,30 @@
     gap: 0.65rem;
 }
 
+.admin-kepek-lista {
+    padding: 0.8rem;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+    background: #f8fafc;
+}
+
 .admin-kep-sor {
     display: flex;
     align-items: center;
     gap: 0.6rem;
+    padding: 0.55rem;
+    border: 1px solid #e8edf3;
+    border-radius: 10px;
+    background: #ffffff;
 }
 
 .admin-kep-sor img {
     width: 58px;
     height: 58px;
     flex: 0 0 auto;
-    border-radius: 8px;
+    border-radius: 9px;
     object-fit: cover;
+    background: #f1f5f9;
 }
 
 .admin-kep-sor input {
@@ -140,19 +233,49 @@
 .admin-termek-akciok button {
     min-height: 40px;
     padding: 0.55rem 0.8rem;
-    border: 1px solid #ea580c;
+    border: 1px solid var(--admin-accent);
     border-radius: 9px;
-    color: #ffffff;
-    background: #ea580c;
+    color: #1c1917;
+    background: var(--admin-accent);
     font: inherit;
     font-size: 0.9rem;
     font-weight: 750;
     cursor: pointer;
+    transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
 }
 
-.admin-termek-urlap button:hover,
-.admin-termek-akciok button:hover {
-    background: #c2410c;
+.admin-urlap-gombok {
+    padding-top: 0.3rem;
+}
+
+.admin-urlap-gombok button[type='submit'] {
+    min-height: 46px;
+    padding-inline: 1.1rem;
+    box-shadow: 0 6px 15px rgba(232, 117, 36, 0.2);
+}
+
+.admin-termek-akciok button:first-child {
+    border-color: #c8dacd;
+    color: var(--admin-green);
+    background: var(--admin-green-soft);
+}
+
+.admin-termek-akciok button:first-child:hover {
+    border-color: #91b29a;
+    background: #dcebdd;
+}
+
+.admin-termek-urlap button:hover {
+    border-color: #ea580c;
+    background: #fb923c;
+    transform: translateY(-1px);
+}
+
+.admin-termek-akciok button:first-child:hover {
+    border-color: #91b29a;
+    color: #294d3a;
+    background: #dcebdd;
+    transform: translateY(-1px);
 }
 
 .admin-termek-urlap button:disabled {
@@ -163,12 +286,13 @@
 .admin-termek-urlap .admin-megse,
 .admin-termek-akciok .admin-torol {
     border-color: #fed7aa;
-    color: #9a3412;
-    background: #fff7ed;
+    color: var(--admin-accent-dark);
+    background: var(--admin-accent-soft);
 }
 
 .admin-termek-urlap .admin-megse:hover,
 .admin-termek-akciok .admin-torol:hover {
+    border-color: #fdba74;
     background: #ffedd5;
 }
 
@@ -178,9 +302,22 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.75rem;
-    padding: 0.8rem;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
+    padding: 0.9rem;
+    border: 1px solid #e8edf3;
+    border-radius: 12px;
+    background: #ffffff;
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+.admin-termek-sor strong {
+    color: var(--admin-ink);
+    font-size: 0.96rem;
+}
+
+.admin-termek-sor:hover {
+    border-color: rgba(84, 132, 102, 0.45);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+    transform: translateY(-1px);
 }
 
 .admin-termek-sor > div:first-child {
@@ -189,7 +326,7 @@
 }
 
 .admin-termek-sor span {
-    color: #64748b;
+    color: var(--admin-muted);
     font-size: 0.85rem;
 }
 
@@ -202,11 +339,15 @@
 .admin-allapot {
     width: min(100% - 2rem, 1100px);
     margin: 3rem auto;
-    color: #64748b;
+    color: var(--admin-muted);
     text-align: center;
 }
 
 @media (max-width: 540px) {
+    .admin-termekek-fejlec {
+        border-radius: 1.1rem;
+    }
+
     .admin-kep-sor {
         flex-wrap: wrap;
     }
