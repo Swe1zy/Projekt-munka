@@ -2,14 +2,15 @@ import { useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import './Auth.css';
 
 const Login = () => {
     const { user, login } = useAuth();
+    const { siker, hiba } = useToast();
     const location = useLocation();
     const [email, setEmail] = useState('');
     const [jelszo, setJelszo] = useState('');
-    const [hiba, setHiba] = useState('');
     const [kuldes, setKuldes] = useState(false);
 
     if (user) {
@@ -23,7 +24,6 @@ const Login = () => {
 
     const bekuld = async (event) => {
         event.preventDefault();
-        setHiba('');
         setKuldes(true);
 
         try {
@@ -35,10 +35,12 @@ const Login = () => {
 
             const valasz = await response.json();
 
-            if (response.ok) login(valasz.user);
-            else setHiba(valasz.msg);
+            if (response.ok) {
+                siker(`Sikeres bejelentkezés! Üdv, ${valasz.user.nev}!`);
+                login(valasz.user);
+            } else hiba(valasz.msg);
         } catch {
-            setHiba('A szerver nem érhető el. Próbáld újra később!');
+            hiba('A szerver nem érhető el. Próbáld újra később!');
         } finally {
             setKuldes(false);
         }
@@ -84,15 +86,6 @@ const Login = () => {
                         required
                     />
                 </label>
-
-                {hiba && (
-                    <p
-                        className="auth-uzenet auth-hiba"
-                        role="alert"
-                    >
-                        {hiba}
-                    </p>
-                )}
 
                 <button
                     type="submit"
