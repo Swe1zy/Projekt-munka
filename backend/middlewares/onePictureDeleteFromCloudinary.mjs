@@ -60,8 +60,13 @@ const pictureDeleter = async (req, res, next) => {
                 const uploadPath = imageUrl.pathname.split('/upload/')[1];
                 if (!uploadPath) continue;
 
-                const publicId = uploadPath
-                    .replace(/^v\d+\//, '')
+                const pathParts = uploadPath.split('/');
+                const versionIndex = pathParts.findIndex((part) => /^v\d+$/.test(part));
+                const publicIdParts = versionIndex >= 0
+                    ? pathParts.slice(versionIndex + 1)
+                    : pathParts;
+                const publicId = publicIdParts
+                    .join('/')
                     .replace(/\.[^/.]+$/, '');
                 if (publicId) publicIds.add(publicId);
             } catch {
@@ -70,9 +75,12 @@ const pictureDeleter = async (req, res, next) => {
         }
 
         await Promise.all(
-            [...publicIds].map((publicId) =>
-                cloudinary.uploader.destroy(publicId),
-            ),
+            [...publicIds].map(async (publicId) => {
+                const result = await cloudinary.uploader.destroy(publicId);
+                if (result?.result === 'error') {
+                    throw new Error(`A Cloudinary nem törölte ezt a képet: ${publicId}`);
+                }
+            }),
         );
 
         next();

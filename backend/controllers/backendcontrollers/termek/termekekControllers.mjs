@@ -12,24 +12,30 @@ const getTermek = async (req, res) => {
 const deleteTermek = async (req, res) => {
     try {
         const id = req.params.id;
-        await TermekModel.findByIdAndDelete({ _id: id });
+        const deletedTermek = await TermekModel.findByIdAndDelete(id);
+        if (!deletedTermek) {
+            return res.status(404).json({ msg: 'A termék nem található!' });
+        }
 
-        return res.status(200).json({ msg: 'Az termék törlődött!' });
+        return res.status(200).json({ msg: 'A termék és a képei törlődtek!' });
     } catch (error) {
-        return res.status(500).json({ msg: `Hiba: ${error.msg}` });
+        return res.status(500).json({ msg: `Hiba: ${error.message}` });
     }
 };
 
 const getOneTermek = async (req, res) => {
     try {
         const id = req.params.id;
-        const termek = await TermekModel.findById({ _id: id });
+        const termek = await TermekModel.findById(id);
+        if (!termek) {
+            return res.status(404).send('A termék nem található!');
+        }
 
         return res
             .status(200)
             .render('building/one-termek.ejs', { termek });
     } catch (error) {
-        return res.status(500).json({ msg: `Hiba: ${error.msg}` });
+        return res.status(500).json({ msg: `Hiba: ${error.message}` });
     }
 };
 
