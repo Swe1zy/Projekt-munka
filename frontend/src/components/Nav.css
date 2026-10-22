@@ -11,11 +11,9 @@
     position: sticky;
     top: 0;
     z-index: 100;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: center;
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
     background: var(--nav-bg);
@@ -25,7 +23,18 @@
     box-shadow: 0 4px 24px rgba(15, 23, 42, 0.18);
 }
 
-.nav-kontener a {
+/* Üres bal oszlop, hogy a linkek középen maradjanak, a fiók pedig jobbra kerüljön */
+.nav-kontener::before {
+    content: '';
+}
+
+.nav-linkek {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.nav-linkek a {
     position: relative;
     padding: 0.55rem 1rem;
     border-radius: 999px;
@@ -42,7 +51,7 @@
 }
 
 /* Alsó, színátmenetes csík hover / aktív állapotban */
-.nav-kontener a::after {
+.nav-linkek a::after {
     content: '';
     position: absolute;
     left: 50%;
@@ -55,67 +64,227 @@
     transition: width 0.25s ease;
 }
 
-.nav-kontener a:hover {
+.nav-linkek a:hover {
     color: var(--nav-text-hover);
     background-color: var(--nav-hover-bg);
     transform: translateY(-1px);
 }
 
-.nav-kontener a:hover::after,
-.nav-kontener a.active::after,
-.nav-kontener a[aria-current='page']::after {
+.nav-linkek a:hover::after,
+.nav-linkek a[aria-current='page']::after {
     width: 40%;
 }
 
-.nav-kontener a.active,
-.nav-kontener a[aria-current='page'] {
+.nav-linkek a[aria-current='page'] {
     color: var(--nav-text-hover);
     background-color: var(--nav-hover-bg);
 }
 
-.nav-kontener a:focus-visible {
+.nav-linkek a:active {
+    transform: translateY(0) scale(0.97);
+}
+
+.nav-linkek a:focus-visible,
+.nav-fiok-gomb:focus-visible,
+.nav-fiok-elem:focus-visible {
     outline: 2px solid var(--nav-accent-2);
     outline-offset: 2px;
 }
 
-.nav-kontener a:active {
-    transform: translateY(0) scale(0.97);
+/* Fiók */
+.nav-fiok {
+    position: relative;
+    justify-self: end;
 }
 
-/* Kilépés */
-.nav-kontener .item5:hover {
-    color: var(--nav-danger);
+.nav-fiok-gomb {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    padding: 0;
+    border: 1px solid var(--nav-border);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--nav-text);
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.nav-fiok-gomb:hover,
+.nav-fiok-gomb[aria-expanded='true'] {
+    border-color: rgba(255, 255, 255, 0.25);
+    background: var(--nav-hover-bg);
+    color: var(--nav-text-hover);
+}
+
+.nav-fiok-gomb:active {
+    transform: scale(0.94);
+}
+
+.nav-ikon {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+}
+
+.nav-avatar {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--nav-accent), var(--nav-accent-2));
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.nav-fiok-menu {
+    position: absolute;
+    top: calc(100% + 0.6rem);
+    right: 0;
+    z-index: 110;
+    width: 16rem;
+    max-width: calc(100vw - 1.5rem);
+    box-sizing: border-box;
+    padding: 0.5rem;
+    border: 1px solid var(--nav-border);
+    border-radius: 1rem;
+    background: rgba(15, 23, 42, 0.97);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    transform-origin: top right;
+    animation: nav-menu-be 0.15s ease both;
+}
+
+.nav-fiok-fej {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.4rem;
+    padding: 0.6rem 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--nav-border);
+}
+
+.nav-fiok-fej .nav-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.1rem;
+}
+
+.nav-fiok-adatok {
+    min-width: 0;
+}
+
+.nav-fiok-adatok strong,
+.nav-fiok-adatok small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.nav-fiok-adatok strong {
+    color: #ffffff;
+    font-size: 0.95rem;
+}
+
+.nav-fiok-adatok small {
+    color: #94a3b8;
+    font-size: 0.8rem;
+}
+
+.nav-fiok-elem {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 0.65rem;
+    color: var(--nav-text);
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.nav-fiok-elem:hover,
+.nav-fiok-elem[aria-current='page'] {
+    background-color: var(--nav-hover-bg);
+    color: var(--nav-text-hover);
+}
+
+.nav-fiok-elv {
+    height: 1px;
+    margin: 0.4rem 0;
+    border: 0;
+    background: var(--nav-border);
+}
+
+.nav-fiok-kilep:hover {
     background-color: rgba(248, 113, 113, 0.12);
+    color: var(--nav-danger);
 }
 
-.nav-kontener .item5::after {
-    background: var(--nav-danger);
+@keyframes nav-menu-be {
+    from {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.97);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
 }
 
 @media screen and (max-width: 700px) {
     .nav-kontener {
-        gap: 0.35rem;
-        padding: 0.5rem;
+        grid-template-columns: 1fr auto;
+        padding: 0.5rem 0.75rem;
     }
 
-    /* A linkek szétosztják a sort, így 3 vagy 4 link esetén is szépen kitöltik a sávot */
-    .nav-kontener a {
-        flex: 1 1 30%;
-        padding: 0.65rem 0.5rem;
+    .nav-kontener::before {
+        display: none;
+    }
+
+    .nav-linkek {
+        gap: 0.35rem;
+    }
+
+    /* A linkek kitöltik a fiók-ikon melletti sávot */
+    .nav-linkek a {
+        flex: 1 1 auto;
+        padding: 0.6rem 0.9rem;
         border-radius: 0.75rem;
-        font-size: 0.875rem;
+        font-size: 0.9rem;
         text-align: center;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .nav-kontener a,
-    .nav-kontener a::after {
+    .nav-linkek a,
+    .nav-linkek a::after,
+    .nav-fiok-gomb,
+    .nav-fiok-elem {
         transition: none;
     }
 
-    .nav-kontener a:hover,
-    .nav-kontener a:active {
+    .nav-fiok-menu {
+        animation: none;
+    }
+
+    .nav-linkek a:hover,
+    .nav-linkek a:active,
+    .nav-fiok-gomb:active {
         transform: none;
     }
 }

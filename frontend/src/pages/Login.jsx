@@ -15,7 +15,7 @@ const Login = () => {
     if (user) {
         return (
             <Navigate
-                to="/"
+                to={location.state?.from ?? '/'}
                 replace
             />
         );

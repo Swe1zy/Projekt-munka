@@ -5,6 +5,7 @@ import AuthProvider from './context/AuthProvider';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Logout from './pages/Logout';
+import Profil from './pages/Profil';
 import Register from './pages/Register';
 import Termekek from './pages/Termekek';
 
@@ -34,6 +35,10 @@ function App() {
                         <Route
                             path="/logout"
                             element={<Logout />}
+                        />
+                        <Route
+                            path="/profil"
+                            element={<Profil />}
                         />
                     </Routes>
                 </AuthProvider>

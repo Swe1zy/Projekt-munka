@@ -5,6 +5,11 @@ const EMAIL_MINTA = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_JELSZO_HOSSZ = 8;
 // A bcrypt csak az első 72 bájtot veszi figyelembe.
 const MAX_JELSZO_BAJT = 72;
+const JELSZO_HIBA = `A jelszó legalább ${MIN_JELSZO_HOSSZ}, legfeljebb ${MAX_JELSZO_BAJT} bájt hosszú lehet!`;
+
+const ervenyesJelszo = (jelszo) =>
+    jelszo.length >= MIN_JELSZO_HOSSZ &&
+    Buffer.byteLength(jelszo) <= MAX_JELSZO_BAJT;
 
 const publikusFelhasznalo = (user) => ({
     id: user._id,
@@ -28,13 +33,8 @@ const postRegister = async (req, res) => {
                 .json({ msg: 'A név és egy érvényes e-mail cím megadása kötelező!' });
         }
 
-        if (
-            jelszo.length < MIN_JELSZO_HOSSZ ||
-            Buffer.byteLength(jelszo) > MAX_JELSZO_BAJT
-        ) {
-            return res.status(400).json({
-                msg: `A jelszó legalább ${MIN_JELSZO_HOSSZ}, legfeljebb ${MAX_JELSZO_BAJT} bájt hosszú lehet!`,
-            });
+        if (!ervenyesJelszo(jelszo)) {
+            return res.status(400).json({ msg: JELSZO_HIBA });
         }
 
         const normalizaltEmail = email.trim().toLowerCase();
@@ -104,4 +104,48 @@ const postLogin = async (req, res) => {
     }
 };
 
-export { postRegister, postLogin };
+// Token még nincs, ezért a jelenlegi jelszó megadása igazolja a kérés jogosultságát.
+const postPassword = async (req, res) => {
+    try {
+        const { email, jelszo, ujJelszo } = req.body ?? {};
+
+        if (
+            typeof email !== 'string' ||
+            typeof jelszo !== 'string' ||
+            typeof ujJelszo !== 'string'
+        ) {
+            return res.status(400).json({
+                msg: 'Az e-mail cím, a jelenlegi és az új jelszó megadása kötelező!',
+            });
+        }
+
+        if (!ervenyesJelszo(ujJelszo)) {
+            return res.status(400).json({ msg: JELSZO_HIBA });
+        }
+
+        const user = await UserModel.findOne({
+            email: email.trim().toLowerCase(),
+        });
+        const egyezik = user ? await bcrypt.compare(jelszo, user.jelszo) : false;
+
+        if (!egyezik) {
+            return res
+                .status(401)
+                .json({ msg: 'A jelenlegi jelszó hibás!' });
+        }
+
+        user.jelszo = await bcrypt.hash(ujJelszo, 10);
+        await user.save();
+
+        return res
+            .status(200)
+            .json({ msg: 'A jelszavad sikeresen módosult!' });
+    } catch (error) {
+        console.error('Jelszómódosítási hiba:', error);
+        return res
+            .status(500)
+            .json({ msg: 'Szerverhiba történt, próbáld újra később!' });
+    }
+};
+
+export { postRegister, postLogin, postPassword };

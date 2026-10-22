@@ -1,0 +1,58 @@
+.profil-kartya {
+    max-width: 30rem;
+}
+
+.profil-fej {
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    gap: 1rem;
+    padding-bottom: 1.25rem;
+}
+
+.profil-avatar {
+    align-items: center;
+    background: linear-gradient(135deg, #f97316, #fbbf24);
+    border-radius: 50%;
+    color: #1c1917;
+    display: inline-flex;
+    flex-shrink: 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+    height: 3.5rem;
+    justify-content: center;
+    width: 3.5rem;
+}
+
+.profil-adatok {
+    min-width: 0;
+}
+
+.profil-adatok h1,
+.profil-adatok p {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.profil-adatok h1 {
+    font-size: 1.4rem;
+}
+
+.profil-adatok p {
+    color: #64748b;
+    margin: 0;
+}
+
+.profil-urlap {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+}
+
+.profil-urlap h2 {
+    color: #0f172a;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+}
