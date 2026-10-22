@@ -9,6 +9,7 @@ import Logout from './pages/Logout';
 import Profil from './pages/Profil';
 import Register from './pages/Register';
 import Termekek from './pages/Termekek';
+import AdminTermekek from './pages/AdminTermekek';
 
 function App() {
     return (
@@ -25,6 +26,10 @@ function App() {
                             <Route
                                 path="/termekek"
                                 element={<Termekek />}
+                            />
+                            <Route
+                                path="/admin/termekek"
+                                element={<AdminTermekek />}
                             />
                             <Route
                                 path="/register"

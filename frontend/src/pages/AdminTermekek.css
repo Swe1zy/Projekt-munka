@@ -1,0 +1,231 @@
+.admin-termekek {
+    width: min(100% - 2rem, 1100px);
+    margin: 2rem auto 4rem;
+    color: #0f172a;
+}
+
+.admin-termekek-fejlec {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-termekek-fejlec span {
+    color: #c2410c;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+.admin-termekek-fejlec h1 {
+    margin: 0.25rem 0;
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+}
+
+.admin-termekek-fejlec p {
+    margin: 0;
+    color: #64748b;
+}
+
+.admin-termekek-fejlec > a {
+    padding: 0.65rem 0.9rem;
+    border: 1px solid #fed7aa;
+    border-radius: 10px;
+    color: #9a3412;
+    background: #fff7ed;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.admin-termek-urlap,
+.admin-termeklista {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding: clamp(1rem, 3vw, 1.5rem);
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.admin-termek-urlap h2,
+.admin-termeklista h2 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.admin-termek-urlap > label {
+    display: grid;
+    gap: 0.4rem;
+    color: #334155;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.admin-termek-urlap input,
+.admin-termek-urlap select,
+.admin-termek-urlap textarea {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #0f172a;
+    font: inherit;
+}
+
+.admin-termek-urlap textarea {
+    resize: vertical;
+}
+
+.admin-termek-urlap input:focus-visible,
+.admin-termek-urlap select:focus-visible,
+.admin-termek-urlap textarea:focus-visible {
+    border-color: #ea580c;
+    outline: 3px solid rgba(234, 88, 12, 0.14);
+}
+
+.admin-kepek-fejlec,
+.admin-urlap-gombok,
+.admin-termek-akciok {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.65rem;
+}
+
+.admin-kepek-fejlec {
+    justify-content: space-between;
+}
+
+.admin-fajl-gomb {
+    position: relative;
+    overflow: hidden;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid #fed7aa;
+    border-radius: 9px;
+    color: #9a3412;
+    background: #fff7ed;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.admin-fajl-gomb input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.admin-kepek-lista,
+.admin-termeklista-elemek {
+    display: grid;
+    gap: 0.65rem;
+}
+
+.admin-kep-sor {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.admin-kep-sor img {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 auto;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.admin-kep-sor input {
+    flex: 1;
+    min-width: 0;
+}
+
+.admin-termek-urlap button,
+.admin-termek-akciok button {
+    min-height: 40px;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid #ea580c;
+    border-radius: 9px;
+    color: #ffffff;
+    background: #ea580c;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 750;
+    cursor: pointer;
+}
+
+.admin-termek-urlap button:hover,
+.admin-termek-akciok button:hover {
+    background: #c2410c;
+}
+
+.admin-termek-urlap button:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}
+
+.admin-termek-urlap .admin-megse,
+.admin-termek-akciok .admin-torol {
+    border-color: #fed7aa;
+    color: #9a3412;
+    background: #fff7ed;
+}
+
+.admin-termek-urlap .admin-megse:hover,
+.admin-termek-akciok .admin-torol:hover {
+    background: #ffedd5;
+}
+
+.admin-termek-sor {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.8rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+}
+
+.admin-termek-sor > div:first-child {
+    display: grid;
+    gap: 0.2rem;
+}
+
+.admin-termek-sor span {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.admin-hiba {
+    margin: 0;
+    color: #b91c1c;
+    font-weight: 650;
+}
+
+.admin-allapot {
+    width: min(100% - 2rem, 1100px);
+    margin: 3rem auto;
+    color: #64748b;
+    text-align: center;
+}
+
+@media (max-width: 540px) {
+    .admin-kep-sor {
+        flex-wrap: wrap;
+    }
+
+    .admin-kep-sor input {
+        flex-basis: calc(100% - 60px);
+    }
+}

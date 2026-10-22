@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import UserModel from '../../../models/User.mjs';
+import { clearAuthCookie, createAuthToken, setAuthCookie } from '../../../utils/authToken.mjs';
 
 const EMAIL_MINTA = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_JELSZO_HOSSZ = 8;
@@ -15,6 +16,7 @@ const publikusFelhasznalo = (user) => ({
     id: user._id,
     nev: user.nev,
     email: user.email,
+    role: user.role,
 });
 
 const postRegister = async (req, res) => {
@@ -92,6 +94,12 @@ const postLogin = async (req, res) => {
                 .json({ msg: 'Hibás e-mail cím vagy jelszó!' });
         }
 
+        if (!process.env.AUTH_TOKEN_SECRET) {
+            return res.status(503).json({ msg: 'Az admin belépés nincs beállítva a szerveren.' });
+        }
+
+        setAuthCookie(res, createAuthToken(user._id));
+
         return res.status(200).json({
             msg: 'Sikeres bejelentkezés!',
             user: publikusFelhasznalo(user),
@@ -102,6 +110,14 @@ const postLogin = async (req, res) => {
             .status(500)
             .json({ msg: 'Szerverhiba történt, próbáld újra később!' });
     }
+};
+
+const getMe = (req, res) =>
+    res.status(200).json({ user: publikusFelhasznalo(req.authUser) });
+
+const postLogout = (req, res) => {
+    clearAuthCookie(res);
+    return res.status(200).json({ msg: 'Sikeresen kijelentkeztél!' });
 };
 
 // Token még nincs, ezért a jelenlegi jelszó megadása igazolja a kérés jogosultságát.
@@ -148,4 +164,4 @@ const postPassword = async (req, res) => {
     }
 };
 
-export { postRegister, postLogin, postPassword };
+export { postRegister, postLogin, postPassword, getMe, postLogout };

@@ -1,12 +1,13 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
 import app from './utils/app.mjs';
 import dbConnect from './utils/dbConnect.mjs';
-dotenv.config();
+import ensureAdmin from './utils/ensureAdmin.mjs';
 
 const PORT = process.env.PORT || 3600;
 
 dbConnect()
-    .then(() => {
+    .then(async () => {
+        await ensureAdmin();
         app.listen(PORT, () => {
             console.log(`http://localhost:${PORT}/api`);
         });
