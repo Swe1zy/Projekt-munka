@@ -15,6 +15,7 @@ const modosit = async (event) => {
     event.preventDefault();
     const id = document.querySelector('#id-value').value;
     const nev = document.querySelector('#nev').value;
+    const kategoria = document.querySelector('#kategoria').value;
     const leiras = document.querySelector('#leiras').value;
     const ar = parseFloat(document.querySelector('#ar').value);
     const kepek = [...document.querySelectorAll('.kep-input')]
@@ -26,7 +27,7 @@ const modosit = async (event) => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ nev, leiras, ar, kepek }),
+        body: JSON.stringify({ nev, kategoria, leiras, ar, kepek }),
     });
 
     const valasz = await response.json();

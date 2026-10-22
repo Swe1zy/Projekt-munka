@@ -33,6 +33,7 @@
 
 .termek-form input,
 .termek-form textarea,
+.termek-form select,
 #ide input {
 	width: 100%;
 	min-height: 48px;
@@ -52,6 +53,7 @@
 
 .termek-form input:focus,
 .termek-form textarea:focus,
+.termek-form select:focus,
 #ide input:focus {
 	border-color: var(--accent);
 	background: white;

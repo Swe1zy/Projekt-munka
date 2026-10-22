@@ -8,6 +8,17 @@
     }
 }
 
+.termek-kategoria {
+    align-self: flex-start;
+    margin: 0;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    color: var(--accent-dark);
+    background: #fff7f2;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
 .kepek-kontener {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));

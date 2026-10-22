@@ -43,7 +43,7 @@ const updateOneTermek = async (req, res) => {
     try {
         const id = req.params.id;
         const updates = {};
-        for (const field of ['nev', 'leiras', 'kepek', 'ar']) {
+        for (const field of ['nev', 'kategoria', 'leiras', 'kepek', 'ar']) {
             if (Object.prototype.hasOwnProperty.call(req.body, field)) {
                 updates[field] = req.body[field];
             }

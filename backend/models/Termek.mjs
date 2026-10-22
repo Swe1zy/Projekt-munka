@@ -1,5 +1,14 @@
 import mongoose from 'mongoose';
 
+export const TERMEKEK_KATEGORIAK = [
+    'Falazóanyagok',
+    'Cement és kötőanyagok',
+    'Faanyagok',
+    'Tetőfedés',
+    'Hőszigetelés',
+    'Szerszámok és kellékek',
+];
+
 const termekSchema = new mongoose.Schema(
     {
         nev: {
@@ -8,6 +17,11 @@ const termekSchema = new mongoose.Schema(
         },
         leiras: {
             type: String,
+            required: true,
+        },
+        kategoria: {
+            type: String,
+            enum: TERMEKEK_KATEGORIAK,
             required: true,
         },
         kepek: {

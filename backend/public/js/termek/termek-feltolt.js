@@ -15,6 +15,7 @@ kepekInputok.addEventListener('click', (event) => {
 feltoltBtn.addEventListener('click', async (event) => {
     event.preventDefault();
     const nev = document.querySelector('#nev').value;
+    const kategoria = document.querySelector('#kategoria').value;
     const leiras = document.querySelector('#leiras').value;
     const ar = Number(document.querySelector('#ar').value);
     const kepek = [];
@@ -52,8 +53,8 @@ feltoltBtn.addEventListener('click', async (event) => {
         return;
     }
 
-    if (!nev.trim() || !leiras.trim() || !Number.isFinite(ar) || ar < 0 || kepek.length === 0) {
-        window.alert('Add meg a termék nevét, leírását, érvényes árát és legalább egy kép URL-jét vagy fájlnevét.');
+    if (!nev.trim() || !kategoria || !leiras.trim() || !Number.isFinite(ar) || ar < 0 || kepek.length === 0) {
+        window.alert('Add meg a termék nevét, kategóriáját, leírását, érvényes árát és legalább egy kép URL-jét vagy fájlnevét.');
         return;
     }
 
@@ -65,7 +66,7 @@ feltoltBtn.addEventListener('click', async (event) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ nev, leiras, kepek, ar }),
+            body: JSON.stringify({ nev, kategoria, leiras, kepek, ar }),
         });
 
         const valasz = await response.json();

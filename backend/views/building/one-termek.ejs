@@ -21,6 +21,14 @@
                 <label for="nev">Név:</label>
                 <input type="text" id="nev" value="<%= termek.nev %>" />
 
+                <label for="kategoria">Kategória:</label>
+                <select id="kategoria" required>
+                    <option value="" disabled <%= !termek.kategoria ? 'selected' : '' %>>Válassz kategóriát</option>
+                    <% ['Falazóanyagok', 'Cement és kötőanyagok', 'Faanyagok', 'Tetőfedés', 'Hőszigetelés', 'Szerszámok és kellékek'].forEach((kategoria) => { %>
+                        <option value="<%= kategoria %>" <%= termek.kategoria === kategoria ? 'selected' : '' %>><%= kategoria %></option>
+                    <% }) %>
+                </select>
+
                 <label for="leiras">Leírás:</label>
                 <textarea id="leiras" rows="10"><%= termek.leiras %></textarea>
 

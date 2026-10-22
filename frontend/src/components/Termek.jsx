@@ -8,6 +8,7 @@ const Termek = ({ termek }) => {
     return (
         <div className="termek-kontener">
             <h2>{termek.nev}</h2>
+            {termek.kategoria && <p className="termek-kategoria">{termek.kategoria}</p>}
             <div className="termek-belso-kontener">
                 {kepek.length > 0 && (
                     <div className="kepek-kontener">
