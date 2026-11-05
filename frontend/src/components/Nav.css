@@ -64,6 +64,22 @@
     transition: width 0.25s ease;
 }
 
+.nav-kosar-darab {
+    position: absolute;
+    top: -0.3rem;
+    right: -0.3rem;
+    min-width: 1.15rem;
+    padding: 0.1rem 0.3rem;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--nav-accent), var(--nav-accent-2));
+    box-shadow: 0 0 0 2px #0f172a;
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: center;
+}
+
 .nav-linkek a:hover {
     color: var(--nav-text-hover);
     background-color: var(--nav-hover-bg);
@@ -86,18 +102,28 @@
 
 .nav-linkek a:focus-visible,
 .nav-fiok-gomb:focus-visible,
+.nav-kosar-gomb:focus-visible,
 .nav-fiok-elem:focus-visible {
     outline: 2px solid var(--nav-accent-2);
     outline-offset: 2px;
 }
 
-/* Fiók */
-.nav-fiok {
-    position: relative;
+/* Jobb oldal: kosár és fiók egymás mellett */
+.nav-jobb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     justify-self: end;
 }
 
-.nav-fiok-gomb {
+/* Fiók */
+.nav-fiok {
+    position: relative;
+}
+
+.nav-fiok-gomb,
+.nav-kosar-gomb {
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -117,13 +143,16 @@
 }
 
 .nav-fiok-gomb:hover,
-.nav-fiok-gomb[aria-expanded='true'] {
+.nav-fiok-gomb[aria-expanded='true'],
+.nav-kosar-gomb:hover,
+.nav-kosar-gomb[aria-current='page'] {
     border-color: rgba(255, 255, 255, 0.25);
     background: var(--nav-hover-bg);
     color: var(--nav-text-hover);
 }
 
-.nav-fiok-gomb:active {
+.nav-fiok-gomb:active,
+.nav-kosar-gomb:active {
     transform: scale(0.94);
 }
 
@@ -274,6 +303,7 @@
     .nav-linkek a,
     .nav-linkek a::after,
     .nav-fiok-gomb,
+    .nav-kosar-gomb,
     .nav-fiok-elem {
         transition: none;
     }

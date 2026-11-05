@@ -96,9 +96,50 @@
     font-weight: 800;
 }
 
+.termek-kosar-lab {
+    display: grid;
+    gap: 0.5rem;
+    margin-top: auto;
+}
+
+.termek-kosarba-gomb {
+    min-height: 2.75rem;
+    padding: 0.6rem 1rem;
+    border: 1px solid var(--termek-accent, #e87524);
+    border-radius: 0.7rem;
+    background: var(--termek-accent, #e87524);
+    color: #ffffff;
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 750;
+    cursor: pointer;
+    transition: background-color 0.15s ease, transform 0.15s ease;
+
+    &:hover {
+        background: #d4661a;
+    }
+
+    &:active {
+        transform: scale(0.98);
+    }
+
+    &:focus-visible {
+        outline: 3px solid rgba(232, 117, 36, 0.3);
+        outline-offset: 2px;
+    }
+}
+
+.termek-kosarban {
+    color: var(--termek-green, #35634c);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-align: center;
+}
+
 @media (prefers-reduced-motion: reduce) {
     .termek-kontener,
-    .kepek-kontener img {
+    .kepek-kontener img,
+    .termek-kosarba-gomb {
         transition: none;
     }
 }
