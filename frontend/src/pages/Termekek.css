@@ -110,6 +110,7 @@
 .termek-szuro-kategoriak,
 .termek-ar-szuro {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.7rem;
     min-width: 0;
     margin: 0;
@@ -144,13 +145,17 @@
 
 .termek-ar-szuro label {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.35rem;
+    min-width: 0;
     color: #475b51;
     font-size: 0.82rem;
     font-weight: 700;
 
     input {
+        box-sizing: border-box;
         width: 100%;
+        min-width: 0;
         min-height: 42px;
         padding: 0.55rem 0.65rem;
         border: 1px solid #cbd5e1;
