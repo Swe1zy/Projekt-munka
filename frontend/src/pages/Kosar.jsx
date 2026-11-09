@@ -1,10 +1,9 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { MAX_MENNYISEG, useCart } from '../context/CartContext';
+import MennyisegValaszto from '../components/MennyisegValaszto';
+import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import { forint } from '../utils/termek';
 import './Kosar.css';
-
-const forint = (osszeg) => `${osszeg.toLocaleString('hu-HU')} Ft`;
 
 const Ikon = ({ children }) => (
     <svg
@@ -20,51 +19,6 @@ const Ikon = ({ children }) => (
         {children}
     </svg>
 );
-
-const MennyisegValaszto = ({ tetel, beallit }) => {
-    // Gépelés közben az üres mező is megengedett, a kosár csak érvényes számot kap.
-    const [szerkesztett, setSzerkesztett] = useState(null);
-
-    const valtozas = (event) => {
-        const ertek = event.target.value;
-        setSzerkesztett(ertek);
-
-        const szam = Number(ertek);
-        if (ertek !== '' && Number.isInteger(szam) && szam >= 1) beallit(tetel.id, szam);
-    };
-
-    return (
-        <div className="kosar-mennyiseg" role="group" aria-label={`${tetel.nev} mennyisége`}>
-            <button
-                type="button"
-                aria-label="Mennyiség csökkentése"
-                disabled={tetel.mennyiseg <= 1}
-                onClick={() => beallit(tetel.id, tetel.mennyiseg - 1)}
-            >
-                −
-            </button>
-            <input
-                type="number"
-                inputMode="numeric"
-                min="1"
-                max={MAX_MENNYISEG}
-                step="1"
-                value={szerkesztett ?? tetel.mennyiseg}
-                aria-label="Mennyiség"
-                onChange={valtozas}
-                onBlur={() => setSzerkesztett(null)}
-            />
-            <button
-                type="button"
-                aria-label="Mennyiség növelése"
-                disabled={tetel.mennyiseg >= MAX_MENNYISEG}
-                onClick={() => beallit(tetel.id, tetel.mennyiseg + 1)}
-            >
-                +
-            </button>
-        </div>
-    );
-};
 
 const Kosar = () => {
     const { tetelek, osszesDarab, vegosszeg, mennyisegBeallit, torol, urit } = useCart();
@@ -121,10 +75,17 @@ const Kosar = () => {
                                     {tetel.kategoria && (
                                         <span className="kosar-kategoria">{tetel.kategoria}</span>
                                     )}
-                                    <h2>{tetel.nev}</h2>
+                                    <h2>
+                                        <Link to={`/termekek/${tetel.id}`}>{tetel.nev}</Link>
+                                    </h2>
                                     <p>{forint(tetel.ar)} / db</p>
                                 </div>
-                                <MennyisegValaszto tetel={tetel} beallit={mennyisegBeallit} />
+                                <MennyisegValaszto
+                                    className="kosar-mennyiseg"
+                                    nev={tetel.nev}
+                                    ertek={tetel.mennyiseg}
+                                    beallit={(mennyiseg) => mennyisegBeallit(tetel.id, mennyiseg)}
+                                />
                                 <strong className="kosar-reszosszeg">
                                     {forint(Math.round(tetel.ar * tetel.mennyiseg * 100) / 100)}
                                 </strong>

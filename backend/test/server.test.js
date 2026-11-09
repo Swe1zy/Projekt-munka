@@ -17,6 +17,16 @@ describe("GET végpontok", () => {
         expect(response.body.termekek).toHaveLength(5);
     });
 
+    it("GET /api/frontend-termekek/:id - egy terméket ad vissza azonosító alapján", async () => {
+        const lista = await getRequest("/api/frontend-termekek");
+        const elso = lista.body.termekek[0];
+        const response = await getRequest(`/api/frontend-termekek/${elso._id}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body.termek._id).toBe(elso._id);
+        expect(response.body.termek.nev).toBe(elso.nev);
+    });
+
     it("POST /api/auth/logout - sikeresen kijelentkeztet", async () => {
         const response = await postRequest("/api/auth/logout");
 

@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import TermekModel, { TERMEKEK_KATEGORIAK } from '../../../models/Termek.mjs';
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -75,4 +76,19 @@ const getTermekek = async (req, res) => {
     }
 };
 
-export { getTermekek };
+const getEgyTermek = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const termek = mongoose.isValidObjectId(id) ? await TermekModel.findById(id) : null;
+
+        if (!termek) {
+            return res.status(404).json({ msg: 'A termék nem található.' });
+        }
+
+        return res.status(200).json({ termek });
+    } catch (error) {
+        return res.status(500).json({ msg: `Hiba: ${error.message}` });
+    }
+};
+
+export { getTermekek, getEgyTermek };

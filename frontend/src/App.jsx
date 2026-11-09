@@ -11,6 +11,7 @@ import Logout from './pages/Logout';
 import Profil from './pages/Profil';
 import Register from './pages/Register';
 import Termekek from './pages/Termekek';
+import TermekReszlet from './pages/TermekReszlet';
 import AdminTermekek from './pages/AdminTermekek';
 
 function App() {
@@ -29,6 +30,10 @@ function App() {
                                 <Route
                                     path="/termekek"
                                     element={<Termekek />}
+                                />
+                                <Route
+                                    path="/termekek/:id"
+                                    element={<TermekReszlet />}
                                 />
                                 <Route
                                     path="/kosar"
