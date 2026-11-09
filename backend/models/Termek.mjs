@@ -9,6 +9,8 @@ export const TERMEKEK_KATEGORIAK = [
     'Szerszámok és kellékek',
 ];
 
+export const TERMEK_EGYSEGEK = ['m³', 'm²'];
+
 const termekSchema = new mongoose.Schema(
     {
         nev: {
@@ -34,6 +36,16 @@ const termekSchema = new mongoose.Schema(
         },
         ar: {
             type: Number,
+            required: true,
+        },
+        egyseg: {
+            type: String,
+            enum: TERMEK_EGYSEGEK,
+            required: true,
+        },
+        keszlet: {
+            type: Number,
+            min: 0,
             required: true,
         },
     },

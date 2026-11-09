@@ -277,7 +277,7 @@
 
 @media screen and (max-width: 700px) {
     .nav-kontener {
-        grid-template-columns: 1fr auto;
+        grid-template-columns: minmax(0, 1fr) auto;
         padding: 0.5rem 0.75rem;
     }
 
@@ -286,6 +286,8 @@
     }
 
     .nav-linkek {
+        min-width: 0;
+        flex-wrap: wrap;
         gap: 0.35rem;
     }
 
@@ -296,6 +298,7 @@
         border-radius: 0.75rem;
         font-size: 0.9rem;
         text-align: center;
+        white-space: normal;
     }
 }
 

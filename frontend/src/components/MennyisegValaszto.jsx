@@ -11,7 +11,9 @@ const MennyisegValaszto = ({ ertek, beallit, nev, max = MAX_MENNYISEG, className
         setSzerkesztett(szoveg);
 
         const szam = Number(szoveg);
-        if (szoveg !== '' && Number.isInteger(szam) && szam >= 1) beallit(Math.min(max, szam));
+        if (szoveg !== '' && Number.isFinite(szam) && szam >= 0.01) {
+            beallit(Math.round(Math.min(max, szam) * 100) / 100);
+        }
     };
 
     return (
@@ -23,17 +25,17 @@ const MennyisegValaszto = ({ ertek, beallit, nev, max = MAX_MENNYISEG, className
             <button
                 type="button"
                 aria-label="Mennyiség csökkentése"
-                disabled={ertek <= 1}
-                onClick={() => beallit(ertek - 1)}
+                disabled={ertek <= 0.01}
+                onClick={() => beallit(Math.max(0.01, Math.round((ertek - 0.01) * 100) / 100))}
             >
                 −
             </button>
             <input
                 type="number"
-                inputMode="numeric"
-                min="1"
+                inputMode="decimal"
+                min="0.01"
                 max={max}
-                step="1"
+                step="0.01"
                 value={szerkesztett ?? ertek}
                 aria-label="Mennyiség"
                 onChange={valtozas}
@@ -43,7 +45,7 @@ const MennyisegValaszto = ({ ertek, beallit, nev, max = MAX_MENNYISEG, className
                 type="button"
                 aria-label="Mennyiség növelése"
                 disabled={ertek >= max}
-                onClick={() => beallit(ertek + 1)}
+                onClick={() => beallit(Math.min(max, Math.round((ertek + 0.01) * 100) / 100))}
             >
                 +
             </button>

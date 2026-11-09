@@ -18,12 +18,15 @@ feltoltBtn.addEventListener('click', async (event) => {
     const kategoria = document.querySelector('#kategoria').value;
     const leiras = document.querySelector('#leiras').value;
     const ar = Number(document.querySelector('#ar').value);
+    const egyseg = document.querySelector('#egyseg').value;
+    const keszletMezo = document.querySelector('#keszlet').value;
+    const keszlet = Number(keszletMezo);
     const kepek = [...kepekInputok.querySelectorAll('.kep-input')]
         .map((input) => input.value.trim())
         .filter(Boolean);
 
-    if (!nev.trim() || !kategoria || !leiras.trim() || !Number.isFinite(ar) || ar < 0 || kepek.length === 0) {
-        window.alert('Add meg a termék nevét, kategóriáját, leírását, érvényes árát és legalább egy kép URL-jét.');
+    if (!nev.trim() || !kategoria || !leiras.trim() || !Number.isFinite(ar) || ar < 0 || !['m³', 'm²'].includes(egyseg) || keszletMezo === '' || !Number.isFinite(keszlet) || keszlet < 0 || kepek.length === 0) {
+        window.alert('Add meg a termék adatait, válassz m³ vagy m² mértékegységet, add meg a készletet és legalább egy kép URL-jét.');
         return;
     }
 
@@ -35,7 +38,7 @@ feltoltBtn.addEventListener('click', async (event) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ nev, kategoria, leiras, kepek, ar }),
+            body: JSON.stringify({ nev, kategoria, leiras, kepek, ar, egyseg, keszlet }),
         });
 
         const valasz = await response.json();

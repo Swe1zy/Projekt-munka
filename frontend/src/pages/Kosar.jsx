@@ -21,7 +21,7 @@ const Ikon = ({ children }) => (
 );
 
 const Kosar = () => {
-    const { tetelek, osszesDarab, vegosszeg, mennyisegBeallit, torol, urit } = useCart();
+    const { tetelek, vegosszeg, mennyisegBeallit, torol, urit } = useCart();
     const toast = useToast();
 
     const tetelTorlese = (tetel) => {
@@ -41,7 +41,7 @@ const Kosar = () => {
                 <h1>Kosarad</h1>
                 {tetelek.length > 0 && (
                     <p>
-                        {tetelek.length} féle termék, összesen {osszesDarab} db.
+                        {tetelek.length} féle termék van a kosaradban.
                     </p>
                 )}
             </header>
@@ -78,13 +78,14 @@ const Kosar = () => {
                                     <h2>
                                         <Link to={`/termekek/${tetel.id}`}>{tetel.nev}</Link>
                                     </h2>
-                                    <p>{forint(tetel.ar)} / db</p>
+                                    <p>{forint(tetel.ar)} / {tetel.egyseg || 'db'}</p>
                                 </div>
                                 <MennyisegValaszto
                                     className="kosar-mennyiseg"
                                     nev={tetel.nev}
                                     ertek={tetel.mennyiseg}
                                     beallit={(mennyiseg) => mennyisegBeallit(tetel.id, mennyiseg)}
+                                    max={Number.isFinite(tetel.keszlet) ? tetel.keszlet : undefined}
                                 />
                                 <strong className="kosar-reszosszeg">
                                     {forint(Math.round(tetel.ar * tetel.mennyiseg * 100) / 100)}
@@ -113,7 +114,7 @@ const Kosar = () => {
                         <dl>
                             <div>
                                 <dt>Termékek</dt>
-                                <dd>{osszesDarab} db</dd>
+                                <dd>{tetelek.length} féle termék</dd>
                             </div>
                             <div className="kosar-vegosszeg">
                                 <dt>Végösszeg</dt>

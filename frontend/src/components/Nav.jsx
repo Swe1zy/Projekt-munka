@@ -92,7 +92,8 @@ const Ikon = ({ nev }) => {
 
 const Nav = () => {
     const { user } = useAuth();
-    const { osszesDarab } = useCart();
+    const { tetelek } = useCart();
+    const kosarTetelSzam = tetelek.length;
     const { pathname } = useLocation();
     const [nyitva, setNyitva] = useState(false);
     const [elozoUtvonal, setElozoUtvonal] = useState(pathname);
@@ -155,16 +156,16 @@ const Nav = () => {
                     to="/kosar"
                     className="nav-kosar-gomb"
                     aria-label={
-                        osszesDarab > 0 ? `Kosár, ${osszesDarab} db` : 'Kosár'
+                        kosarTetelSzam > 0 ? `Kosár, ${kosarTetelSzam} féle termék` : 'Kosár'
                     }
                 >
                     <Ikon nev="kosar" />
-                    {osszesDarab > 0 && (
+                    {kosarTetelSzam > 0 && (
                         <span
                             className="nav-kosar-darab"
                             aria-hidden="true"
                         >
-                            {osszesDarab > 99 ? '99+' : osszesDarab}
+                            {kosarTetelSzam > 99 ? '99+' : kosarTetelSzam}
                         </span>
                     )}
                 </NavLink>

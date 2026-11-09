@@ -125,6 +125,33 @@
     font-weight: 800;
 }
 
+.tartalom-kontener .termek-keszlet {
+    width: fit-content;
+    padding: 0.4rem 0.65rem;
+    border-radius: 0.55rem;
+    font-size: 0.9rem;
+    font-weight: 650;
+}
+
+.tartalom-kontener .termek-keszleten {
+    color: #24543a;
+    background: #e8f4eb;
+}
+
+.tartalom-kontener .termek-nincs-keszleten {
+    color: #9f2d20;
+    background: #fff0ed;
+}
+
+.tartalom-kontener .termek-keszlet-ismeretlen {
+    color: #475569;
+    background: #f1f5f9;
+}
+
+.termek-keszlet strong {
+    font-weight: 800;
+}
+
 .termek-kosar-lab {
     /* A kártyát lefedő link fölé kerül, hogy a gomb kattintható maradjon. */
     position: relative;

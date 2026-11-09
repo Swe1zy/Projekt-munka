@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import MennyisegValaszto from '../components/MennyisegValaszto';
 import { API_URL } from '../config';
-import { useCart } from '../context/CartContext';
+import { MAX_MENNYISEG, useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { forint, termekKepek } from '../utils/termek';
 import './TermekReszlet.css';
@@ -54,17 +54,19 @@ const Vasarlas = ({ termek, kep }) => {
     const { tetelek, hozzaad, mennyisegBeallit } = useCart();
     const toast = useToast();
     const kosarban = tetelek.find((elem) => elem.id === termek._id)?.mennyiseg ?? 0;
+    const egyseg = termek.egyseg || 'db';
+    const keszlet = Number.isFinite(termek.keszlet) ? termek.keszlet : MAX_MENNYISEG;
     // Ha a termék már a kosárban van, annak mennyiségéből indulunk, és azt írjuk felül.
-    const [mennyiseg, setMennyiseg] = useState(kosarban || 1);
+    const [mennyiseg, setMennyiseg] = useState(kosarban || Math.min(1, keszlet));
     const valtozott = mennyiseg !== kosarban;
 
     const mentes = () => {
         if (kosarban > 0) {
             mennyisegBeallit(termek._id, mennyiseg);
-            toast.siker(`„${termek.nev}” mennyisége a kosárban: ${mennyiseg} db.`);
+            toast.siker(`„${termek.nev}” mennyisége a kosárban: ${mennyiseg} ${egyseg}.`);
         } else {
             hozzaad({ ...termek, kep }, mennyiseg);
-            toast.siker(`${mennyiseg} db „${termek.nev}” a kosárba került.`);
+            toast.siker(`${mennyiseg} ${egyseg} „${termek.nev}” a kosárba került.`);
         }
     };
 
@@ -77,7 +79,9 @@ const Vasarlas = ({ termek, kep }) => {
                     nev={termek.nev}
                     ertek={mennyiseg}
                     beallit={setMennyiseg}
+                    max={keszlet}
                 />
+                <span>Elérhető: {termek.keszlet ?? '—'} {egyseg}</span>
             </div>
             <div className="termek-reszlet-osszesen">
                 <span>Összesen</span>
@@ -87,17 +91,17 @@ const Vasarlas = ({ termek, kep }) => {
                 type="button"
                 className="termek-reszlet-kosarba"
                 onClick={mentes}
-                disabled={!valtozott}
+                disabled={!valtozott || keszlet < 0.01}
             >
                 {kosarban === 0
-                    ? `Kosárba (${mennyiseg} db)`
+                                        ? `Kosárba (${mennyiseg} ${egyseg})`
                     : valtozott
-                      ? `Kosár frissítése (${mennyiseg} db)`
+                                            ? `Kosár frissítése (${mennyiseg} ${egyseg})`
                       : 'A kosárban van'}
             </button>
             {kosarban > 0 && (
                 <p className="termek-reszlet-kosarban" aria-live="polite">
-                    A kosárban: {kosarban} db · <Link to="/kosar">Ugrás a kosárhoz</Link>
+                    A kosárban: {kosarban} {egyseg} · <Link to="/kosar">Ugrás a kosárhoz</Link>
                 </p>
             )}
         </section>
@@ -164,7 +168,7 @@ const TermekAdatok = ({ id }) => {
                     )}
                     <h1>{termek.nev}</h1>
                     <p className="termek-reszlet-ar">
-                        {forint(termek.ar)} <span>/ db</span>
+                        {forint(termek.ar)} <span>/ {termek.egyseg || 'db'}</span>
                     </p>
                     <h2>Leírás</h2>
                     <p className="termek-reszlet-leiras">{termek.leiras}</p>

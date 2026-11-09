@@ -9,10 +9,18 @@ const Termek = ({ termek }) => {
     const toast = useToast();
     const kepek = termekKepek(termek);
     const kosarban = tetelek.find((elem) => elem.id === termek._id)?.mennyiseg ?? 0;
+    const egyseg = termek.egyseg || 'db';
+    const keszletIsmert = Number.isFinite(termek.keszlet);
+    const keszlet = keszletIsmert ? termek.keszlet : 999;
+    const keszletSzoveg = keszletIsmert
+        ? Number(termek.keszlet).toLocaleString('hu-HU', { maximumFractionDigits: 2 })
+        : 'Nem ismert';
+    const vanKeszleten = keszlet > 0;
+    const hozzaadando = Math.min(1, keszlet);
 
     const kosarba = () => {
-        hozzaad({ ...termek, kep: kepek[0] });
-        toast.siker(`„${termek.nev}” a kosárba került.`);
+        hozzaad({ ...termek, kep: kepek[0] }, hozzaadando);
+        toast.siker(`${hozzaadando} ${egyseg} „${termek.nev}” a kosárba került.`);
     };
 
     return (
@@ -41,18 +49,22 @@ const Termek = ({ termek }) => {
                 )}
                 <div className="tartalom-kontener">
                     <h4>Ár:</h4>
-                    <p>{forint(termek.ar)}</p>
+                    <p>{forint(termek.ar)} / {egyseg}</p>
+                    <p className={`termek-keszlet ${!keszletIsmert ? 'termek-keszlet-ismeretlen' : vanKeszleten ? 'termek-keszleten' : 'termek-nincs-keszleten'}`}>
+                        {!keszletIsmert ? 'Készlet:' : vanKeszleten ? 'Raktáron:' : 'Nincs raktáron:'}{' '}
+                        <strong>{keszletSzoveg} {egyseg}</strong>
+                    </p>
                     <h4>Leírás:</h4>
                     <p>{termek.leiras}</p>
                 </div>
             </div>
             <footer className="termek-kosar-lab">
-                <button type="button" className="termek-kosarba-gomb" onClick={kosarba}>
-                    Kosárba
+                <button type="button" className="termek-kosarba-gomb" onClick={kosarba} disabled={keszlet < 0.01}>
+                    {keszlet < 0.01 ? 'Elfogyott' : `Kosárba (${hozzaadando} ${egyseg})`}
                 </button>
                 {kosarban > 0 && (
                     <span className="termek-kosarban" aria-live="polite">
-                        A kosárban: {kosarban} db
+                        A kosárban: {kosarban} {egyseg}
                     </span>
                 )}
             </footer>

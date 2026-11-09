@@ -2,8 +2,18 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { CartContext, MAX_MENNYISEG } from './CartContext';
 
 const TAROLO_KULCS = 'kosar';
+const MIN_MENNYISEG = 0.01;
 
-const korlatoz = (mennyiseg) => Math.min(MAX_MENNYISEG, Math.max(1, mennyiseg));
+const keszletLimit = (termek) => Number.isFinite(termek.keszlet)
+    ? Math.max(0, Math.min(MAX_MENNYISEG, termek.keszlet))
+    : MAX_MENNYISEG;
+
+const korlatoz = (mennyiseg, max = MAX_MENNYISEG) => {
+    const maximalis = Math.min(MAX_MENNYISEG, max);
+    if (maximalis < MIN_MENNYISEG) return 0;
+    const korlatozott = Math.min(maximalis, Math.max(MIN_MENNYISEG, mennyiseg));
+    return Math.min(maximalis, Math.round(korlatozott * 100) / 100);
+};
 
 // A tárolt adat bármi lehet (régi verzió, kézzel szerkesztett), ezért szűrjük.
 const betolt = () => {
@@ -18,10 +28,15 @@ const betolt = () => {
                     typeof elem.id === 'string' &&
                     typeof elem.nev === 'string' &&
                     Number.isFinite(elem.ar) &&
-                    Number.isInteger(elem.mennyiseg) &&
-                    elem.mennyiseg > 0,
+                        Number.isFinite(elem.mennyiseg) &&
+                        elem.mennyiseg > 0,
             )
-            .map((elem) => ({ ...elem, mennyiseg: korlatoz(elem.mennyiseg) }));
+                    .map((elem) => ({
+                    ...elem,
+                    egyseg: elem.egyseg || 'db',
+                    mennyiseg: korlatoz(elem.mennyiseg, keszletLimit(elem)),
+                    }))
+                    .filter((elem) => elem.mennyiseg > 0);
     } catch {
         return [];
     }
@@ -40,12 +55,14 @@ const CartProvider = ({ children }) => {
 
     const hozzaad = useCallback((termek, darab = 1) => {
         setTetelek((lista) => {
+            const max = keszletLimit(termek);
+            if (max < MIN_MENNYISEG) return lista;
             const meglevo = lista.find((elem) => elem.id === termek._id);
 
             if (meglevo) {
                 return lista.map((elem) =>
                     elem.id === termek._id
-                        ? { ...elem, mennyiseg: korlatoz(elem.mennyiseg + darab) }
+                        ? { ...elem, egyseg: termek.egyseg || elem.egyseg || 'db', keszlet: termek.keszlet, mennyiseg: korlatoz(elem.mennyiseg + darab, max) }
                         : elem,
                 );
             }
@@ -58,7 +75,9 @@ const CartProvider = ({ children }) => {
                     kategoria: termek.kategoria ?? '',
                     kep: termek.kep ?? '',
                     ar: termek.ar,
-                    mennyiseg: korlatoz(darab),
+                    egyseg: termek.egyseg || 'db',
+                    keszlet: termek.keszlet,
+                    mennyiseg: korlatoz(darab, max),
                 },
             ];
         });
@@ -67,7 +86,7 @@ const CartProvider = ({ children }) => {
     const mennyisegBeallit = useCallback((id, mennyiseg) => {
         setTetelek((lista) =>
             lista.map((elem) =>
-                elem.id === id ? { ...elem, mennyiseg: korlatoz(mennyiseg) } : elem,
+                elem.id === id ? { ...elem, mennyiseg: korlatoz(mennyiseg, keszletLimit(elem)) } : elem,
             ),
         );
     }, []);
@@ -79,14 +98,13 @@ const CartProvider = ({ children }) => {
     const urit = useCallback(() => setTetelek([]), []);
 
     const value = useMemo(() => {
-        const osszesDarab = tetelek.reduce((osszeg, elem) => osszeg + elem.mennyiseg, 0);
         // A tizedes (0,01-es lépésű) árak miatt kerekítünk, hogy ne legyen lebegőpontos hiba.
         const vegosszeg =
             Math.round(
                 tetelek.reduce((osszeg, elem) => osszeg + elem.ar * elem.mennyiseg, 0) * 100,
             ) / 100;
 
-        return { tetelek, osszesDarab, vegosszeg, hozzaad, mennyisegBeallit, torol, urit };
+        return { tetelek, vegosszeg, hozzaad, mennyisegBeallit, torol, urit };
     }, [tetelek, hozzaad, mennyisegBeallit, torol, urit]);
 
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

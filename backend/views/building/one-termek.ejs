@@ -35,6 +35,15 @@
                 <label for="ar">Ár:</label>
                 <input type="number" id="ar" value="<%= termek.ar %>" step="0.01" />
 
+                <label for="egyseg">Mértékegység:</label>
+                <select id="egyseg" required>
+                    <option value="" disabled <%= !termek.egyseg ? 'selected' : '' %>>Válassz mértékegységet</option>
+                    <option value="m³" <%= termek.egyseg === 'm³' ? 'selected' : '' %>>Köbméter (m³)</option>
+                    <option value="m²" <%= termek.egyseg === 'm²' ? 'selected' : '' %>>Négyzetméter (m²)</option>
+                </select>
+                <label for="keszlet">Raktáron lévő mennyiség:</label>
+                <input type="number" id="keszlet" min="0" step="0.01" value="<%= termek.keszlet ?? '' %>" required />
+
                 <% const kepek = Array.isArray(termek.kepek) && termek.kepek.length ? termek.kepek : [termek.kep1, termek.kep2, termek.kep3, termek.kep].filter(Boolean); %>
                 <div class="kepmezok-fejlec">
                     <label>Képek:</label>

@@ -19,6 +19,8 @@ const uresUrlap = () => ({
     kategoria: '',
     leiras: '',
     ar: '',
+    egyseg: '',
+    keszlet: '',
     kepek: [''],
 });
 
@@ -76,6 +78,8 @@ const AdminTermekek = () => {
             kategoria: termek.kategoria || '',
             leiras: termek.leiras || '',
             ar: String(termek.ar ?? ''),
+            egyseg: termek.egyseg || '',
+            keszlet: String(termek.keszlet ?? ''),
             kepek: kepekLista(termek).length ? kepekLista(termek) : [''],
         });
         setHiba('');
@@ -87,8 +91,9 @@ const AdminTermekek = () => {
         setHiba('');
         const kepek = urlap.kepek.map((kep) => kep.trim()).filter(Boolean);
         const ar = Number(urlap.ar);
-        if (!urlap.nev.trim() || !urlap.kategoria || !urlap.leiras.trim() || !Number.isFinite(ar) || ar < 0 || !kepek.length) {
-            setHiba('Töltsd ki a nevet, kategóriát, leírást, érvényes árat és adj meg legalább egy képet.');
+        const keszlet = Number(urlap.keszlet);
+        if (!urlap.nev.trim() || !urlap.kategoria || !urlap.leiras.trim() || urlap.ar === '' || !Number.isFinite(ar) || ar < 0 || !['m³', 'm²'].includes(urlap.egyseg) || urlap.keszlet === '' || !Number.isFinite(keszlet) || keszlet < 0 || !kepek.length) {
+            setHiba('Töltsd ki a nevet, kategóriát, leírást, érvényes árat, válassz m³ vagy m² mértékegységet, add meg a készletet és legalább egy képet.');
             return;
         }
 
@@ -106,6 +111,8 @@ const AdminTermekek = () => {
                         kategoria: urlap.kategoria,
                         leiras: urlap.leiras.trim(),
                         ar,
+                        egyseg: urlap.egyseg,
+                        keszlet,
                         kepek,
                     }),
                 },
@@ -160,6 +167,14 @@ const AdminTermekek = () => {
                 </label>
                 <label>Leírás<textarea rows="4" value={urlap.leiras} onChange={(event) => mezoFrissitese('leiras', event.target.value)} required /></label>
                 <label>Ár (Ft)<input type="number" min="0" step="0.01" value={urlap.ar} onChange={(event) => mezoFrissitese('ar', event.target.value)} required /></label>
+                <label>Mértékegység
+                    <select value={urlap.egyseg} onChange={(event) => mezoFrissitese('egyseg', event.target.value)} required>
+                        <option value="" disabled>Válassz mértékegységet</option>
+                        <option value="m³">Köbméter (m³)</option>
+                        <option value="m²">Négyzetméter (m²)</option>
+                    </select>
+                </label>
+                <label>Raktáron lévő mennyiség ({urlap.egyseg || 'm³ / m²'})<input type="number" min="0" step="0.01" value={urlap.keszlet} onChange={(event) => mezoFrissitese('keszlet', event.target.value)} required /></label>
                 <div className="admin-kepek-fejlec">
                     <strong>Termékképek URL-jei</strong>
                     <button type="button" className="admin-kep-hozzaad" onClick={() => setUrlap((elozo) => ({ ...elozo, kepek: [...elozo.kepek, ''] }))}>+ Kép URL hozzáadása</button>
@@ -187,7 +202,7 @@ const AdminTermekek = () => {
                     <div className="admin-termeklista-elemek">
                         {termekek.map((termek) => (
                             <article className="admin-termek-sor" key={termek._id}>
-                                <div><strong>{termek.nev}</strong><span>{termek.kategoria || 'Nincs kategória'} · {Number(termek.ar).toLocaleString('hu-HU')} Ft</span></div>
+                                <div><strong>{termek.nev}</strong><span>{termek.kategoria || 'Nincs kategória'} · {Number(termek.ar).toLocaleString('hu-HU')} Ft · {termek.keszlet ?? '—'} {termek.egyseg || ''} készleten</span></div>
                                 <div className="admin-termek-akciok">
                                     <button type="button" onClick={() => termekSzerkesztese(termek)}>Módosít</button>
                                     <button type="button" className="admin-torol" onClick={() => termekTorlese(termek)}>Törlés</button>
