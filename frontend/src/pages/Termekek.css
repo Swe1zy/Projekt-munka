@@ -301,3 +301,32 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Áruház megjelenésfrissítés 2026 */
+
+.termekek-kontener {
+    --termek-ink: #293a30; --termek-text: #465249; --termek-muted: #737b72;
+    --termek-bg: #f4f2ec; --termek-surface: #fffefa; --termek-border: #e3e0d6;
+    --termek-accent: #bd6a3d; --termek-accent-ink: #96502e; --termek-accent-soft: #f5e9df;
+    --termek-green: #356247; --termek-green-soft: #e8eee7;
+}
+.termekek-fejlec {
+    border-color: #e3e0d6; border-radius: .9rem;
+    background: #fffefa;
+    box-shadow: 0 2px 8px rgba(39,51,45,.04), 0 10px 24px rgba(39,51,45,.035);
+}
+.termek-szuro-oldalsav {
+    border-color: #e3e0d6; border-radius: .8rem;
+    background: #fffefa; box-shadow: 0 2px 8px rgba(39,51,45,.04);
+}
+.termek-szuro-torles { border-radius: .5rem; color: #356247; background: #edf1eb; }
+.termek-kereso input { border-radius: .55rem; box-shadow: none; }
+#termekek-kontener > :nth-child(4n + 2), #termekek-kontener > :nth-child(4n + 3), #termekek-kontener > :nth-child(4n + 4) { --termek-card-accent: #6d8971; }
+
+/* Márkás kirakatfrissítés 2026 */
+
+.termekek-fejlec { border-top: 4px solid #bd6a3d; }
+.termekek-felirat { letter-spacing: .16em; text-transform: uppercase; }
+.termek-szuro-oldalsav { border-radius: .65rem; }
+.termekek-elrendezes { gap: 1.75rem; }
+#termekek-kontener { gap: 1.15rem; }

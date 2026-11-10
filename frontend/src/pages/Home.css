@@ -604,3 +604,130 @@
         transform: none;
     }
 }
+
+/* Áruház megjelenésfrissítés 2026 */
+
+/* Földközeli, építőanyag-kereskedéshez illő felületek */
+.home-kontener {
+    --home-ink: #24352b;
+    --home-ink-2: #34463a;
+    --home-text: #435047;
+    --home-muted: #737b72;
+    --home-bg: #f4f2ec;
+    --home-surface: #fffefa;
+    --home-border: #e3e0d6;
+    --home-accent: #bd5d2c;
+    --home-accent-hover: #a94f25;
+    --home-accent-text: #97502d;
+    --home-accent-soft: #f5e9df;
+}
+
+.home-hero {
+    background: linear-gradient(115deg, #26382e 0%, #31463a 58%, #3b4c3f 100%);
+    padding-block: clamp(3.5rem, 8vw, 6rem);
+}
+
+.home-hero-kep {
+    background-color: #897358;
+    background-image:
+        linear-gradient(145deg, rgba(29, 40, 32, 0.2), rgba(29, 40, 32, 0.58)),
+        repeating-linear-gradient(0deg, transparent 0 38px, rgba(245, 235, 216, 0.24) 39px 42px),
+        repeating-linear-gradient(90deg, #987f5f 0 78px, #b19a78 79px 82px, #806d54 83px 160px);
+    border: 1px solid rgba(255,255,255,.16);
+    border-radius: 1.15rem;
+    box-shadow: 0 28px 60px rgba(12, 20, 15, .3);
+}
+
+.home-hero-kep::after {
+    background: linear-gradient(180deg, transparent 35%, rgba(26, 35, 28, .62));
+}
+
+.home-kiemeles {
+    background: none;
+    color: #e7b184;
+    -webkit-text-fill-color: currentColor;
+}
+
+.home-jelveny {
+    border-color: rgba(231, 177, 132, .38);
+    background: rgba(231, 177, 132, .1);
+    color: #e8c2a2;
+}
+
+.home-gomb { border-radius: .55rem; }
+.home-gomb-elsodleges { background: #c16a3b; color: #fff; box-shadow: 0 5px 14px rgba(12,20,15,.2); }
+.home-gomb-elsodleges:hover { background: #a95731; box-shadow: 0 8px 20px rgba(12,20,15,.25); }
+.home-gomb:focus-visible, .home-kategoria:focus-visible { outline-color: #e7b184; }
+
+.home-hero-kartya {
+    animation: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(35, 49, 39, .94);
+    border-color: rgba(255,255,255,.18);
+    border-radius: .75rem;
+}
+.home-hero-kartya-ikon { background: #bd6a3d; color: white; border-radius: .55rem; }
+.home-kategoria-kartya, .home-elony-kartya {
+    border-color: #e4e0d6;
+    border-radius: .8rem;
+    background: #fffefa;
+    box-shadow: 0 2px 8px rgba(39, 51, 45, .04), 0 10px 24px rgba(39, 51, 45, .035);
+}
+.home-kategoria-kartya:hover, .home-elony-kartya:hover {
+    border-color: #cbb9a8;
+    box-shadow: 0 12px 26px rgba(39, 51, 45, .09);
+}
+
+@media (max-width: 760px) {
+    .home-hero { padding-block: 3rem; }
+    .home-hero-kep { border-radius: .9rem; }
+}
+
+/* Márkás kirakatfrissítés 2026 */
+
+/* Prémium, márkásabb kirakat */
+.home-hero {
+    position: relative;
+    isolation: isolate;
+    background:
+        linear-gradient(105deg, rgba(25, 43, 33, .98) 0%, rgba(34, 56, 42, .96) 53%, rgba(49, 68, 50, .88) 100%);
+}
+.home-hero::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 0 auto;
+    width: min(44vw, 720px);
+    background: linear-gradient(135deg, rgba(195, 104, 58, .22), rgba(195, 104, 58, .02));
+    clip-path: polygon(28% 0, 100% 0, 100% 100%, 0 100%);
+    content: '';
+}
+.home-hero-belso { position: relative; }
+.home-hero-szoveg { gap: 1.65rem; }
+.home-hero h1 { max-width: 12ch; font-size: clamp(2.65rem, 5.5vw, 4.65rem); letter-spacing: -.045em; }
+.home-kiemeles { color: #e4a06d; }
+.home-jelveny { border-radius: .3rem; letter-spacing: .13em; }
+.home-gomb-elsodleges { border-radius: .45rem; font-weight: 750; }
+.home-gomb-masodlagos { border-radius: .45rem; }
+.home-hero-kep { border: 8px solid rgba(255,255,255,.09); box-shadow: 0 32px 70px rgba(8,18,11,.42); }
+.home-hero-kartya { animation: none; background: #fffefa; border: 0; border-radius: .65rem; color: #293a30; box-shadow: 0 14px 36px rgba(8,18,11,.24); }
+.home-hero-kartya small { color: #72776f; }
+.home-hero-kartya-ikon { background: #f3e4d7; color: #9a512c; }
+.home-szekcio { padding-block: clamp(4rem, 8vw, 6.5rem); }
+.home-szekcio-fej { margin-bottom: clamp(2.25rem, 4vw, 3.25rem); }
+.home-felirat { letter-spacing: .16em; }
+.home-kategoria { position: relative; overflow: hidden; border-radius: .65rem; padding: 1.6rem; transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+.home-kategoria::before { position: absolute; inset: 0 0 auto; height: 3px; background: #bd6a3d; content: ''; }
+.home-kategoria:nth-child(3n + 2)::before { background: #6b866c; }
+.home-kategoria:nth-child(3n + 3)::before { background: #c5a66f; }
+.home-kategoria:hover { border-color: #cbb9a8; transform: translateY(-3px); }
+.home-kategoria-ikon { border-radius: .55rem; }
+.home-szekcio-sotet { background: #293a30; }
+.home-elony { border-radius: .65rem; background: rgba(255,255,255,.035); }
+.home-elony-ikon { border-radius: .55rem; background: rgba(193,106,61,.17); color: #e4a06d; }
+.home-cta { border-radius: .8rem; background: linear-gradient(110deg, #293a30, #3b4d3b); box-shadow: 0 20px 45px rgba(39,51,45,.17); }
+
+@media (max-width: 760px) {
+    .home-hero h1 { max-width: 15ch; font-size: clamp(2.4rem, 10vw, 3.6rem); }
+    .home-hero::before { width: 100%; opacity: .45; }
+}

@@ -321,3 +321,44 @@
         transform: none;
     }
 }
+
+/* Áruház megjelenésfrissítés 2026 */
+
+.nav-kontener {
+    --nav-bg: #293a30;
+    --nav-border: rgba(255,255,255,.11);
+    --nav-text: #e0e5df;
+    --nav-text-hover: #fff;
+    --nav-hover-bg: rgba(255,255,255,.1);
+    --nav-accent: #c16a3b;
+    --nav-accent-2: #d89a69;
+    background: #293a30;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: 0 2px 10px rgba(27,39,30,.16);
+}
+.nav-linkek a { border-radius: .45rem; }
+.nav-linkek a::after { background: #d89a69; bottom: .18rem; }
+.nav-fiok-gomb, .nav-kosar-gomb { border-radius: .65rem; }
+.nav-avatar { background: #bd6a3d; }
+.nav-kosar-darab { background: #bd6a3d; box-shadow: 0 0 0 2px #293a30; }
+.nav-fiok-menu { background: #293a30; border-radius: .8rem; }
+.nav-linkek a:focus-visible, .nav-fiok-gomb:focus-visible, .nav-kosar-gomb:focus-visible, .nav-fiok-elem:focus-visible { outline-color: #e0a477; }
+
+/* Márkás kirakatfrissítés 2026 */
+
+/* Erősebb, jól felismerhető márkasáv */
+.nav-kontener {
+    min-height: 4.5rem;
+    padding-inline: clamp(1rem, 4vw, 3rem);
+    border-bottom: 3px solid #bd6a3d;
+    box-shadow: 0 5px 16px rgba(27,39,30,.15);
+}
+.nav-linkek { gap: .35rem; }
+.nav-linkek a { padding: .65rem .9rem; font-size: .92rem; font-weight: 650; }
+.nav-linkek a[aria-current='page'] { background: rgba(255,255,255,.12); }
+.nav-linkek a::after { display: none; }
+.nav-fiok-gomb, .nav-kosar-gomb { width: 2.8rem; height: 2.8rem; border-color: rgba(255,255,255,.2); background: rgba(255,255,255,.07); }
+.nav-kosar-gomb { background: #bd6a3d; border-color: #bd6a3d; color: #fff; }
+.nav-kosar-gomb:hover { background: #a95731; border-color: #a95731; }
+.nav-kosar-darab { top: -.45rem; right: -.45rem; border: 2px solid #293a30; }
