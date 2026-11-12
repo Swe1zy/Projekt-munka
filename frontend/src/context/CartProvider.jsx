@@ -3,15 +3,18 @@ import { CartContext, MAX_MENNYISEG } from './CartContext';
 
 const TAROLO_KULCS = 'kosar';
 const MIN_MENNYISEG = 0.01;
+const minimumMennyiseg = (egyseg) => egyseg === 'db' ? 1 : MIN_MENNYISEG;
 
 const keszletLimit = (termek) => Number.isFinite(termek.keszlet)
     ? Math.max(0, Math.min(MAX_MENNYISEG, termek.keszlet))
     : MAX_MENNYISEG;
 
-const korlatoz = (mennyiseg, max = MAX_MENNYISEG) => {
+const korlatoz = (mennyiseg, max = MAX_MENNYISEG, egyseg) => {
     const maximalis = Math.min(MAX_MENNYISEG, max);
-    if (maximalis < MIN_MENNYISEG) return 0;
-    const korlatozott = Math.min(maximalis, Math.max(MIN_MENNYISEG, mennyiseg));
+    const minimum = minimumMennyiseg(egyseg);
+    if (maximalis < minimum) return 0;
+    const korlatozott = Math.min(maximalis, Math.max(minimum, mennyiseg));
+    if (egyseg === 'db') return Math.min(Math.floor(maximalis), Math.round(korlatozott));
     return Math.min(maximalis, Math.round(korlatozott * 100) / 100);
 };
 
@@ -27,14 +30,14 @@ const betolt = () => {
                     elem &&
                     typeof elem.id === 'string' &&
                     typeof elem.nev === 'string' &&
-                    Number.isFinite(elem.ar) &&
+                        Number.isFinite(elem.ar) &&
                         Number.isFinite(elem.mennyiseg) &&
                         elem.mennyiseg > 0,
             )
                     .map((elem) => ({
                     ...elem,
                     egyseg: elem.egyseg || 'db',
-                    mennyiseg: korlatoz(elem.mennyiseg, keszletLimit(elem)),
+                    mennyiseg: korlatoz(elem.mennyiseg, keszletLimit(elem), elem.egyseg || 'db'),
                     }))
                     .filter((elem) => elem.mennyiseg > 0);
     } catch {
@@ -56,13 +59,14 @@ const CartProvider = ({ children }) => {
     const hozzaad = useCallback((termek, darab = 1) => {
         setTetelek((lista) => {
             const max = keszletLimit(termek);
-            if (max < MIN_MENNYISEG) return lista;
+            const egyseg = termek.egyseg || 'db';
+            if (max < minimumMennyiseg(egyseg)) return lista;
             const meglevo = lista.find((elem) => elem.id === termek._id);
 
             if (meglevo) {
                 return lista.map((elem) =>
                     elem.id === termek._id
-                        ? { ...elem, egyseg: termek.egyseg || elem.egyseg || 'db', keszlet: termek.keszlet, mennyiseg: korlatoz(elem.mennyiseg + darab, max) }
+                        ? { ...elem, egyseg, keszlet: termek.keszlet, mennyiseg: korlatoz(elem.mennyiseg + darab, max, egyseg) }
                         : elem,
                 );
             }
@@ -75,9 +79,9 @@ const CartProvider = ({ children }) => {
                     kategoria: termek.kategoria ?? '',
                     kep: termek.kep ?? '',
                     ar: termek.ar,
-                    egyseg: termek.egyseg || 'db',
+                    egyseg,
                     keszlet: termek.keszlet,
-                    mennyiseg: korlatoz(darab, max),
+                    mennyiseg: korlatoz(darab, max, egyseg),
                 },
             ];
         });
@@ -86,7 +90,7 @@ const CartProvider = ({ children }) => {
     const mennyisegBeallit = useCallback((id, mennyiseg) => {
         setTetelek((lista) =>
             lista.map((elem) =>
-                elem.id === id ? { ...elem, mennyiseg: korlatoz(mennyiseg, keszletLimit(elem)) } : elem,
+                elem.id === id ? { ...elem, mennyiseg: korlatoz(mennyiseg, keszletLimit(elem), elem.egyseg) } : elem,
             ),
         );
     }, []);

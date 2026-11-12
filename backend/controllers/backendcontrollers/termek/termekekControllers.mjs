@@ -42,6 +42,17 @@ const getOneTermek = async (req, res) => {
 const updateOneTermek = async (req, res) => {
     try {
         const id = req.params.id;
+        if (Object.prototype.hasOwnProperty.call(req.body, 'egyseg') || Object.prototype.hasOwnProperty.call(req.body, 'keszlet')) {
+            const aktualisTermek = await TermekModel.findById(id);
+            if (!aktualisTermek) {
+                return res.status(404).json({ msg: 'A termék nem található!' });
+            }
+            const egyseg = req.body.egyseg ?? aktualisTermek.egyseg;
+            const keszlet = req.body.keszlet === undefined ? aktualisTermek.keszlet : Number(req.body.keszlet);
+            if (egyseg === 'db' && !Number.isInteger(keszlet)) {
+                return res.status(400).json({ msg: 'Darab mértékegységnél a készletnek egész számnak kell lennie.' });
+            }
+        }
         const updates = {};
         for (const field of ['nev', 'kategoria', 'leiras', 'kepek', 'ar', 'egyseg', 'keszlet']) {
             if (Object.prototype.hasOwnProperty.call(req.body, field)) {

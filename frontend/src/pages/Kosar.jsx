@@ -84,6 +84,7 @@ const Kosar = () => {
                                     className="kosar-mennyiseg"
                                     nev={tetel.nev}
                                     ertek={tetel.mennyiseg}
+                                    egyseg={tetel.egyseg}
                                     beallit={(mennyiseg) => mennyisegBeallit(tetel.id, mennyiseg)}
                                     max={Number.isFinite(tetel.keszlet) ? tetel.keszlet : undefined}
                                 />

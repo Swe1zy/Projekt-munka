@@ -92,8 +92,8 @@ const AdminTermekek = () => {
         const kepek = urlap.kepek.map((kep) => kep.trim()).filter(Boolean);
         const ar = Number(urlap.ar);
         const keszlet = Number(urlap.keszlet);
-        if (!urlap.nev.trim() || !urlap.kategoria || !urlap.leiras.trim() || urlap.ar === '' || !Number.isFinite(ar) || ar < 0 || !['m³', 'm²'].includes(urlap.egyseg) || urlap.keszlet === '' || !Number.isFinite(keszlet) || keszlet < 0 || !kepek.length) {
-            setHiba('Töltsd ki a nevet, kategóriát, leírást, érvényes árat, válassz m³ vagy m² mértékegységet, add meg a készletet és legalább egy képet.');
+        if (!urlap.nev.trim() || !urlap.kategoria || !urlap.leiras.trim() || urlap.ar === '' || !Number.isFinite(ar) || ar < 0 || !['m³', 'm²', 'db'].includes(urlap.egyseg) || urlap.keszlet === '' || !Number.isFinite(keszlet) || keszlet < 0 || (urlap.egyseg === 'db' && !Number.isInteger(keszlet)) || !kepek.length) {
+            setHiba('Töltsd ki a nevet, kategóriát, leírást, érvényes árat, válassz m³, m² vagy db mértékegységet, add meg a készletet egész számként (db esetén) és legalább egy képet.');
             return;
         }
 
@@ -172,9 +172,10 @@ const AdminTermekek = () => {
                         <option value="" disabled>Válassz mértékegységet</option>
                         <option value="m³">Köbméter (m³)</option>
                         <option value="m²">Négyzetméter (m²)</option>
+                        <option value="db">Darab (db)</option>
                     </select>
                 </label>
-                <label>Raktáron lévő mennyiség ({urlap.egyseg || 'm³ / m²'})<input type="number" min="0" step="0.01" value={urlap.keszlet} onChange={(event) => mezoFrissitese('keszlet', event.target.value)} required /></label>
+                <label>Raktáron lévő mennyiség ({urlap.egyseg || 'm³ / m² / db'})<input type="number" min="0" step={urlap.egyseg === 'db' ? '1' : '0.01'} value={urlap.keszlet} onChange={(event) => mezoFrissitese('keszlet', event.target.value)} required /></label>
                 <div className="admin-kepek-fejlec">
                     <strong>Termékképek URL-jei</strong>
                     <button type="button" className="admin-kep-hozzaad" onClick={() => setUrlap((elozo) => ({ ...elozo, kepek: [...elozo.kepek, ''] }))}>+ Kép URL hozzáadása</button>

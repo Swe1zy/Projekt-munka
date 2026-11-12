@@ -9,7 +9,7 @@ export const TERMEKEK_KATEGORIAK = [
     'Szerszámok és kellékek',
 ];
 
-export const TERMEK_EGYSEGEK = ['m³', 'm²'];
+export const TERMEK_EGYSEGEK = ['m³', 'm²', 'db'];
 
 const termekSchema = new mongoose.Schema(
     {
@@ -46,6 +46,12 @@ const termekSchema = new mongoose.Schema(
         keszlet: {
             type: Number,
             min: 0,
+            validate: {
+                validator(value) {
+                    return this.egyseg !== 'db' || Number.isInteger(value);
+                },
+                message: 'A darabban megadott készletnek egész számnak kell lennie.',
+            },
             required: true,
         },
     },

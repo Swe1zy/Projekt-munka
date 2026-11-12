@@ -291,7 +291,7 @@ const Home = () => {
                             return (
                                 <Link
                                     key={kategoria.nev}
-                                    to="/termekek"
+                                    to={`/termekek?kategoria=${encodeURIComponent(kategoria.nev)}`}
                                     className="home-kategoria"
                                 >
                                     <span className="home-kategoria-ikon">

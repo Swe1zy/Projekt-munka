@@ -1,4 +1,13 @@
 const kepekInputok = document.querySelector('#kepek-inputok');
+const egysegMezo = document.querySelector('#egyseg');
+const keszletInput = document.querySelector('#keszlet');
+
+const keszletLepesFrissitese = () => {
+    keszletInput.step = egysegMezo.value === 'db' ? '1' : '0.01';
+};
+
+egysegMezo.addEventListener('change', keszletLepesFrissitese);
+keszletLepesFrissitese();
 
 document.querySelector('#kep-hozzaad').addEventListener('click', () => {
     const mezo = document.createElement('div');
@@ -18,15 +27,15 @@ const modosit = async (event) => {
     const kategoria = document.querySelector('#kategoria').value;
     const leiras = document.querySelector('#leiras').value;
     const ar = parseFloat(document.querySelector('#ar').value);
-    const egyseg = document.querySelector('#egyseg').value;
-    const keszletMezo = document.querySelector('#keszlet').value;
+    const egyseg = egysegMezo.value;
+    const keszletMezo = keszletInput.value;
     const keszlet = Number(keszletMezo);
     const kepek = [...document.querySelectorAll('.kep-input')]
         .map((input) => input.value.trim())
         .filter(Boolean);
 
-    if (!nev.trim() || !kategoria || !leiras.trim() || !Number.isFinite(ar) || ar < 0 || !['m³', 'm²'].includes(egyseg) || keszletMezo === '' || !Number.isFinite(keszlet) || keszlet < 0 || kepek.length === 0) {
-        window.alert('Add meg a termék adatait, válassz m³ vagy m² mértékegységet, add meg a készletet és legalább egy képet.');
+    if (!nev.trim() || !kategoria || !leiras.trim() || !Number.isFinite(ar) || ar < 0 || !['m³', 'm²', 'db'].includes(egyseg) || keszletMezo === '' || !Number.isFinite(keszlet) || keszlet < 0 || (egyseg === 'db' && !Number.isInteger(keszlet)) || kepek.length === 0) {
+        window.alert('Add meg a termék adatait, válassz m³, m² vagy db mértékegységet, db esetén egész készletet adj meg, és tölts fel legalább egy képet.');
         return;
     }
 

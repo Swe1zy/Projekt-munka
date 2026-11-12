@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import './Termekek.css';
 import Termek from '../components/Termek';
 import { API_URL } from '../config';
@@ -13,9 +14,13 @@ const KATEGORIAK = [
 ];
 
 const Termekek = () => {
+    const [searchParams, setSearchParams] = useSearchParams();
     const [termekek, setTermekek] = useState([]);
     const [kereses, setKereses] = useState('');
-    const [kivalasztottKategoriak, setKivalasztottKategoriak] = useState([]);
+    const kivalasztottKategoriak = useMemo(
+        () => searchParams.getAll('kategoria').filter((kategoria) => KATEGORIAK.includes(kategoria)),
+        [searchParams],
+    );
     const [minAr, setMinAr] = useState('');
     const [maxAr, setMaxAr] = useState('');
     const [betoltes, setBetoltes] = useState(true);
@@ -60,15 +65,19 @@ const Termekek = () => {
     }, [kereses, kivalasztottKategoriak, minAr, maxAr]);
 
     const kategoriaValtas = (kategoria) => {
-        setKivalasztottKategoriak((aktualis) =>
-            aktualis.includes(kategoria)
-                ? aktualis.filter((elem) => elem !== kategoria)
-                : [...aktualis, kategoria],
-        );
+        const ujKategoriak = kivalasztottKategoriak.includes(kategoria)
+            ? kivalasztottKategoriak.filter((elem) => elem !== kategoria)
+            : [...kivalasztottKategoriak, kategoria];
+        const ujParameterek = new URLSearchParams(searchParams);
+        ujParameterek.delete('kategoria');
+        ujKategoriak.forEach((elem) => ujParameterek.append('kategoria', elem));
+        setSearchParams(ujParameterek);
     };
 
     const szurokTorlese = () => {
-        setKivalasztottKategoriak([]);
+        const ujParameterek = new URLSearchParams(searchParams);
+        ujParameterek.delete('kategoria');
+        setSearchParams(ujParameterek);
         setMinAr('');
         setMaxAr('');
     };

@@ -78,6 +78,7 @@ const Vasarlas = ({ termek, kep }) => {
                     className="termek-reszlet-mennyiseg"
                     nev={termek.nev}
                     ertek={mennyiseg}
+                    egyseg={egyseg}
                     beallit={setMennyiseg}
                     max={keszlet}
                 />

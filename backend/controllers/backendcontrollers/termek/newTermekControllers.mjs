@@ -17,10 +17,10 @@ const postNewTermek = async (req, res) => {
         const vanKeszlet = req.body.keszlet !== undefined && req.body.keszlet !== null && req.body.keszlet !== '';
         const kepek = Array.isArray(req.body.kepek) ? req.body.kepek : [];
 
-        if (!nev?.trim() || !leiras?.trim() || !TERMEKEK_KATEGORIAK.includes(kategoria) || !TERMEK_EGYSEGEK.includes(egyseg) || !vanAr || !Number.isFinite(ar) || ar < 0 || !vanKeszlet || !Number.isFinite(keszlet) || keszlet < 0 || kepek.length === 0) {
+        if (!nev?.trim() || !leiras?.trim() || !TERMEKEK_KATEGORIAK.includes(kategoria) || !TERMEK_EGYSEGEK.includes(egyseg) || !vanAr || !Number.isFinite(ar) || ar < 0 || !vanKeszlet || !Number.isFinite(keszlet) || keszlet < 0 || (egyseg === 'db' && !Number.isInteger(keszlet)) || kepek.length === 0) {
             return res
                 .status(400)
-            .json({ msg: 'A név, kategória, leírás, érvényes ár, m³ vagy m² mértékegység, készletmennyiség és legalább egy kép megadása kötelező!' });
+            .json({ msg: 'A név, kategória, leírás, érvényes ár, m³, m² vagy db mértékegység, készletmennyiség és legalább egy kép megadása kötelező. Darab esetén a készlet egész szám legyen!' });
         }
         const newTermek = new TermekModel({ nev: nev.trim(), leiras: leiras.trim(), kategoria, ar, egyseg, keszlet, kepek });
         await newTermek.save();
