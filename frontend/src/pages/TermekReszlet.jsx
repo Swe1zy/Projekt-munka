@@ -4,6 +4,7 @@ import MennyisegValaszto from '../components/MennyisegValaszto';
 import { API_URL } from '../config';
 import { MAX_MENNYISEG, useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import { termekRaklapon, useBeallitasok } from '../utils/beallitasok';
 import { forint, termekKepek } from '../utils/termek';
 import './TermekReszlet.css';
 
@@ -51,6 +52,8 @@ const Galeria = ({ nev, kepek }) => {
 };
 
 const Vasarlas = ({ termek, kep }) => {
+    const { adat: beallitasok } = useBeallitasok();
+    const raklapon = termekRaklapon(termek, beallitasok);
     const { tetelek, hozzaad, mennyisegBeallit } = useCart();
     const toast = useToast();
     const kosarban = tetelek.find((elem) => elem.id === termek._id)?.mennyiseg ?? 0;
@@ -88,6 +91,12 @@ const Vasarlas = ({ termek, kep }) => {
                 <span>Összesen</span>
                 <strong>{forint(Math.round(termek.ar * mennyiseg * 100) / 100)}</strong>
             </div>
+            {raklapon && beallitasok && (
+                <p className="termek-reszlet-raklap">
+                    Raklapos áru: {raklapon.toLocaleString('hu-HU')} {termek.egyseg}/raklap. Raklaponként {forint(beallitasok.raklapBetetdij)} betétdíj,
+                    ami a raklap visszahozásakor visszajár.
+                </p>
+            )}
             <button
                 type="button"
                 className="termek-reszlet-kosarba"

@@ -1,0 +1,287 @@
+/* Közös rendelés-elemek: állapotjelvény, idővonal, tétellista, címblokk */
+
+.rendeles-allapot {
+    --allapot-ikon: #64748b;
+    --allapot-hatter: #f1f5f9;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.28rem 0.65rem 0.28rem 0.5rem;
+    border-radius: 999px;
+    color: #0f172a;
+    background: var(--allapot-hatter);
+    font-size: 0.82rem;
+    font-weight: 650;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.rendeles-allapot-ikon {
+    flex: none;
+    width: 16px;
+    height: 16px;
+    fill: none;
+    stroke: var(--allapot-ikon, currentColor);
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.rendeles-allapot--feldolgozasra_var,
+.rendeles-lepes--feldolgozasra_var {
+    --allapot-ikon: #a86b00;
+    --allapot-hatter: #fff6e0;
+}
+
+.rendeles-allapot--visszaigazolva,
+.rendeles-lepes--visszaigazolva {
+    --allapot-ikon: #2a6fc4;
+    --allapot-hatter: #ebf3fd;
+}
+
+.rendeles-allapot--kiszallitas_alatt,
+.rendeles-lepes--kiszallitas_alatt {
+    --allapot-ikon: #5a48c9;
+    --allapot-hatter: #f0eefc;
+}
+
+.rendeles-allapot--teljesitve,
+.rendeles-lepes--teljesitve {
+    --allapot-ikon: #0a7d0a;
+    --allapot-hatter: #e7f5e7;
+}
+
+.rendeles-allapot--lemondva,
+.rendeles-lepes--lemondva {
+    --allapot-ikon: #c73232;
+    --allapot-hatter: #fdecec;
+}
+
+/* ---------- Idővonal ---------- */
+
+.rendeles-idovonal {
+    display: grid;
+    gap: 0.9rem;
+}
+
+.rendeles-idovonal ol {
+    display: grid;
+    grid-template-columns: repeat(var(--lepesek), minmax(0, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rendeles-lepes {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    padding: 0 0.25rem;
+    text-align: center;
+}
+
+/* Összekötő vonal az előző lépéshez */
+.rendeles-lepes + .rendeles-lepes::before {
+    position: absolute;
+    z-index: 0;
+    top: 15px;
+    right: calc(50% + 18px);
+    left: calc(-50% + 18px);
+    height: 2px;
+    border-radius: 2px;
+    background: #e2e8f0;
+    content: '';
+}
+
+.rendeles-lepes--kesz + .rendeles-lepes--kesz::before,
+.rendeles-lepes--kesz + .rendeles-lepes--aktualis::before {
+    background: #94a3b8;
+}
+
+.rendeles-lepes-pont {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    width: 32px;
+    height: 32px;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--allapot-hatter);
+    box-shadow: 0 0 0 3px #ffffff;
+}
+
+.rendeles-lepes--hatravan .rendeles-lepes-pont {
+    --allapot-ikon: #b6bdc7;
+
+    background: #f8fafc;
+    box-shadow: 0 0 0 3px #ffffff, inset 0 0 0 1px #e2e8f0;
+}
+
+.rendeles-lepes--aktualis .rendeles-lepes-pont {
+    box-shadow: 0 0 0 3px #ffffff, 0 0 0 5px var(--allapot-ikon);
+}
+
+.rendeles-lepes-nev {
+    color: #0f172a;
+    font-size: 0.84rem;
+    font-weight: 650;
+    line-height: 1.25;
+}
+
+.rendeles-lepes--hatravan .rendeles-lepes-nev {
+    color: #94a3b8;
+    font-weight: 550;
+}
+
+.rendeles-lepes-datum {
+    color: #64748b;
+    font-size: 0.75rem;
+    line-height: 1.3;
+}
+
+.rendeles-lepes--hatravan .rendeles-lepes-datum {
+    color: #b6bdc7;
+}
+
+@media (max-width: 560px) {
+    .rendeles-idovonal ol {
+        grid-template-columns: 1fr;
+        gap: 0.9rem;
+    }
+
+    .rendeles-lepes {
+        grid-template-columns: 32px minmax(0, 1fr);
+        justify-items: start;
+        column-gap: 0.7rem;
+        row-gap: 0;
+        padding: 0;
+        text-align: left;
+    }
+
+    .rendeles-lepes-pont {
+        grid-row: span 2;
+    }
+
+    .rendeles-lepes + .rendeles-lepes::before {
+        top: calc(-0.9rem - 1px);
+        bottom: auto;
+        left: 15px;
+        right: auto;
+        width: 2px;
+        height: calc(0.9rem + 2px);
+    }
+}
+
+.rendeles-megjegyzesek {
+    display: grid;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.rendeles-megjegyzesek li {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.15rem 0.5rem;
+    padding: 0.6rem 0.8rem;
+    border-left: 3px solid #cbd5e1;
+    border-radius: 0 8px 8px 0;
+    background: #f8fafc;
+    font-size: 0.86rem;
+}
+
+.rendeles-megjegyzesek span {
+    color: #64748b;
+    font-size: 0.78rem;
+}
+
+.rendeles-megjegyzesek p {
+    flex-basis: 100%;
+    margin: 0;
+    color: #334155;
+}
+
+/* ---------- Tétellista ---------- */
+
+.rendeles-tetelek {
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.rendeles-tetelek table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+}
+
+.rendeles-tetelek th,
+.rendeles-tetelek td {
+    padding: 0.5rem 0.55rem;
+    border-bottom: 1px solid #edf0f2;
+    text-align: left;
+    vertical-align: top;
+}
+
+.rendeles-tetelek thead th {
+    color: #64748b;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.rendeles-tetelek tfoot th,
+.rendeles-tetelek tfoot td {
+    border-bottom: 0;
+    color: #0f172a;
+    font-weight: 750;
+}
+
+.rendeles-tetelek tfoot th {
+    text-align: right;
+}
+
+.rendeles-szam {
+    font-variant-numeric: tabular-nums;
+    text-align: right !important;
+    white-space: nowrap;
+}
+
+/* ---------- Címblokk ---------- */
+
+.rendeles-cim {
+    display: grid;
+    gap: 0.1rem;
+    color: #334155;
+    font-size: 0.86rem;
+    font-style: normal;
+}
+
+.rendeles-cim h4 {
+    margin: 0 0 0.25rem;
+    color: #64748b;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.rendeles-cim strong {
+    color: #0f172a;
+}
+
+.rendeles-idopont {
+    color: #0f172a;
+    font-weight: 650;
+}
+
+.rendeles-osszesites {
+    padding: 0.9rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+}

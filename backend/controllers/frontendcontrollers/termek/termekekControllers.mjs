@@ -36,7 +36,7 @@ const getTermekek = async (req, res) => {
             ? req.query.kategoria
             : req.query.kategoria ? [req.query.kategoria] : [])
             .filter((kategoria) => TERMEKEK_KATEGORIAK.includes(kategoria))
-            .slice(0, 6);
+            .slice(0, TERMEKEK_KATEGORIAK.length);
         const minAr = req.query.minAr === '' || req.query.minAr === undefined
             ? undefined
             : Number(req.query.minAr);

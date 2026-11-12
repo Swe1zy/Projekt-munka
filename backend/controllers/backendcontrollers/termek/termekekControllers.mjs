@@ -1,4 +1,5 @@
 import TermekModel from '../../../models/Termek.mjs';
+import { opcionalisSzamMezok } from '../../../utils/termekMezok.mjs';
 
 const getTermek = async (req, res) => {
     try {
@@ -65,10 +66,18 @@ const updateOneTermek = async (req, res) => {
                 .filter((image) => typeof image === 'string' && image.trim());
             if (legacyImages.length) updates.kepek = legacyImages;
         }
+        const opcionalis = opcionalisSzamMezok(req.body);
+        if (opcionalis.hiba) {
+            return res.status(400).json({ msg: opcionalis.hiba });
+        }
+        Object.assign(updates, opcionalis.beallit);
+        const muvelet = { $set: updates };
+        if (Object.keys(opcionalis.torol).length) muvelet.$unset = opcionalis.torol;
+
         const termek = await TermekModel.findByIdAndUpdate(
             id,
-            { $set: updates },
-            { new: true, runValidators: true },
+            muvelet,
+            { returnDocument: 'after', runValidators: true },
         );
         if (!termek) {
             return res.status(404).json({ msg: 'A termék nem található!' });

@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { API_URL } from '../config';
+import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import OsszesitoSorok from '../components/arazas/OsszesitoSorok';
+import Telephely from '../components/Telephely';
+import { napCimke, useBeallitasok } from '../utils/beallitasok';
 import { forint } from '../utils/termek';
+import { useOsszesito } from '../utils/useOsszesito';
 import './Vasarlas.css';
 
 const uresCim = () => ({ iranyitoszam: '', telepules: '', utca: '' });
@@ -26,6 +31,7 @@ const CimMezok = ({ cim, frissit, tipus, letiltva = false }) => (
 
 const Vasarlas = () => {
     const { tetelek, vegosszeg, urit } = useCart();
+    const { user } = useAuth();
     const [email, setEmail] = useState('');
     const [atvetelModja, setAtvetelModja] = useState('hazhozszallitas');
     const [szallitasiEgyezik, setSzallitasiEgyezik] = useState(true);
@@ -40,6 +46,28 @@ const Vasarlas = () => {
     const [kuldes, setKuldes] = useState(false);
     const [hiba, setHiba] = useState('');
     const [rendelesAzonosito, setRendelesAzonosito] = useState('');
+    const [napValasztas, setNapValasztas] = useState('');
+    const [idosav, setIdosav] = useState('delelott');
+    const [darus, setDarus] = useState(false);
+    const { adat: beallitasok, hiba: beallitasHiba } = useBeallitasok();
+
+    const hazhoz = atvetelModja === 'hazhozszallitas';
+    // A választható napok a backendről jönnek (szállítási/nyitvatartási nap, ünnepek, határidő).
+    const napok = beallitasok?.valaszthatoNapok?.[atvetelModja] ?? [];
+    const atvetelNapja = napok.some((nap) => nap.datum === napValasztas) ? napValasztas : napok[0]?.datum ?? '';
+    const szallitasiIrsz = (szallitasiEgyezik ? szamlazasiAdatok : szallitasiAdatok).iranyitoszam.trim();
+    const ervenyesIrsz = /^\d{4}$/.test(szallitasiIrsz);
+
+    const elonezet = useOsszesito(tetelek.length ? {
+        tetelek: tetelek.map((tetel) => ({ termekId: tetel.id, mennyiseg: tetel.mennyiseg })),
+        atvetelModja,
+        iranyitoszam: hazhoz ? szallitasiIrsz : '',
+        darus: hazhoz && darus,
+        szamlazasiTipus,
+        adoszam: szamlazasiTipus === 'ceg' ? adoszam.trim() : '',
+    } : null);
+    const osszesites = elonezet.osszesites;
+    const minimumHiany = hazhoz ? osszesites?.minimumHiany ?? 0 : 0;
 
     const cimFrissit = (frissito, mezo, ertek) => {
         frissito((elozo) => ({ ...elozo, [mezo]: ertek }));
@@ -52,6 +80,8 @@ const Vasarlas = () => {
         try {
             const response = await fetch(`${API_URL}/rendelesek`, {
                 method: 'POST',
+                // A munkamenet-cookie alapján a rendelés a fiókhoz kötődik (Rendeléseim).
+                credentials: 'include',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email,
@@ -73,6 +103,9 @@ const Vasarlas = () => {
                         megjegyzes: szamlazasiMegjegyzes,
                     },
                     tetelek: tetelek.map((tetel) => ({ termekId: tetel.id, mennyiseg: tetel.mennyiseg })),
+                    atvetelNapja,
+                    idosav: hazhoz ? idosav : undefined,
+                    darus: hazhoz && darus,
                 }),
             });
             const valasz = await response.json();
@@ -96,7 +129,18 @@ const Vasarlas = () => {
                     <h1>Köszönjük a rendelésed!</h1>
                     <p>A rendelésedet megkaptuk. Őrizd meg az azonosítót, ügyintézésnél hasznos lehet.</p>
                     <div className="vasarlas-azonosito">Rendelésazonosító <strong>{rendelesAzonosito}</strong></div>
-                    <Link className="vasarlas-fo-gomb" to="/termekek">Vissza a termékekhez</Link>
+                    <p>A visszaigazolást és a díjbekérőt elküldtük a(z) <strong>{email}</strong> címre.</p>
+                    {user && (
+                        <a className="vasarlas-masodlagos-link" href={`${API_URL}/rendelesek/${rendelesAzonosito}/dijbekero`} target="_blank" rel="noreferrer">
+                            Díjbekérő letöltése (PDF) ↗
+                        </a>
+                    )}
+                    {user ? (
+                        <Link className="vasarlas-fo-gomb" to="/profil#rendeleseim">Rendelés követése</Link>
+                    ) : (
+                        <p>Ha legközelebb bejelentkezve rendelsz, a profilodban követheted a rendelés állapotát.</p>
+                    )}
+                    <Link className={user ? 'vasarlas-masodlagos-link' : 'vasarlas-fo-gomb'} to="/termekek">Vissza a termékekhez</Link>
                 </section>
             </main>
         );
@@ -178,6 +222,45 @@ const Vasarlas = () => {
                                 </label>
                             </div>
                         )}
+                        {beallitasHiba && <p className="vasarlas-hiba" role="alert">{beallitasHiba}</p>}
+                        {beallitasok && (
+                            <div className="vasarlas-idopont">
+                                <label className="vasarlas-nap-mezo">
+                                    {hazhoz ? 'Kiszállítás napja *' : 'Átvétel napja *'}
+                                    <select value={atvetelNapja} onChange={(event) => setNapValasztas(event.target.value)} required>
+                                        {napok.map((nap) => (
+                                            <option key={nap.datum} value={nap.datum}>{napCimke(nap.datum)}</option>
+                                        ))}
+                                    </select>
+                                </label>
+                                {hazhoz && (
+                                    <fieldset className="vasarlas-idosav">
+                                        <legend>Idősáv *</legend>
+                                        {beallitasok.kiszallitas.idosavok.map((sav) => (
+                                            <label key={sav.kulcs} className={idosav === sav.kulcs ? 'aktiv' : ''}>
+                                                <input type="radio" name="idosav" value={sav.kulcs} checked={idosav === sav.kulcs} onChange={(event) => setIdosav(event.target.value)} />
+                                                {sav.cimke}
+                                            </label>
+                                        ))}
+                                    </fieldset>
+                                )}
+                                <p className="vasarlas-segitseg">
+                                    {beallitasok.kiszallitas.rendelesiHataridoOra} óráig leadott rendelésnél már a következő {hazhoz ? 'szállítási' : 'nyitvatartási'} nap is választható.
+                                </p>
+                            </div>
+                        )}
+                        {beallitasok && hazhoz && (
+                            <label className="vasarlas-darus">
+                                <input type="checkbox" checked={darus} onChange={(event) => setDarus(event.target.checked)} />
+                                <span>
+                                    <strong>Darus lerakodás</strong>
+                                    <small>Raklapos, nehéz áruhoz ajánlott. +{forint(beallitasok.szallitas.darusPotdij)} fordulónként.</small>
+                                </span>
+                            </label>
+                        )}
+                        {beallitasok && !hazhoz && (
+                            <Telephely telephely={beallitasok.telephely} nyitvatartas={beallitasok.nyitvatartas} />
+                        )}
                     </section>
 
                     <section className="vasarlas-kartya">
@@ -203,6 +286,13 @@ const Vasarlas = () => {
                             <label className="vasarlas-adoszam-mezo">
                                 Adószám *
                                 <input type="text" autoComplete="off" maxLength="32" value={adoszam} onChange={(event) => setAdoszam(event.target.value)} placeholder="12345678-1-12" required />
+                                {beallitasok && (
+                                    <small className="vasarlas-segitseg">
+                                        Érvényes adószámmal céges mennyiségi kedvezmény jár: {beallitasok.cegesKedvezmenySavok
+                                            .map((sav) => `${forint(sav.minimum)} felett ${sav.szazalek}%`)
+                                            .join(', ')}.
+                                    </small>
+                                )}
                             </label>
                         )}
                         <CimMezok
@@ -217,7 +307,7 @@ const Vasarlas = () => {
                     </section>
 
                     {hiba && <p className="vasarlas-hiba" role="alert">{hiba}</p>}
-                    <button className="vasarlas-fo-gomb vasarlas-leadas" type="submit" disabled={kuldes}>
+                    <button className="vasarlas-fo-gomb vasarlas-leadas" type="submit" disabled={kuldes || !atvetelNapja || minimumHiany > 0}>
                         {kuldes ? 'Rendelés rögzítése…' : 'Rendelés leadása'}
                         {!kuldes && <span aria-hidden="true">→</span>}
                     </button>
@@ -241,8 +331,37 @@ const Vasarlas = () => {
                             </li>
                         ))}
                     </ul>
-                    <div className="vasarlas-vegosszeg"><span>Végösszeg</span><strong>{forint(vegosszeg)}</strong></div>
-                    <p className="vasarlas-szallitas-info">A szállítási díjról és a teljesítésről a rendelés egyeztetésekor tájékoztatunk.</p>
+                    {osszesites ? (
+                        <div className={`vasarlas-osszesites${elonezet.betoltes ? ' vasarlas-osszesites--frissul' : ''}`} aria-live="polite">
+                            <OsszesitoSorok
+                                osszesites={osszesites}
+                                atvetelModja={atvetelModja}
+                                szallitasHelyett={hazhoz && !ervenyesIrsz ? 'add meg az irányítószámot' : undefined}
+                                vegosszegCimke={osszesites.szallitasSzamolhato ? 'Fizetendő' : 'Fizetendő (szállítás nélkül)'}
+                            />
+                        </div>
+                    ) : (
+                        <div className="vasarlas-vegosszeg"><span>Termékek</span><strong>{forint(vegosszeg)}</strong></div>
+                    )}
+                    {elonezet.hiba && <p className="vasarlas-figyelmeztetes" role="alert">{elonezet.hiba}</p>}
+                    {minimumHiany > 0 && (
+                        <p className="vasarlas-figyelmeztetes" role="alert">
+                            Házhozszállítás {forint(osszesites.minimumRendelesiErtek)} termékérték felett kérhető. Még {forint(minimumHiany)} hiányzik, vagy válaszd a személyes átvételt.
+                        </p>
+                    )}
+                    {elonezet.keszlethiany.map((hiany) => (
+                        <p key={hiany.termekId} className="vasarlas-figyelmeztetes" role="alert">
+                            „{hiany.nev}”: készleten csak {hiany.keszlet} van, módosítsd a mennyiséget a kosárban.
+                        </p>
+                    ))}
+                    {osszesites?.arajanlatAjanlott && (
+                        <div className="vasarlas-arajanlat">
+                            <strong>Nagy tétel?</strong>
+                            <span>Ekkora mennyiségre egyedi árajánlatot is adunk.</span>
+                            <Link to="/arajanlat">Árajánlatot kérek →</Link>
+                        </div>
+                    )}
+                    <p className="vasarlas-szallitas-info">A szállítási díjat a cím, a tömeg és a lerakodás módja alapján számoljuk.</p>
                 </aside>
             </div>
         </main>

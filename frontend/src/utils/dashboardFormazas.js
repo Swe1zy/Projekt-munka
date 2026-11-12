@@ -12,6 +12,9 @@ const honapFormazo = new Intl.DateTimeFormat('hu-HU', { month: 'short' });
 const hosszuHonapFormazo = new Intl.DateTimeFormat('hu-HU', { year: 'numeric', month: 'long' });
 const idopontFormazo = new Intl.DateTimeFormat('hu-HU', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 const oraFormazo = new Intl.DateTimeFormat('hu-HU', { hour: '2-digit', minute: '2-digit' });
+const teljesIdopontFormazo = new Intl.DateTimeFormat('hu-HU', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+export const teljesIdopont = (datum) => teljesIdopontFormazo.format(new Date(datum));
 
 export const forint = (ertek) => forintFormazo.format(ertek || 0);
 export const szam = (ertek) => szamFormazo.format(ertek || 0);

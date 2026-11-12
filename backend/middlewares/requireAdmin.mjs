@@ -22,6 +22,20 @@ export const requireAuthenticatedUser = async (req, res, next) => {
     }
 };
 
+// Vendégként és bejelentkezve is használható végpontokhoz: ha van érvényes
+// munkamenet, beállítja a req.authUser-t, különben továbbengedi a kérést.
+export const optionalAuthenticatedUser = async (req, res, next) => {
+    try {
+        const payload = verifyAuthToken(readAuthToken(req));
+        if (payload) {
+            req.authUser = await UserModel.findById(payload.sub).select('_id nev email role');
+        }
+    } catch (error) {
+        console.error('Opcionális hitelesítési hiba:', error);
+    }
+    return next();
+};
+
 export const requireAdmin = async (req, res, next) => {
     await requireAuthenticatedUser(req, res, () => {
         if (req.authUser.role !== 'admin') {

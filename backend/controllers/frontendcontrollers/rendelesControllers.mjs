@@ -1,6 +1,15 @@
 import mongoose from 'mongoose';
 import RendelesModel from '../../models/Rendeles.mjs';
 import TermekModel from '../../models/Termek.mjs';
+import { KISZALLITAS } from '../../config/uzlet.mjs';
+import { rendelesOsszesites } from '../../utils/arazas.mjs';
+import { dijbekeroFajlnev, dijbekeroPdf } from '../../utils/dijbekero.mjs';
+import { hatterben, keszletRiasztas, rendelesErtesitesek } from '../../utils/ertesitesek.mjs';
+import { keszletLevonas, keszletVisszaadas } from '../../utils/keszlet.mjs';
+import { valaszthatoNapok } from '../../utils/naptar.mjs';
+import { rendelesValasz } from '../../utils/rendelesFormazas.mjs';
+
+const SAJAT_RENDELESEK_LIMIT = 50;
 
 const EMAIL_MINTA = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_MENNYISEG = 999;
@@ -10,6 +19,46 @@ const cimValid = (cim) => cim &&
     cim.utca.length >= 3 && cim.utca.length <= 200;
 
 const szoveg = (ertek) => typeof ertek === 'string' ? ertek.trim() : '';
+
+/**
+ * A kosár tételeinek ellenőrzése és betöltése az adatbázisból. Az árat, nevet és
+ * egységet mindig a termékből vesszük, sosem a kliens adataiból.
+ * Eredmény: { hiba } vagy { termekTetelek: [{ termek, mennyiseg }] }.
+ */
+const tetelekBetoltese = async (tetelek, { keszletEllenorzes = true } = {}) => {
+    if (!Array.isArray(tetelek) || tetelek.length === 0 || tetelek.length > 100) {
+        return { hiba: 'A kosár üres vagy túl sok terméket tartalmaz.' };
+    }
+
+    const egyediTetelek = new Map();
+    for (const tetel of tetelek) {
+        if (!tetel || !mongoose.isValidObjectId(tetel.termekId) || !Number.isFinite(tetel.mennyiseg) || tetel.mennyiseg <= 0 || tetel.mennyiseg > MAX_MENNYISEG) {
+            return { hiba: 'A kosár egyik termékadata érvénytelen.' };
+        }
+        if (egyediTetelek.has(String(tetel.termekId))) {
+            return { hiba: 'A kosár ugyanazt a terméket többször tartalmazza.' };
+        }
+        egyediTetelek.set(String(tetel.termekId), tetel.mennyiseg);
+    }
+
+    const termekek = await TermekModel.find({ _id: { $in: [...egyediTetelek.keys()] } }).lean();
+    if (termekek.length !== egyediTetelek.size) {
+        return { hiba: 'A kosár egyik terméke már nem érhető el.' };
+    }
+
+    const termekTetelek = [];
+    for (const termek of termekek) {
+        const mennyiseg = egyediTetelek.get(String(termek._id));
+        if (termek.egyseg === 'db' && !Number.isInteger(mennyiseg)) {
+            return { hiba: `A(z) „${termek.nev}” csak egész darabszámban rendelhető.` };
+        }
+        if (keszletEllenorzes && mennyiseg > termek.keszlet) {
+            return { hiba: `A(z) „${termek.nev}” kért mennyisége nem elérhető.` };
+        }
+        termekTetelek.push({ termek, mennyiseg });
+    }
+    return { termekTetelek };
+};
 
 const postRendeles = async (req, res) => {
     try {
@@ -57,59 +106,91 @@ const postRendeles = async (req, res) => {
                 return res.status(400).json({ msg: 'Töltsd ki helyesen a szállítási nevet és címet.' });
             }
         }
-        if (!Array.isArray(tetelek) || tetelek.length === 0 || tetelek.length > 100) {
-            return res.status(400).json({ msg: 'A kosár üres vagy túl sok terméket tartalmaz.' });
-        }
-
-        const egyediTetelek = new Map();
-        for (const tetel of tetelek) {
-            if (!tetel || !mongoose.isValidObjectId(tetel.termekId) || !Number.isFinite(tetel.mennyiseg) || tetel.mennyiseg <= 0 || tetel.mennyiseg > MAX_MENNYISEG) {
-                return res.status(400).json({ msg: 'A kosár egyik termékadata érvénytelen.' });
-            }
-            if (egyediTetelek.has(String(tetel.termekId))) {
-                return res.status(400).json({ msg: 'A kosár ugyanazt a terméket többször tartalmazza.' });
-            }
-            egyediTetelek.set(String(tetel.termekId), tetel.mennyiseg);
-        }
-
-        const termekek = await TermekModel.find({ _id: { $in: [...egyediTetelek.keys()] } });
-        if (termekek.length !== egyediTetelek.size) {
-            return res.status(400).json({ msg: 'A kosár egyik terméke már nem érhető el.' });
-        }
-
-        const rendelesTetelek = [];
-        for (const termek of termekek) {
-            const mennyiseg = egyediTetelek.get(String(termek._id));
-            if (mennyiseg > termek.keszlet || (termek.egyseg === 'db' && !Number.isInteger(mennyiseg))) {
-                return res.status(400).json({ msg: `A(z) „${termek.nev}” kért mennyisége nem elérhető.` });
-            }
-            rendelesTetelek.push({
-                termekId: termek._id,
-                nev: termek.nev,
-                mennyiseg,
-                egyseg: termek.egyseg,
-                egysegar: termek.ar,
+        const hazhoz = atvetelModja === 'hazhozszallitas';
+        const valaszthato = valaszthatoNapok(atvetelModja).map((nap) => nap.datum);
+        const atvetelNapja = szoveg(req.body?.atvetelNapja);
+        if (!valaszthato.includes(atvetelNapja)) {
+            return res.status(400).json({
+                msg: hazhoz ? 'Válassz érvényes kiszállítási napot.' : 'Válassz érvényes átvételi napot.',
             });
         }
+        const idosav = hazhoz ? szoveg(req.body?.idosav) : undefined;
+        if (hazhoz && !KISZALLITAS.idosavok.some((sav) => sav.kulcs === idosav)) {
+            return res.status(400).json({ msg: 'Válassz kiszállítási idősávot.' });
+        }
+        const darus = hazhoz && req.body?.darus === true;
 
-        const vegosszeg = Math.round(rendelesTetelek.reduce(
-            (osszeg, tetel) => osszeg + tetel.egysegar * tetel.mennyiseg,
-            0,
-        ) * 100) / 100;
+        const betoltes = await tetelekBetoltese(tetelek);
+        if (betoltes.hiba) {
+            return res.status(400).json({ msg: betoltes.hiba });
+        }
+
+        const osszesites = rendelesOsszesites({
+            tetelek: betoltes.termekTetelek,
+            atvetelModja,
+            iranyitoszam: szallitasiAdatok?.iranyitoszam,
+            darus,
+            szamlazasiAdatok,
+        });
+        if (!osszesites.szallitasSzamolhato) {
+            return res.status(400).json({ msg: 'Ehhez az irányítószámhoz nem tudunk szállítási díjat számolni.' });
+        }
+        if (osszesites.minimumHiany > 0) {
+            return res.status(400).json({
+                msg: `Házhozszállítás ${osszesites.minimumRendelesiErtek.toLocaleString('hu-HU')} Ft termékérték felett kérhető.`,
+            });
+        }
+        const rendelesTetelek = osszesites.sorok.map(({ termekId, nev, mennyiseg, egyseg, egysegar }) => (
+            { termekId, nev, mennyiseg, egyseg, egysegar }
+        ));
         const normalizaltCim = szallitasiAdatok
             ? `${szallitasiAdatok.iranyitoszam} ${szallitasiAdatok.telepules}, ${szallitasiAdatok.utca}`
             : '';
-        const rendeles = await RendelesModel.create({
-            email: normalizaltEmail,
-            teljesNev: szamlazasiNev,
-            atvetelModja,
-            szallitasiCim: normalizaltCim,
-            szallitasiEgyezik: atvetelModja === 'hazhozszallitas' && szallitasiEgyezik,
-            szallitasiAdatok,
-            szamlazasiAdatok,
-            tetelek: rendelesTetelek,
-            vegosszeg,
-        });
+
+        // A fenti ellenőrzés óta más is vásárolhatott: a levonás atomi és feltételes,
+        // így csak akkor sikerül, ha a rendelés pillanatában is van elég készlet.
+        const levonas = await keszletLevonas(rendelesTetelek);
+        if (!levonas.siker) {
+            return res.status(409).json({
+                msg: `A(z) „${levonas.hianyzoTetel.nev}” kért mennyisége közben elfogyott. Frissítsd a kosarat, és próbáld újra.`,
+            });
+        }
+
+        let rendeles;
+        try {
+            rendeles = await RendelesModel.create({
+                userId: req.authUser?._id ?? null,
+                email: normalizaltEmail,
+                teljesNev: szamlazasiNev,
+                atvetelModja,
+                szallitasiCim: normalizaltCim,
+                szallitasiEgyezik: atvetelModja === 'hazhozszallitas' && szallitasiEgyezik,
+                szallitasiAdatok,
+                szamlazasiAdatok,
+                tetelek: rendelesTetelek,
+                vegosszeg: osszesites.vegosszeg,
+                osszesites: {
+                    termekOsszeg: osszesites.termekOsszeg,
+                    kedvezmenySzazalek: osszesites.kedvezmenySzazalek,
+                    kedvezmeny: osszesites.kedvezmeny,
+                    szallitasiDij: osszesites.szallitasiDij,
+                    sulyKg: osszesites.sulyKg,
+                    raklapok: osszesites.raklapok,
+                    raklapBetetdij: osszesites.raklapBetetdij,
+                    szallitas: osszesites.szallitas ?? undefined,
+                },
+                atvetelNapja,
+                idosav,
+            });
+        } catch (error) {
+            // Ha a rendelés nem mentődött el, a levont készletet visszaadjuk.
+            await keszletVisszaadas(rendelesTetelek);
+            throw error;
+        }
+
+        // Visszaigazoló és bolti e-mail, készletriasztás – a háttérben, a választ nem tartják fel.
+        hatterben(() => rendelesErtesitesek(rendeles._id), 'Rendelés-értesítés');
+        hatterben(() => keszletRiasztas(levonas.valtozasok), 'Készletriasztás');
 
         return res.status(201).json({
             msg: 'A rendelésedet rögzítettük.',
@@ -121,4 +202,69 @@ const postRendeles = async (req, res) => {
     }
 };
 
-export { postRendeles };
+const getSajatRendelesek = async (req, res) => {
+    try {
+        const rendelesek = await RendelesModel.find({ userId: req.authUser._id })
+            .sort({ createdAt: -1 })
+            .limit(SAJAT_RENDELESEK_LIMIT)
+            .lean();
+
+        return res.status(200).json({ rendelesek: rendelesek.map((rendeles) => rendelesValasz(rendeles)) });
+    } catch (error) {
+        console.error('Saját rendelések lekérési hiba:', error);
+        return res.status(500).json({ msg: 'A rendeléseidet most nem sikerült betölteni.' });
+    }
+};
+
+// Díj-előnézet a kosárhoz és a pénztárhoz: ugyanaz a számítás, mint rendeléskor,
+// de készletet nem foglal és a címet nem követeli meg.
+const postOsszesito = async (req, res) => {
+    try {
+        const { tetelek, atvetelModja, iranyitoszam, darus, szamlazasiTipus, adoszam } = req.body ?? {};
+        const betoltes = await tetelekBetoltese(tetelek, { keszletEllenorzes: false });
+        if (betoltes.hiba) {
+            return res.status(400).json({ msg: betoltes.hiba });
+        }
+
+        const modja = atvetelModja === 'hazhozszallitas' ? 'hazhozszallitas' : 'szemelyes_atvetel';
+        const osszesites = rendelesOsszesites({
+            tetelek: betoltes.termekTetelek,
+            atvetelModja: modja,
+            iranyitoszam: szoveg(iranyitoszam),
+            darus: modja === 'hazhozszallitas' && darus === true,
+            szamlazasiAdatok: { tipus: szamlazasiTipus, adoszam: szoveg(adoszam) },
+        });
+        const keszlethiany = betoltes.termekTetelek
+            .filter(({ termek, mennyiseg }) => mennyiseg > termek.keszlet)
+            .map(({ termek }) => ({ termekId: termek._id, nev: termek.nev, keszlet: termek.keszlet }));
+
+        return res.status(200).json({ osszesites: { ...osszesites, sorok: undefined }, keszlethiany });
+    } catch (error) {
+        console.error('Összesítő-hiba:', error);
+        return res.status(500).json({ msg: 'A díjakat most nem sikerült kiszámolni.' });
+    }
+};
+
+// Díjbekérő PDF: a saját rendeléséhez a vásárló, bármelyikhez az admin töltheti le.
+const getDijbekero = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const rendeles = mongoose.isValidObjectId(id) ? await RendelesModel.findById(id).lean() : null;
+        const sajat = rendeles?.userId && String(rendeles.userId) === String(req.authUser._id);
+        // Idegen rendelésnél is 404, hogy ne derüljön ki, létezik-e az azonosító.
+        if (!rendeles || (!sajat && req.authUser.role !== 'admin')) {
+            return res.status(404).json({ msg: 'A rendelés nem található.' });
+        }
+
+        const pdf = await dijbekeroPdf(rendeles);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="${dijbekeroFajlnev(rendeles)}"`);
+        res.setHeader('Cache-Control', 'private, no-store');
+        return res.status(200).send(pdf);
+    } catch (error) {
+        console.error('Díjbekérő-hiba:', error);
+        return res.status(500).json({ msg: 'A díjbekérőt most nem sikerült elkészíteni.' });
+    }
+};
+
+export { postRendeles, getSajatRendelesek, postOsszesito, getDijbekero };

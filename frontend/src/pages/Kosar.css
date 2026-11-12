@@ -412,3 +412,54 @@
         transition: none;
     }
 }
+
+/* ---------- Díj-előnézet, árajánlat, céges tájékoztató ---------- */
+
+.kosar-arazas {
+    transition: opacity 0.2s ease;
+}
+
+.kosar-arazas--frissul {
+    opacity: 0.6;
+}
+
+.kosar-figyelmeztetes {
+    margin: 0;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid #f1d39a;
+    border-radius: 0.7rem;
+    background: #fff8e8;
+    color: #7a4a00;
+    font-size: 0.84rem;
+}
+
+.kosar-arajanlat {
+    display: grid;
+    gap: 0.2rem;
+    padding: 0.85rem 0.95rem;
+    border: 1px solid #cfe0d2;
+    border-radius: 0.8rem;
+    background: #f1f7f1;
+    font-size: 0.86rem;
+}
+
+.kosar-arajanlat strong {
+    color: #17352b;
+}
+
+.kosar-arajanlat span {
+    color: #5f6f67;
+}
+
+.kosar-arajanlat a {
+    margin-top: 0.25rem;
+    color: #315d46;
+    font-weight: 750;
+}
+
+.kosar-ceges-info {
+    margin: 0;
+    color: #6b7a72;
+    font-size: 0.78rem;
+    line-height: 1.5;
+}

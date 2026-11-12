@@ -2,7 +2,10 @@ import { Link } from 'react-router-dom';
 import MennyisegValaszto from '../components/MennyisegValaszto';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import OsszesitoSorok from '../components/arazas/OsszesitoSorok';
+import { useBeallitasok } from '../utils/beallitasok';
 import { forint } from '../utils/termek';
+import { useOsszesito } from '../utils/useOsszesito';
 import './Kosar.css';
 
 const Ikon = ({ children }) => (
@@ -23,6 +26,14 @@ const Ikon = ({ children }) => (
 const Kosar = () => {
     const { tetelek, vegosszeg, mennyisegBeallit, torol, urit } = useCart();
     const toast = useToast();
+    const { adat: beallitasok } = useBeallitasok();
+    // Előnézet szállítás nélkül: a raklap-betétdíj és a végösszeg már itt látszik,
+    // a szállítási díjat a pénztár számolja a cím alapján.
+    const elonezet = useOsszesito(tetelek.length ? {
+        tetelek: tetelek.map((tetel) => ({ termekId: tetel.id, mennyiseg: tetel.mennyiseg })),
+        atvetelModja: 'szemelyes_atvetel',
+    } : null);
+    const osszesites = elonezet.osszesites;
 
     const tetelTorlese = (tetel) => {
         torol(tetel.id);
@@ -112,16 +123,46 @@ const Kosar = () => {
 
                     <aside className="kosar-osszegzo" aria-label="Összegzés">
                         <h2>Összegzés</h2>
-                        <dl>
-                            <div>
-                                <dt>Termékek</dt>
-                                <dd>{tetelek.length} féle termék</dd>
+                        {osszesites ? (
+                            <div className={elonezet.betoltes ? 'kosar-arazas kosar-arazas--frissul' : 'kosar-arazas'}>
+                                <OsszesitoSorok
+                                    osszesites={{ ...osszesites, szallitas: null }}
+                                    atvetelModja="hazhozszallitas"
+                                    szallitasHelyett="a pénztárban, cím alapján"
+                                    vegosszegCimke="Összesen (szállítás nélkül)"
+                                />
                             </div>
-                            <div className="kosar-vegosszeg">
-                                <dt>Végösszeg</dt>
-                                <dd>{forint(vegosszeg)}</dd>
+                        ) : (
+                            <dl>
+                                <div>
+                                    <dt>Termékek</dt>
+                                    <dd>{tetelek.length} féle termék</dd>
+                                </div>
+                                <div className="kosar-vegosszeg">
+                                    <dt>Végösszeg</dt>
+                                    <dd>{forint(vegosszeg)}</dd>
+                                </div>
+                            </dl>
+                        )}
+                        {elonezet.keszlethiany.map((hiany) => (
+                            <p key={hiany.termekId} className="kosar-figyelmeztetes" role="alert">
+                                „{hiany.nev}”: készleten csak {hiany.keszlet} van.
+                            </p>
+                        ))}
+                        {osszesites?.arajanlatAjanlott && (
+                            <div className="kosar-arajanlat">
+                                <strong>Nagy tétel?</strong>
+                                <span>Ekkora mennyiségre egyedi árajánlatot is adunk.</span>
+                                <Link to="/arajanlat">Árajánlatot kérek →</Link>
                             </div>
-                        </dl>
+                        )}
+                        {beallitasok && (
+                            <p className="kosar-ceges-info">
+                                Céges vásárlóként, érvényes adószámmal mennyiségi kedvezmény jár: {beallitasok.cegesKedvezmenySavok
+                                    .map((sav) => `${forint(sav.minimum)} felett ${sav.szazalek}%`)
+                                    .join(', ')}.
+                            </p>
+                        )}
                         <Link className="kosar-gomb-masodik" to="/termekek">
                             Vásárlás folytatása
                         </Link>

@@ -7,9 +7,11 @@ import { API_URL } from '../config';
 const KATEGORIAK = [
     'Falazóanyagok',
     'Cement és kötőanyagok',
+    'Ömlesztett anyagok és betonok',
     'Faanyagok',
     'Tetőfedés',
     'Hőszigetelés',
+    'Térkövek és burkolatok',
     'Szerszámok és kellékek',
 ];
 

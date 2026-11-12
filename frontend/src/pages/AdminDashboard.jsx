@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import MegoszlasSav from '../components/dashboard/MegoszlasSav';
+import AllapotJelveny from '../components/rendeles/AllapotJelveny';
 import OszlopDiagram from '../components/dashboard/OszlopDiagram';
 import RangsorSavok from '../components/dashboard/RangsorSavok';
 import Valtozas from '../components/dashboard/Valtozas';
@@ -16,6 +17,33 @@ const IDOSZAKOK = [
     { kulcs: '12honap', cimke: '12 hónap', osszevetes: 'előző 12 hónap' },
 ];
 const ALAP_IDOSZAK = '30nap';
+
+const EXPORTOK = [
+    { tipus: 'rendelesek', cimke: 'Rendelések' },
+    { tipus: 'idosor', cimke: 'Bevétel napi/havi bontásban' },
+    { tipus: 'termekek', cimke: 'Termékeladások' },
+    // A készlet aktuális állapot, az időszakválasztó nem vonatkozik rá.
+    { tipus: 'keszlet', cimke: 'Teljes készlet', idoszakFuggetlen: true },
+];
+
+// A CSV-t a backend állítja elő; hitelesített letöltés, ezért fetch + blob.
+const csvLetoltes = async (tipus, idoszak) => {
+    const response = await fetch(`${API_URL}/dashboard/export?tipus=${tipus}&idoszak=${idoszak}`, { credentials: 'include' });
+    if (!response.ok) {
+        const adat = await response.json().catch(() => ({}));
+        throw new Error(adat.msg || 'Az exportot nem sikerült letölteni.');
+    }
+    const blob = await response.blob();
+    const fajlnev = /filename="([^"]+)"/.exec(response.headers.get('Content-Disposition') ?? '')?.[1] ?? `${tipus}.csv`;
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fajlnev;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+};
 
 const StatCsempe = ({ cimke, ertek, mutato, osszevetes, mellek }) => (
     <article className="db-csempe">
@@ -53,6 +81,7 @@ const AdminDashboard = () => {
     const [searchParams, setSearchParams] = useSearchParams();
     const [frissites, setFrissites] = useState(0);
     const [tablazat, setTablazat] = useState(false);
+    const [exportAllapot, setExportAllapot] = useState({ folyamatban: null, hiba: '' });
     const [valasz, setValasz] = useState({ kulcs: null, adat: null, hiba: '' });
 
     const kertIdoszak = searchParams.get('idoszak');
@@ -86,7 +115,10 @@ const AdminDashboard = () => {
     }, [authReady, admin, idoszak.kulcs, keresKulcs]);
 
     if (!authReady) return <p className="db-oldal-allapot">Munkamenet ellenőrzése…</p>;
-    if (!admin) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    // Csak a kijelentkezett felhasználót küldjük a belépéshez; a bejelentkezett, de nem
+    // admin felhasználót a főoldalra, különben a belépés oldal visszairányítaná ide (végtelen ciklus).
+    if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+    if (!admin) return <Navigate to="/" replace />;
 
     const { adat, hiba } = valasz;
     const betoltes = valasz.kulcs !== keresKulcs;
@@ -127,11 +159,38 @@ const AdminDashboard = () => {
                         >
                             {betoltes && adat ? 'Frissítés…' : 'Frissítés'}
                         </button>
+                        <details className="db-export">
+                            <summary>CSV-export</summary>
+                            <div className="db-export-menu">
+                                {EXPORTOK.map((elem) => (
+                                    <button
+                                        key={elem.tipus}
+                                        type="button"
+                                        disabled={Boolean(exportAllapot.folyamatban)}
+                                        onClick={async (event) => {
+                                            const menu = event.currentTarget.closest('details');
+                                            setExportAllapot({ folyamatban: elem.tipus, hiba: '' });
+                                            try {
+                                                await csvLetoltes(elem.tipus, idoszak.kulcs);
+                                                setExportAllapot({ folyamatban: null, hiba: '' });
+                                                if (menu) menu.open = false;
+                                            } catch (error) {
+                                                setExportAllapot({ folyamatban: null, hiba: error.message });
+                                            }
+                                        }}
+                                    >
+                                        <strong>{exportAllapot.folyamatban === elem.tipus ? 'Készül…' : elem.cimke}</strong>
+                                        <small>{elem.idoszakFuggetlen ? 'aktuális állapot' : IDOSZAKOK.find((sor) => sor.kulcs === idoszak.kulcs)?.osszevetes.replace('előző', 'utolsó')}</small>
+                                    </button>
+                                ))}
+                            </div>
+                        </details>
                         {adat && <span className="db-frissitve">Frissítve {ora(adat.generalva)}</span>}
                     </div>
                 </div>
 
                 {hiba && <p className="db-hiba" role="alert">{hiba}</p>}
+                {exportAllapot.hiba && <p className="db-hiba" role="alert">{exportAllapot.hiba}</p>}
                 {!adat && betoltes && <p className="db-oldal-allapot">Adatok betöltése…</p>}
 
                 {adat && (
@@ -142,6 +201,10 @@ const AdminDashboard = () => {
                                 <strong className="db-hero-ertek">{forint(adat.osszegzes.bevetel.ertek)}</strong>
                                 <Valtozas ertek={adat.osszegzes.bevetel.valtozas} osszevetes={idoszak.osszevetes} />
                                 <span className="db-csempe-mellek">Előző időszak: {forint(adat.osszegzes.bevetel.elozo)}</span>
+                                <span className="db-csempe-mellek">
+                                    Lemondott rendelések és raklap-betétdíj nélkül
+                                    {adat.osszegzes.lemondott.rendelesek > 0 && ` · ${szam(adat.osszegzes.lemondott.rendelesek)} lemondva (${forint(adat.osszegzes.lemondott.ertek)})`}
+                                </span>
                             </article>
                             <div className="db-csempek">
                                 <StatCsempe cimke="Rendelések" ertek={szam(adat.osszegzes.rendelesek.ertek)} mutato={adat.osszegzes.rendelesek} osszevetes={idoszak.osszevetes} />
@@ -269,7 +332,17 @@ const AdminDashboard = () => {
                     </div>
 
                     <div className="db-csempek db-csempek--sor">
-                        <StatCsempe cimke="Összes bevétel" ertek={forint(adat.mindenkori.bevetel)} mellek={`${szam(adat.mindenkori.rendelesek)} rendelésből`} />
+                        <StatCsempe
+                            cimke="Feldolgozásra vár"
+                            ertek={`${szam(adat.rendelesAllapotok.feldolgozasra_var)} rendelés`}
+                            mellek={<Link className="db-csempe-link" to="/admin/rendelesek?allapot=feldolgozasra_var">Rendelések kezelése →</Link>}
+                        />
+                        <StatCsempe
+                            cimke="Új árajánlatkérés"
+                            ertek={`${szam(adat.ujArajanlatok ?? 0)} db`}
+                            mellek={<Link className="db-csempe-link" to="/admin/arajanlatok?allapot=uj">Árajánlatok →</Link>}
+                        />
+                        <StatCsempe cimke="Összes bevétel" ertek={forint(adat.mindenkori.bevetel)} mellek={`${szam(adat.mindenkori.rendelesek)} rendelésből, lemondottak és betétdíj nélkül`} />
                         <StatCsempe cimke="Regisztrált vásárlók" ertek={szam(adat.mindenkori.felhasznalok)} mellek="admin fiókok nélkül" />
                         <StatCsempe cimke="Termékek" ertek={szam(adat.keszlet.termekek)} mellek={`Készletérték: ${forint(adat.keszlet.keszletErtek)}`} />
                         <StatCsempe
@@ -284,8 +357,9 @@ const AdminDashboard = () => {
                             <div className="db-kartya-fej">
                                 <div>
                                     <h3>Legutóbbi rendelések</h3>
-                                    <p>Az utolsó {adat.legutobbiRendelesek.length || ''} rendelés</p>
+                                    <p>Legfrissebb elöl, lemondottakkal együtt</p>
                                 </div>
+                                <Link className="db-nezet-gomb" to="/admin/rendelesek">Összes rendelés</Link>
                             </div>
                             {adat.legutobbiRendelesek.length ? (
                                 <div className="db-tablazat-gorgeto">
@@ -294,7 +368,7 @@ const AdminDashboard = () => {
                                             <tr>
                                                 <th scope="col">Időpont</th>
                                                 <th scope="col">Vevő</th>
-                                                <th scope="col">Átvétel</th>
+                                                <th scope="col">Állapot</th>
                                                 <th scope="col" className="db-szam">Végösszeg</th>
                                             </tr>
                                         </thead>
@@ -304,9 +378,9 @@ const AdminDashboard = () => {
                                                     <td className="db-nowrap">{idopont(rendeles.datum)}</td>
                                                     <td>
                                                         <span className="db-cella-fo">{rendeles.nev}</span>
-                                                        <span className="db-cella-mellek">{szam(rendeles.tetelSzam)} tétel · {rendeles.allapot}</span>
+                                                        <span className="db-cella-mellek">#{rendeles.rovidAzonosito} · {szam(rendeles.tetelSzam)} tétel · {rendeles.atvetelModja}</span>
                                                     </td>
-                                                    <td>{rendeles.atvetelModja}</td>
+                                                    <td><AllapotJelveny allapot={rendeles.allapot} cimke={rendeles.allapotCimke} /></td>
                                                     <td className="db-szam db-nowrap">{forint(rendeles.vegosszeg)}</td>
                                                 </tr>
                                             ))}

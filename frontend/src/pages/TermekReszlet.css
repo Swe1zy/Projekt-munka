@@ -327,3 +327,13 @@
         transition: none;
     }
 }
+
+.termek-reszlet-raklap {
+    margin: 0;
+    padding: 0.65rem 0.8rem;
+    border-radius: 0.7rem;
+    background: #f3f6f0;
+    color: #55665d;
+    font-size: 0.82rem;
+    line-height: 1.45;
+}

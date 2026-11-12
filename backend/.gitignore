@@ -1,2 +1,4 @@
 .env
 node_modules
+# Fejlesztéskor (SMTP nélkül) ide menti a kimenő e-maileket
+kimeno-levelek

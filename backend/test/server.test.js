@@ -43,3 +43,64 @@ describe("Dashboard végpont", () => {
         expect(response.body.osszegzes).toBeUndefined();
     });
 });
+
+describe("Rendelés végpontok jogosultsága", () => {
+    it("GET /api/rendelesek/sajat - bejelentkezés nélkül 401-et ad", async () => {
+        const response = await request("http://localhost:3600").get("/api/rendelesek/sajat");
+
+        expect(response.status).toBe(401);
+    });
+
+    it("GET /api/admin/rendelesek - bejelentkezés nélkül 401-et ad", async () => {
+        const response = await request("http://localhost:3600").get("/api/admin/rendelesek");
+
+        expect(response.status).toBe(401);
+    });
+
+    it("PATCH /api/admin/rendelesek/:id/allapot - bejelentkezés nélkül nem módosít", async () => {
+        const response = await request("http://localhost:3600")
+            .patch("/api/admin/rendelesek/000000000000000000000000/allapot")
+            .send({ allapot: "lemondva" });
+
+        expect(response.status).toBe(401);
+    });
+});
+
+
+describe("Szállítás, beállítások, árajánlat", () => {
+    it("GET /api/beallitasok - visszaadja a telephelyet és a választható napokat", async () => {
+        const response = await request("http://localhost:3600").get("/api/beallitasok");
+
+        expect(response.status).toBe(200);
+        expect(response.body.telephely.cim).toBeTruthy();
+        expect(Array.isArray(response.body.valaszthatoNapok.hazhozszallitas)).toBe(true);
+    });
+
+    it("POST /api/rendelesek/osszesito - üres kosárra 400-at ad", async () => {
+        const response = await request("http://localhost:3600")
+            .post("/api/rendelesek/osszesito")
+            .send({ tetelek: [] });
+
+        expect(response.status).toBe(400);
+    });
+
+    it("GET /api/admin/arajanlatok - bejelentkezés nélkül 401-et ad", async () => {
+        const response = await request("http://localhost:3600").get("/api/admin/arajanlatok");
+
+        expect(response.status).toBe(401);
+    });
+});
+
+describe("Díjbekérő és export jogosultsága", () => {
+    it("GET /api/rendelesek/:id/dijbekero - bejelentkezés nélkül 401-et ad", async () => {
+        const response = await request("http://localhost:3600").get("/api/rendelesek/000000000000000000000000/dijbekero");
+
+        expect(response.status).toBe(401);
+    });
+
+    it("GET /api/dashboard/export - bejelentkezés nélkül 401-et ad", async () => {
+        const response = await request("http://localhost:3600").get("/api/dashboard/export?tipus=keszlet");
+
+        expect(response.status).toBe(401);
+    });
+});

@@ -56,3 +56,178 @@
     font-weight: 700;
     margin: 0;
 }
+
+/* ---------- Profil + Rendeléseim elrendezés ---------- */
+
+.profil-oldal {
+    align-items: flex-start;
+}
+
+.profil-racs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    width: min(100%, 1180px);
+}
+
+.profil-racs > .profil-kartya {
+    justify-self: center;
+    width: 100%;
+}
+
+@media (min-width: 1000px) {
+    .profil-racs {
+        grid-template-columns: minmax(0, 26rem) minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .profil-racs > .profil-kartya {
+        position: sticky;
+        top: 6rem;
+    }
+}
+
+.profil-rendelesek {
+    display: grid;
+    gap: 1rem;
+    min-width: 0;
+    scroll-margin-top: 6rem;
+}
+
+.profil-rendelesek-fej h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.profil-rendelesek-fej p {
+    margin: 0.15rem 0 0;
+    color: #64748b;
+}
+
+.profil-rendelesek-uzenet {
+    display: grid;
+    justify-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 2.25rem 1rem;
+    border: 1px dashed #cbd5e1;
+    border-radius: 1rem;
+    color: #64748b;
+    background: rgba(255, 255, 255, 0.7);
+    text-align: center;
+}
+
+.profil-rendelesek-uzenet p {
+    margin: 0;
+}
+
+.profil-rendelesek-uzenet a {
+    color: #c2410c;
+    font-weight: 700;
+}
+
+.profil-rendelesek-lista {
+    display: grid;
+    gap: 1rem;
+}
+
+.sajat-rendeles {
+    display: grid;
+    gap: 1.1rem;
+    min-width: 0;
+    padding: clamp(1rem, 2.5vw, 1.4rem);
+    border: 1px solid #e2e8f0;
+    border-radius: 1.1rem;
+    background: #ffffff;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 26px rgba(15, 23, 42, 0.06);
+}
+
+.sajat-rendeles--lemondva {
+    background: #fdfcfc;
+}
+
+.sajat-rendeles-fej {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1rem;
+}
+
+.sajat-rendeles-fej div {
+    display: grid;
+}
+
+.sajat-rendeles-fej strong {
+    color: #0f172a;
+    font-size: 1.05rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.02em;
+}
+
+.sajat-rendeles-fej span:not(.rendeles-allapot) {
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.sajat-rendeles-osszeg {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.25rem 1rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid #edf0f2;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.sajat-rendeles-osszeg strong {
+    color: #0f172a;
+    font-size: 1.2rem;
+}
+
+.sajat-rendeles-reszletek {
+    border-top: 1px solid #edf0f2;
+    padding-top: 0.75rem;
+}
+
+.sajat-rendeles-reszletek summary {
+    width: fit-content;
+    color: #c2410c;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.sajat-rendeles-reszletek summary:focus-visible {
+    outline: 2px solid #f97316;
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+.sajat-rendeles-reszletek[open] summary {
+    margin-bottom: 0.9rem;
+}
+
+.sajat-rendeles-cimek {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.sajat-rendeles-osszesites {
+    margin-top: 1rem;
+}
+
+.sajat-rendeles-pdf {
+    display: inline-block;
+    margin-top: 1rem;
+    color: #c2410c;
+    font-size: 0.9rem;
+    font-weight: 700;
+}

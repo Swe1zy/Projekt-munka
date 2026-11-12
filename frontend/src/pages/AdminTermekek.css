@@ -356,3 +356,59 @@
         flex-basis: calc(100% - 60px);
     }
 }
+
+/* ---------- Nem kötelező szállítási / kalkulátor mezők ---------- */
+
+.admin-opcionalis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+    gap: 0.9rem 1rem;
+    min-width: 0;
+    margin: 0;
+    padding: 1rem;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+}
+
+.admin-opcionalis legend {
+    padding: 0 0.35rem;
+    color: var(--admin-text);
+    font-size: 0.9rem;
+    font-weight: 750;
+}
+
+.admin-opcionalis legend small {
+    color: var(--admin-muted);
+    font-weight: 500;
+}
+
+.admin-opcionalis label {
+    display: grid;
+    align-content: start;
+    gap: 0.35rem;
+    color: var(--admin-text);
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.admin-opcionalis input {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #ffffff;
+    color: var(--admin-ink);
+    font: inherit;
+}
+
+.admin-opcionalis input:focus-visible {
+    border-color: var(--admin-accent);
+    outline: 3px solid rgba(249, 115, 22, 0.15);
+}
+
+.admin-opcionalis small {
+    color: var(--admin-muted);
+    font-size: 0.76rem;
+    font-weight: 500;
+}

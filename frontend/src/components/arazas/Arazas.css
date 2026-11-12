@@ -1,0 +1,146 @@
+.arazas-sorok {
+    display: grid;
+    gap: 0.45rem;
+    margin: 0;
+    font-size: 0.92rem;
+}
+
+.arazas-sorok > div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.arazas-sorok dt {
+    display: grid;
+    color: #475569;
+}
+
+.arazas-sorok dt small {
+    color: #8a94a3;
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
+.arazas-sorok dd {
+    margin: 0;
+    color: #0f172a;
+    font-variant-numeric: tabular-nums;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+.arazas-kedvezmeny dd {
+    color: #0a6b2f;
+}
+
+.arazas-fuggo {
+    color: #8a94a3 !important;
+    font-weight: 500 !important;
+}
+
+.arazas-vegosszeg {
+    margin-top: 0.35rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.arazas-vegosszeg dt {
+    color: #0f172a;
+    font-weight: 750;
+}
+
+.arazas-vegosszeg dd {
+    font-size: 1.3rem;
+    font-weight: 800;
+}
+
+.arazas-visszajaro dd {
+    color: #0a6b2f;
+}
+
+/* ---------- Telephely-kártya ---------- */
+
+.telephely {
+    display: grid;
+    gap: 1rem;
+}
+
+.telephely-adatok {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+    gap: 1rem;
+}
+
+.telephely-adatok address {
+    display: grid;
+    gap: 0.15rem;
+    color: #334155;
+    font-size: 0.92rem;
+    font-style: normal;
+}
+
+.telephely-adatok strong {
+    color: #0f172a;
+}
+
+.telephely-adatok a {
+    color: #c2410c;
+    font-weight: 650;
+}
+
+.telephely-nyitvatartas {
+    display: grid;
+    gap: 0.15rem;
+    margin: 0;
+    font-size: 0.88rem;
+}
+
+.telephely-nyitvatartas div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.telephely-nyitvatartas dt {
+    color: #475569;
+    text-transform: capitalize;
+}
+
+.telephely-nyitvatartas dd {
+    margin: 0;
+    color: #0f172a;
+    font-variant-numeric: tabular-nums;
+}
+
+.telephely-nyitvatartas .telephely-ma dt,
+.telephely-nyitvatartas .telephely-ma dd {
+    font-weight: 750;
+}
+
+.telephely-terkep {
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f1f5f9;
+}
+
+.telephely-terkep iframe {
+    display: block;
+    width: 100%;
+    height: 240px;
+    border: 0;
+}
+
+.telephely-utvonal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    font-size: 0.86rem;
+}
+
+.telephely-utvonal a {
+    color: #c2410c;
+    font-weight: 650;
+}

@@ -49,6 +49,13 @@ const ikonUtak = {
             <path d="M22 11h-6" />
         </>
     ),
+    rendelesek: (
+        <>
+            <path d="M21 8 12 3 3 8v8l9 5 9-5z" />
+            <path d="m3 8 9 5 9-5" />
+            <path d="M12 13v8" />
+        </>
+    ),
     kosar: (
         <>
             <circle
@@ -148,7 +155,10 @@ const Nav = () => {
                     Főoldal
                 </NavLink>
                 <NavLink to="/termekek">Termékek</NavLink>
+                <NavLink to="/kalkulator">Kalkulátor</NavLink>
                 {user?.role === 'admin' && <NavLink to="/admin/dashboard">Dashboard</NavLink>}
+                {user?.role === 'admin' && <NavLink to="/admin/rendelesek">Rendelések</NavLink>}
+                {user?.role === 'admin' && <NavLink to="/admin/arajanlatok">Árajánlatok</NavLink>}
                 {user?.role === 'admin' && <NavLink to="/admin/termekek">Termékkezelés</NavLink>}
             </div>
 
@@ -214,6 +224,14 @@ const Nav = () => {
                                     >
                                         <Ikon nev="profil" />
                                         Profilom
+                                    </NavLink>
+                                    <NavLink
+                                        to="/profil#rendeleseim"
+                                        className="nav-fiok-elem"
+                                        end
+                                    >
+                                        <Ikon nev="rendelesek" />
+                                        Rendeléseim
                                     </NavLink>
                                     <hr className="nav-fiok-elv" />
                                     <NavLink

@@ -1,5 +1,54 @@
 import mongoose from 'mongoose';
 
+export const RENDELES_ALLAPOTOK = {
+    feldolgozasra_var: 'Feldolgozásra vár',
+    visszaigazolva: 'Visszaigazolva',
+    kiszallitas_alatt: 'Kiszállítás alatt',
+    teljesitve: 'Teljesítve',
+    lemondva: 'Lemondva',
+};
+
+export const ATVETELI_MODOK = {
+    hazhozszallitas: 'Házhozszállítás',
+    szemelyes_atvetel: 'Személyes átvétel',
+};
+
+// Melyik állapotból hová léphet tovább a rendelés. A teljesített és a lemondott
+// rendelés lezárt: így a lemondáskor visszaadott készletet sem lehet kétszer jóváírni.
+const ALLAPOT_ATMENETEK = {
+    feldolgozasra_var: ['visszaigazolva', 'lemondva'],
+    visszaigazolva: ['kiszallitas_alatt', 'teljesitve', 'lemondva'],
+    kiszallitas_alatt: ['teljesitve', 'lemondva'],
+    teljesitve: [],
+    lemondva: [],
+};
+
+export const kovetkezoAllapotok = (allapot, atvetelModja) =>
+    (ALLAPOT_ATMENETEK[allapot] ?? []).filter(
+        (uj) => uj !== 'kiszallitas_alatt' || atvetelModja === 'hazhozszallitas',
+    );
+
+const allapotTortenetSchema = new mongoose.Schema(
+    {
+        allapot: {
+            type: String,
+            enum: Object.keys(RENDELES_ALLAPOTOK),
+            required: true,
+        },
+        datum: {
+            type: Date,
+            default: Date.now,
+        },
+        megjegyzes: {
+            type: String,
+            trim: true,
+            maxlength: 300,
+            default: '',
+        },
+    },
+    { _id: false },
+);
+
 const rendelesTetelSchema = new mongoose.Schema(
     {
         termekId: {
@@ -42,6 +91,13 @@ const szallitasiAdatokSchema = new mongoose.Schema(
 
 const rendelesSchema = new mongoose.Schema(
     {
+        // Bejelentkezve leadott rendelésnél a vásárló fiókja; vendégként null.
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'user',
+            default: null,
+            index: true,
+        },
         email: {
             type: String,
             required: true,
@@ -99,17 +155,81 @@ const rendelesSchema = new mongoose.Schema(
             min: 0,
             required: true,
         },
+        // A végösszeg összetevői a rendelés pillanatában (régebbi rendeléseknél hiányzik).
+        osszesites: {
+            type: new mongoose.Schema(
+                {
+                    termekOsszeg: { type: Number, min: 0, required: true },
+                    kedvezmenySzazalek: { type: Number, min: 0, default: 0 },
+                    kedvezmeny: { type: Number, min: 0, default: 0 },
+                    szallitasiDij: { type: Number, min: 0, default: 0 },
+                    sulyKg: { type: Number, min: 0, default: 0 },
+                    raklapok: { type: Number, min: 0, default: 0 },
+                    raklapBetetdij: { type: Number, min: 0, default: 0 },
+                    szallitas: {
+                        type: new mongoose.Schema(
+                            {
+                                zona: String,
+                                zonaNev: String,
+                                jarmu: String,
+                                fuvarok: Number,
+                                darus: Boolean,
+                                alapdij: Number,
+                                darusPotdij: Number,
+                            },
+                            { _id: false },
+                        ),
+                        default: undefined,
+                    },
+                },
+                { _id: false },
+            ),
+            default: undefined,
+        },
+        // Kiszállítás vagy személyes átvétel napja („ÉÉÉÉ-HH-NN”) és kiszállításnál az idősáv.
+        atvetelNapja: {
+            type: String,
+            match: /^\d{4}-\d{2}-\d{2}$/,
+            default: undefined,
+        },
+        idosav: {
+            type: String,
+            default: undefined,
+        },
+        // A vevő által visszahozott raklapok száma (ennyi betétdíj jár vissza).
+        visszahozottRaklapok: {
+            type: Number,
+            min: 0,
+            default: 0,
+        },
+        // Mikor ment ki a visszaigazoló (vevő) és az értesítő (bolt) e-mail, illetve a hiba oka.
+        ertesitesek: {
+            type: new mongoose.Schema(
+                {
+                    vevo: { type: Date, default: null },
+                    bolt: { type: Date, default: null },
+                    hiba: { type: String, default: '' },
+                },
+                { _id: false },
+            ),
+            default: undefined,
+        },
         allapot: {
             type: String,
-            enum: ['feldolgozasra_var'],
+            enum: Object.keys(RENDELES_ALLAPOTOK),
             default: 'feldolgozasra_var',
+        },
+        allapotTortenet: {
+            type: [allapotTortenetSchema],
+            default: () => [{ allapot: 'feldolgozasra_var' }],
         },
     },
     { timestamps: true },
 );
 
-// A dashboard időszakos lekérdezései dátum szerint szűrnek.
+// A dashboard időszakos lekérdezései dátum szerint, a rendeléskezelő állapot szerint szűr.
 rendelesSchema.index({ createdAt: -1 });
+rendelesSchema.index({ allapot: 1, createdAt: -1 });
 
 const RendelesModel = mongoose.model('rendeles', rendelesSchema);
 

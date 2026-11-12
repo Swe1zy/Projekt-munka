@@ -1,0 +1,461 @@
+.kalkulator {
+    --kalk-ink: #17352b;
+    --kalk-text: #43564e;
+    --kalk-muted: #74837b;
+    --kalk-line: #e2e8df;
+    --kalk-green: #315d46;
+    --kalk-orange: #c65a24;
+
+    box-sizing: border-box;
+    width: min(100%, 1180px);
+    min-height: calc(100vh - 4.5rem);
+    margin: 0 auto;
+    padding: clamp(1.5rem, 4vw, 3rem) clamp(1rem, 3vw, 2rem) 4rem;
+    color: var(--kalk-text);
+}
+
+.kalkulator *,
+.kalkulator *::before,
+.kalkulator *::after {
+    box-sizing: border-box;
+}
+
+.kalkulator h1,
+.kalkulator h2,
+.kalkulator p {
+    margin: 0;
+}
+
+.kalk-fejlec {
+    display: grid;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+    padding: clamp(1.4rem, 3vw, 2.2rem);
+    border: 1px solid rgba(226, 232, 223, 0.9);
+    border-radius: 1.5rem;
+    background:
+        radial-gradient(ellipse at 92% 0%, rgba(198, 90, 36, 0.15), transparent 42%),
+        radial-gradient(ellipse at 5% 100%, rgba(49, 93, 70, 0.1), transparent 38%),
+        linear-gradient(135deg, #fffdf8, #f2f6f0);
+}
+
+.kalk-fejlec > span {
+    color: var(--kalk-orange);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+}
+
+.kalk-fejlec h1 {
+    color: var(--kalk-ink);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+}
+
+.kalk-fejlec p {
+    max-width: 44rem;
+    color: var(--kalk-muted);
+}
+
+/* ---------- Fülek ---------- */
+
+.kalk-fulek {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+}
+
+.kalk-fulek button {
+    display: grid;
+    gap: 0.1rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--kalk-line);
+    border-radius: 0.9rem;
+    background: #ffffff;
+    color: var(--kalk-ink);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.16s ease, background-color 0.16s ease;
+}
+
+.kalk-fulek button:hover {
+    border-color: #c9d6cb;
+}
+
+.kalk-fulek button[aria-selected='true'] {
+    border-color: var(--kalk-green);
+    background: #eef4ef;
+    box-shadow: inset 0 0 0 1px var(--kalk-green);
+}
+
+.kalk-fulek strong {
+    font-size: 1rem;
+}
+
+.kalk-fulek small {
+    color: var(--kalk-muted);
+    font-size: 0.78rem;
+}
+
+.kalk-fulek button:focus-visible,
+.kalk-gomb:focus-visible {
+    outline: 3px solid rgba(198, 90, 36, 0.3);
+    outline-offset: 2px;
+}
+
+@media (max-width: 700px) {
+    .kalk-fulek {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ---------- Elrendezés ---------- */
+
+.kalk-racs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 1.25rem;
+}
+
+@media (min-width: 960px) {
+    .kalk-racs {
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    }
+
+    .kalk-eredmeny {
+        position: sticky;
+        top: 5.5rem;
+    }
+}
+
+.kalk-kartya {
+    display: grid;
+    gap: 1rem;
+    min-width: 0;
+    padding: clamp(1.1rem, 2.5vw, 1.6rem);
+    border: 1px solid var(--kalk-line);
+    border-radius: 1.1rem;
+    background: #fffefa;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 26px rgba(15, 23, 42, 0.05);
+}
+
+.kalk-kartya h2 {
+    color: var(--kalk-ink);
+    font-size: 1.05rem;
+    font-weight: 800;
+}
+
+.kalk-kartya h2:not(:first-child) {
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--kalk-line);
+}
+
+.kalk-mezok {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.9rem 1rem;
+}
+
+@media (max-width: 520px) {
+    .kalk-mezok {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.kalk-mezo {
+    display: grid;
+    align-content: start;
+    gap: 0.35rem;
+    min-width: 0;
+    color: var(--kalk-ink);
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.kalk-mezo--szeles,
+.kalk-valto,
+.kalk-jelolo {
+    grid-column: 1 / -1;
+}
+
+.kalk-mezo small {
+    color: var(--kalk-muted);
+    font-size: 0.76rem;
+    font-weight: 450;
+}
+
+.kalk-mezo-bevitel {
+    position: relative;
+    display: block;
+}
+
+.kalk-mezo input,
+.kalk-mezo select {
+    width: 100%;
+    min-height: 2.9rem;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid #dce4da;
+    border-radius: 0.7rem;
+    background: #ffffff;
+    color: var(--kalk-ink);
+    font: inherit;
+    font-size: 0.94rem;
+    font-weight: 500;
+}
+
+.kalk-mezo input {
+    padding-right: 3rem;
+}
+
+.kalk-mezo input:focus-visible,
+.kalk-mezo select:focus-visible {
+    border-color: var(--kalk-orange);
+    outline: 3px solid rgba(198, 90, 36, 0.16);
+}
+
+.kalk-mezo-egyseg {
+    position: absolute;
+    top: 50%;
+    right: 0.85rem;
+    color: var(--kalk-muted);
+    font-size: 0.86rem;
+    font-weight: 600;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.kalk-valto {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.kalk-valto legend {
+    margin-bottom: 0.35rem;
+    padding: 0;
+    color: var(--kalk-ink);
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.kalk-valto label {
+    display: inline-flex;
+    flex: 1 1 11rem;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.8rem;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid #dce4da;
+    border-radius: 0.7rem;
+    background: #ffffff;
+    color: var(--kalk-ink);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.kalk-valto label.aktiv {
+    border-color: var(--kalk-green);
+    background: #eef4ef;
+    box-shadow: inset 0 0 0 1px var(--kalk-green);
+}
+
+.kalk-valto input,
+.kalk-jelolo input,
+.kalk-sor input {
+    accent-color: var(--kalk-green);
+}
+
+.kalk-jelolo {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    color: var(--kalk-ink);
+    font-size: 0.9rem;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.kalk-jelolo input {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin: 0.15rem 0 0;
+}
+
+.kalk-jelolo span {
+    display: grid;
+}
+
+.kalk-jelolo small {
+    color: var(--kalk-muted);
+    font-size: 0.78rem;
+    font-weight: 450;
+}
+
+/* ---------- Eredmény ---------- */
+
+.kalk-ures {
+    padding: 2rem 1rem;
+    border: 1px dashed #d4dccf;
+    border-radius: 0.8rem;
+    color: var(--kalk-muted);
+    text-align: center;
+}
+
+.kalk-osszegzes {
+    color: var(--kalk-muted);
+    font-size: 0.9rem;
+}
+
+.kalk-sorok {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.kalk-sor {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.75rem;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid var(--kalk-line);
+    border-radius: 0.85rem;
+    background: #ffffff;
+}
+
+.kalk-sor > input {
+    width: 1.15rem;
+    height: 1.15rem;
+    margin: 0.2rem 0 0;
+}
+
+.kalk-sor--info {
+    background: #f7f8f4;
+}
+
+.kalk-info-ikon {
+    display: grid;
+    width: 1.15rem;
+    height: 1.15rem;
+    margin-top: 0.2rem;
+    place-items: center;
+    border-radius: 50%;
+    background: #dfe7df;
+    color: var(--kalk-green);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.kalk-sor-adat,
+.kalk-sor-mennyiseg {
+    display: grid;
+    gap: 0.1rem;
+    min-width: 0;
+}
+
+.kalk-sor-szerep {
+    color: var(--kalk-muted);
+    font-size: 0.72rem;
+    font-weight: 750;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.kalk-sor-adat strong {
+    color: var(--kalk-ink);
+    font-size: 0.9rem;
+    line-height: 1.3;
+}
+
+.kalk-sor small {
+    color: var(--kalk-muted);
+    font-size: 0.78rem;
+}
+
+.kalk-sor .kalk-keszlet {
+    color: #9a5b00;
+    font-weight: 650;
+}
+
+.kalk-sor-mennyiseg {
+    text-align: right;
+}
+
+.kalk-sor-mennyiseg strong {
+    color: var(--kalk-ink);
+    font-size: 0.98rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.kalk-osszesen {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--kalk-line);
+    color: var(--kalk-ink);
+    font-weight: 700;
+}
+
+.kalk-osszesen strong {
+    color: var(--kalk-orange);
+    font-size: 1.3rem;
+}
+
+.kalk-gomb {
+    min-height: 3.2rem;
+    padding: 0.75rem 1.2rem;
+    border: 1px solid var(--kalk-orange);
+    border-radius: 0.8rem;
+    background: var(--kalk-orange);
+    color: #ffffff;
+    font: inherit;
+    font-weight: 750;
+    cursor: pointer;
+    transition: background-color 0.16s ease, transform 0.16s ease;
+}
+
+.kalk-gomb:hover:not(:disabled) {
+    background: #a94a1b;
+    transform: translateY(-1px);
+}
+
+.kalk-gomb:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.kalk-kosar-link {
+    justify-self: center;
+    color: var(--kalk-green);
+    font-weight: 750;
+}
+
+.kalk-megjegyzes {
+    color: var(--kalk-muted);
+    font-size: 0.76rem;
+    line-height: 1.5;
+}
+
+.kalk-hiba {
+    margin-bottom: 1rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid #f0c4b8;
+    border-radius: 0.75rem;
+    background: #fff2ee;
+    color: #a33720;
+}

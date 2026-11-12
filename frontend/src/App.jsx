@@ -15,6 +15,10 @@ import Termekek from './pages/Termekek';
 import TermekReszlet from './pages/TermekReszlet';
 import AdminTermekek from './pages/AdminTermekek';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminRendelesek from './pages/AdminRendelesek';
+import AdminArajanlatok from './pages/AdminArajanlatok';
+import Arajanlat from './pages/Arajanlat';
+import Kalkulator from './pages/Kalkulator';
 
 function App() {
     return (
@@ -52,6 +56,22 @@ function App() {
                                 <Route
                                     path="/admin/dashboard"
                                     element={<AdminDashboard />}
+                                />
+                                <Route
+                                    path="/admin/rendelesek"
+                                    element={<AdminRendelesek />}
+                                />
+                                <Route
+                                    path="/admin/arajanlatok"
+                                    element={<AdminArajanlatok />}
+                                />
+                                <Route
+                                    path="/kalkulator"
+                                    element={<Kalkulator />}
+                                />
+                                <Route
+                                    path="/arajanlat"
+                                    element={<Arajanlat />}
                                 />
                                 <Route
                                     path="/register"

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
+import { useBeallitasok } from '../utils/beallitasok';
 import './AdminTermekek.css';
 
 const KATEGORIAK = [
@@ -11,7 +12,23 @@ const KATEGORIAK = [
     'Tetőfedés',
     'Hőszigetelés',
     'Szerszámok és kellékek',
+    'Ömlesztett anyagok és betonok',
+    'Térkövek és burkolatok',
 ];
+
+const EGYSEGEK = [
+    { ertek: 'm³', cimke: 'Köbméter (m³)' },
+    { ertek: 'm²', cimke: 'Négyzetméter (m²)' },
+    { ertek: 'db', cimke: 'Darab (db)' },
+    { ertek: 'csomag', cimke: 'Csomag' },
+    { ertek: 'doboz', cimke: 'Doboz' },
+    { ertek: 'készlet', cimke: 'Készlet' },
+    { ertek: 'pár', cimke: 'Pár' },
+    { ertek: 'tekercs', cimke: 'Tekercs' },
+];
+
+// Nem kötelező számmezők: üresen hagyva a kategória alapértéke érvényes.
+const OPCIONALIS_MEZOK = ['suly', 'raklapon', 'darabPerEgyseg'];
 
 const uresUrlap = () => ({
     id: '',
@@ -21,6 +38,9 @@ const uresUrlap = () => ({
     ar: '',
     egyseg: '',
     keszlet: '',
+    suly: '',
+    raklapon: '',
+    darabPerEgyseg: '',
     kepek: [''],
 });
 
@@ -37,6 +57,7 @@ const AdminTermekek = () => {
     const [betoltes, setBetoltes] = useState(true);
     const [kuldes, setKuldes] = useState(false);
     const [hiba, setHiba] = useState('');
+    const { adat: beallitasok } = useBeallitasok();
 
     const termekekBetoltese = useCallback(async () => {
         const response = await fetch(`${API_URL}/frontend-termekek`, { credentials: 'include' });
@@ -65,9 +86,16 @@ const AdminTermekek = () => {
     }, [authReady, user, termekekBetoltese]);
 
     if (!authReady) return <p className="admin-allapot">Munkamenet ellenőrzése…</p>;
-    if (!user || user.role !== 'admin') {
+    if (!user) {
         return <Navigate to="/login" replace state={{ from: location.pathname }} />;
     }
+    // Bejelentkezett, de nem admin felhasználó: a belépés oldal visszaküldené ide (végtelen ciklus).
+    if (user.role !== 'admin') return <Navigate to="/" replace />;
+
+    const alapertek = (mezo) => {
+        const ertek = beallitasok?.kategoriaAlapertekek?.[urlap.kategoria]?.[urlap.egyseg]?.[mezo];
+        return ertek === undefined ? undefined : String(ertek);
+    };
 
     const mezoFrissitese = (mezo, ertek) => setUrlap((elozo) => ({ ...elozo, [mezo]: ertek }));
 
@@ -80,6 +108,9 @@ const AdminTermekek = () => {
             ar: String(termek.ar ?? ''),
             egyseg: termek.egyseg || '',
             keszlet: String(termek.keszlet ?? ''),
+            suly: String(termek.suly ?? ''),
+            raklapon: String(termek.raklapon ?? ''),
+            darabPerEgyseg: String(termek.darabPerEgyseg ?? ''),
             kepek: kepekLista(termek).length ? kepekLista(termek) : [''],
         });
         setHiba('');
@@ -92,8 +123,12 @@ const AdminTermekek = () => {
         const kepek = urlap.kepek.map((kep) => kep.trim()).filter(Boolean);
         const ar = Number(urlap.ar);
         const keszlet = Number(urlap.keszlet);
-        if (!urlap.nev.trim() || !urlap.kategoria || !urlap.leiras.trim() || urlap.ar === '' || !Number.isFinite(ar) || ar < 0 || !['m³', 'm²', 'db'].includes(urlap.egyseg) || urlap.keszlet === '' || !Number.isFinite(keszlet) || keszlet < 0 || (urlap.egyseg === 'db' && !Number.isInteger(keszlet)) || !kepek.length) {
-            setHiba('Töltsd ki a nevet, kategóriát, leírást, érvényes árat, válassz m³, m² vagy db mértékegységet, add meg a készletet egész számként (db esetén) és legalább egy képet.');
+        if (!urlap.nev.trim() || !urlap.kategoria || !urlap.leiras.trim() || urlap.ar === '' || !Number.isFinite(ar) || ar < 0 || !EGYSEGEK.some((egyseg) => egyseg.ertek === urlap.egyseg) || urlap.keszlet === '' || !Number.isFinite(keszlet) || keszlet < 0 || (urlap.egyseg === 'db' && !Number.isInteger(keszlet)) || !kepek.length) {
+            setHiba('Töltsd ki a nevet, kategóriát, leírást, érvényes árat, válassz mértékegységet, add meg a készletet egész számként (db esetén) és legalább egy képet.');
+            return;
+        }
+        if (OPCIONALIS_MEZOK.some((mezo) => urlap[mezo] !== '' && !(Number(urlap[mezo]) >= 0))) {
+            setHiba('A tömeg, a raklap-kiszerelés és a darab/egység nemnegatív szám legyen (vagy maradjon üresen).');
             return;
         }
 
@@ -113,6 +148,8 @@ const AdminTermekek = () => {
                         ar,
                         egyseg: urlap.egyseg,
                         keszlet,
+                        // Üres érték = a mező törlése, így ismét a kategória alapértéke érvényes.
+                        ...Object.fromEntries(OPCIONALIS_MEZOK.map((mezo) => [mezo, urlap[mezo] === '' ? '' : Number(urlap[mezo])])),
                         kepek,
                     }),
                 },
@@ -170,12 +207,25 @@ const AdminTermekek = () => {
                 <label>Mértékegység
                     <select value={urlap.egyseg} onChange={(event) => mezoFrissitese('egyseg', event.target.value)} required>
                         <option value="" disabled>Válassz mértékegységet</option>
-                        <option value="m³">Köbméter (m³)</option>
-                        <option value="m²">Négyzetméter (m²)</option>
-                        <option value="db">Darab (db)</option>
+                        {EGYSEGEK.map((egyseg) => <option key={egyseg.ertek} value={egyseg.ertek}>{egyseg.cimke}</option>)}
                     </select>
                 </label>
                 <label>Raktáron lévő mennyiség ({urlap.egyseg || 'm³ / m² / db'})<input type="number" min="0" step={urlap.egyseg === 'db' ? '1' : '0.01'} value={urlap.keszlet} onChange={(event) => mezoFrissitese('keszlet', event.target.value)} required /></label>
+                <fieldset className="admin-opcionalis">
+                    <legend>Szállítás és kalkulátor <small>(nem kötelező – üresen a kategória alapértéke érvényes)</small></legend>
+                    <label>Tömeg (kg / {urlap.egyseg || 'egység'})
+                        <input type="number" min="0" step="any" value={urlap.suly} placeholder={alapertek('suly') ?? '5'} onChange={(event) => mezoFrissitese('suly', event.target.value)} />
+                        <small>A szállítási díjhoz (teherautó, fordulók).</small>
+                    </label>
+                    <label>Raklap-kiszerelés ({urlap.egyseg || 'egység'} / raklap)
+                        <input type="number" min="0" step="any" value={urlap.raklapon} placeholder={alapertek('raklapon') ?? 'nem raklapos'} onChange={(event) => mezoFrissitese('raklapon', event.target.value)} />
+                        <small>Raklaponként {beallitasok ? `${beallitasok.raklapBetetdij.toLocaleString('hu-HU')} Ft` : ''} betétdíj. 0 = nem raklapos.</small>
+                    </label>
+                    <label>Darab / {urlap.egyseg || 'egység'}
+                        <input type="number" min="0" step="any" value={urlap.darabPerEgyseg} placeholder="pl. 16 tégla / m²" onChange={(event) => mezoFrissitese('darabPerEgyseg', event.target.value)} />
+                        <small>A kalkulátor ebből írja ki a darabszámot (tégla, cserép, tábla).</small>
+                    </label>
+                </fieldset>
                 <div className="admin-kepek-fejlec">
                     <strong>Termékképek URL-jei</strong>
                     <button type="button" className="admin-kep-hozzaad" onClick={() => setUrlap((elozo) => ({ ...elozo, kepek: [...elozo.kepek, ''] }))}>+ Kép URL hozzáadása</button>

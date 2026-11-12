@@ -1,12 +1,20 @@
-import RendelesModel from '../../models/Rendeles.mjs';
+import RendelesModel, { ATVETELI_MODOK, RENDELES_ALLAPOTOK } from '../../models/Rendeles.mjs';
 import TermekModel from '../../models/Termek.mjs';
 import UserModel from '../../models/User.mjs';
+import ArajanlatModel from '../../models/Arajanlat.mjs';
+import { KESZLET_RIASZTASI_KUSZOB } from '../../config/uzlet.mjs';
+import { rovidAzonosito } from '../../utils/rendelesFormazas.mjs';
+
+// A lemondott rendelések nem számítanak bele a bevételbe és a statisztikákba.
+export const ERVENYES_RENDELES = { allapot: { $ne: 'lemondva' } };
+// Bevétel = a vevő által fizetett végösszeg a visszajáró raklap-betétdíj nélkül.
+export const BEVETEL = { $subtract: ['$vegosszeg', { $ifNull: ['$osszesites.raklapBetetdij', 0] }] };
 
 // Minden dátumot magyar idő szerint csoportosítunk, hogy a napi/havi bontás
 // a bolt naptári napjaihoz igazodjon (nem az UTC-éjfélhez).
-const IDOZONA = 'Europe/Budapest';
+export const IDOZONA = 'Europe/Budapest';
 const NAP_MS = 24 * 60 * 60 * 1000;
-const ALACSONY_KESZLET_KUSZOB = 10;
+const ALACSONY_KESZLET_KUSZOB = KESZLET_RIASZTASI_KUSZOB;
 
 export const IDOSZAKOK = {
     '7nap': { cimke: 'Utolsó 7 nap', bontas: 'nap', napok: 7 },
@@ -16,16 +24,9 @@ export const IDOSZAKOK = {
 };
 const ALAP_IDOSZAK = '30nap';
 
-const ATVETELI_MODOK = {
-    hazhozszallitas: 'Házhozszállítás',
-    szemelyes_atvetel: 'Személyes átvétel',
-};
 const VEVO_TIPUSOK = {
     maganszemely: 'Magánszemély',
     ceg: 'Cég',
-};
-const RENDELES_ALLAPOTOK = {
-    feldolgozasra_var: 'Feldolgozásra vár',
 };
 
 const idoFormazo = new Intl.DateTimeFormat('en-US', {
@@ -68,7 +69,7 @@ const budapestiEjfel = (ev, honap, nap) => {
     return new Date(utcEjfel - idozonaEltolasMs(new Date(utcEjfel)));
 };
 
-const idoszakHatarai = (idoszak, most) => {
+export const idoszakHatarai = (idoszak, most) => {
     const { year, month, day } = budapestiReszek(most);
     const kezdet = idoszak.bontas === 'honap'
         ? budapestiEjfel(year, month - (idoszak.honapok - 1), 1)
@@ -78,7 +79,7 @@ const idoszakHatarai = (idoszak, most) => {
     return { kezdet, elozoKezdet };
 };
 
-const idosorKulcsok = (idoszak, kezdet, most) => {
+export const idosorKulcsok = (idoszak, kezdet, most) => {
     if (idoszak.bontas === 'honap') {
         const { year, month } = budapestiReszek(most);
         return Array.from({ length: idoszak.honapok }, (_, index) => {
@@ -109,7 +110,7 @@ const tetelBevetel = { $multiply: ['$tetelek.mennyiseg', '$tetelek.egysegar'] };
 const osszesitoCsoport = {
     $group: {
         _id: null,
-        bevetel: { $sum: '$vegosszeg' },
+        bevetel: { $sum: BEVETEL },
         rendelesek: { $sum: 1 },
         vasarlok: { $addToSet: '$email' },
     },
@@ -121,7 +122,7 @@ export const rendelesPipeline = ({ kezdet, elozoKezdet, idoszak }) => {
     const datumFormatum = idoszak.bontas === 'honap' ? '%Y-%m' : '%Y-%m-%d';
 
     return [
-        { $match: { createdAt: { $gte: elozoKezdet } } },
+        { $match: { createdAt: { $gte: elozoKezdet }, ...ERVENYES_RENDELES } },
         { $sort: { createdAt: 1 } },
         {
             $facet: {
@@ -134,7 +135,7 @@ export const rendelesPipeline = ({ kezdet, elozoKezdet, idoszak }) => {
                             _id: {
                                 $dateToString: { format: datumFormatum, date: '$createdAt', timezone: IDOZONA },
                             },
-                            bevetel: { $sum: '$vegosszeg' },
+                            bevetel: { $sum: BEVETEL },
                             rendelesek: { $sum: 1 },
                         },
                     },
@@ -177,7 +178,7 @@ export const rendelesPipeline = ({ kezdet, elozoKezdet, idoszak }) => {
                 ],
                 atvetel: [
                     aktualisSzures,
-                    { $group: { _id: '$atvetelModja', rendelesek: { $sum: 1 }, bevetel: { $sum: '$vegosszeg' } } },
+                    { $group: { _id: '$atvetelModja', rendelesek: { $sum: 1 }, bevetel: { $sum: BEVETEL } } },
                 ],
                 vevoTipus: [
                     aktualisSzures,
@@ -185,7 +186,7 @@ export const rendelesPipeline = ({ kezdet, elozoKezdet, idoszak }) => {
                         $group: {
                             _id: '$szamlazasiAdatok.tipus',
                             rendelesek: { $sum: 1 },
-                            bevetel: { $sum: '$vegosszeg' },
+                            bevetel: { $sum: BEVETEL },
                         },
                     },
                 ],
@@ -196,7 +197,7 @@ export const rendelesPipeline = ({ kezdet, elozoKezdet, idoszak }) => {
                         $group: {
                             _id: '$szallitasiAdatok.telepules',
                             rendelesek: { $sum: 1 },
-                            bevetel: { $sum: '$vegosszeg' },
+                            bevetel: { $sum: BEVETEL },
                         },
                     },
                     { $sort: { rendelesek: -1, bevetel: -1 } },
@@ -209,7 +210,7 @@ export const rendelesPipeline = ({ kezdet, elozoKezdet, idoszak }) => {
                             _id: '$email',
                             nev: { $last: '$teljesNev' },
                             rendelesek: { $sum: 1 },
-                            bevetel: { $sum: '$vegosszeg' },
+                            bevetel: { $sum: BEVETEL },
                         },
                     },
                     { $sort: { bevetel: -1 } },
@@ -304,12 +305,16 @@ const getDashboard = async (req, res) => {
         const most = new Date();
         const { kezdet, elozoKezdet } = idoszakHatarai(idoszak, most);
 
-        const [rendelesek, keszlet, mindenkori, legutobbi, felhasznalok, ujFelhasznalok, elozoUjFelhasznalok] =
+        const [
+            rendelesek, keszlet, mindenkori, legutobbi, felhasznalok, ujFelhasznalok, elozoUjFelhasznalok,
+            lemondottak, allapotSzamok, ujArajanlatok,
+        ] =
             await Promise.all([
                 rendelesStatisztika({ kezdet, elozoKezdet, idoszak }),
                 keszletStatisztika(),
                 RendelesModel.aggregate([
-                    { $group: { _id: null, bevetel: { $sum: '$vegosszeg' }, rendelesek: { $sum: 1 } } },
+                    { $match: ERVENYES_RENDELES },
+                    { $group: { _id: null, bevetel: { $sum: BEVETEL }, rendelesek: { $sum: 1 } } },
                 ]),
                 RendelesModel.find({})
                     .sort({ createdAt: -1 })
@@ -319,7 +324,18 @@ const getDashboard = async (req, res) => {
                 UserModel.countDocuments({ role: 'user' }),
                 UserModel.countDocuments({ role: 'user', createdAt: { $gte: kezdet } }),
                 UserModel.countDocuments({ role: 'user', createdAt: { $gte: elozoKezdet, $lt: kezdet } }),
+                RendelesModel.aggregate([
+                    { $match: { createdAt: { $gte: kezdet }, allapot: 'lemondva' } },
+                    { $group: { _id: null, rendelesek: { $sum: 1 }, ertek: { $sum: BEVETEL } } },
+                ]),
+                RendelesModel.aggregate([{ $group: { _id: '$allapot', db: { $sum: 1 } } }]),
+                ArajanlatModel.countDocuments({ allapot: 'uj' }),
             ]);
+
+        const rendelesAllapotok = Object.fromEntries(Object.keys(RENDELES_ALLAPOTOK).map((kulcs) => [kulcs, 0]));
+        for (const sor of allapotSzamok) {
+            if (Object.hasOwn(rendelesAllapotok, sor._id)) rendelesAllapotok[sor._id] = sor.db;
+        }
 
         const aktualis = rendelesek.aktualis[0] ?? { bevetel: 0, rendelesek: 0, vasarlok: [] };
         const elozo = rendelesek.elozo[0] ?? { bevetel: 0, rendelesek: 0, vasarlok: [] };
@@ -348,7 +364,13 @@ const getDashboard = async (req, res) => {
                 atlagosKosar: mutato(atlag(aktualis), atlag(elozo)),
                 vasarlok: mutato(aktualis.vasarlok.length, elozo.vasarlok.length),
                 ujFelhasznalok: mutato(ujFelhasznalok, elozoUjFelhasznalok),
+                lemondott: {
+                    rendelesek: lemondottak[0]?.rendelesek ?? 0,
+                    ertek: kerekit(lemondottak[0]?.ertek),
+                },
             },
+            rendelesAllapotok,
+            ujArajanlatok,
             mindenkori: {
                 bevetel: kerekit(mindenkori[0]?.bevetel),
                 rendelesek: mindenkori[0]?.rendelesek ?? 0,
@@ -383,12 +405,14 @@ const getDashboard = async (req, res) => {
             })),
             legutobbiRendelesek: legutobbi.map((rendeles) => ({
                 id: rendeles._id,
+                rovidAzonosito: rovidAzonosito(rendeles._id),
                 nev: rendeles.teljesNev,
                 email: rendeles.email,
                 vegosszeg: kerekit(rendeles.vegosszeg),
                 atvetelModja: ATVETELI_MODOK[rendeles.atvetelModja] ?? rendeles.atvetelModja,
                 tetelSzam: rendeles.tetelek?.length ?? 0,
-                allapot: RENDELES_ALLAPOTOK[rendeles.allapot] ?? rendeles.allapot,
+                allapot: rendeles.allapot,
+                allapotCimke: RENDELES_ALLAPOTOK[rendeles.allapot] ?? rendeles.allapot,
                 datum: rendeles.createdAt,
             })),
             keszlet,

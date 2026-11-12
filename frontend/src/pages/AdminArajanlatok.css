@@ -1,0 +1,96 @@
+/* Az árajánlat-lista a rendeléskezelő (AdminRendelesek.css) elemeit használja, ezek az eltérések. */
+
+.aj-sor {
+    grid-template-columns: 7.5rem minmax(0, 1.6fr) 10rem 9rem 1rem;
+}
+
+@media (max-width: 900px) {
+    .aj-sor {
+        grid-template-columns: minmax(0, 1fr) auto;
+    }
+
+    .aj-sor .ar-osszeg {
+        grid-column: 1 / -1;
+        grid-row: auto;
+        text-align: left;
+    }
+}
+
+.aj-allapot {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.28rem 0.7rem;
+    border-radius: 999px;
+    color: #0f172a;
+    background: #f1f5f9;
+    font-size: 0.82rem;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+.aj-allapot::before {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+    content: '';
+}
+
+.aj-allapot--uj { background: #fff6e0; }
+.aj-allapot--uj::before { background: #a86b00; }
+.aj-allapot--folyamatban { background: #ebf3fd; }
+.aj-allapot--folyamatban::before { background: #2a6fc4; }
+.aj-allapot--megvalaszolva { background: #e7f5e7; }
+.aj-allapot--megvalaszolva::before { background: #0a7d0a; }
+.aj-allapot--lezarva { background: #f1f5f9; }
+.aj-allapot--lezarva::before { background: #64748b; }
+
+.aj-tetelek {
+    display: grid;
+    gap: 0.75rem;
+    min-width: 0;
+    overflow-x: auto;
+}
+
+.aj-tetelek table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+}
+
+.aj-tetelek th,
+.aj-tetelek td {
+    padding: 0.45rem 0.5rem;
+    border-bottom: 1px solid #edf0f2;
+    text-align: left;
+}
+
+.aj-tetelek th {
+    color: #64748b;
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.aj-tetelek td:not(:first-child),
+.aj-tetelek th:not(:first-child) {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.aj-megjegyzes {
+    margin: 0;
+    padding: 0.7rem 0.9rem;
+    border-left: 3px solid #cbd5e1;
+    border-radius: 0 8px 8px 0;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 0.9rem;
+    white-space: pre-line;
+}
+
+.aj-elerhetoseg a {
+    color: #a84417;
+    font-weight: 600;
+}

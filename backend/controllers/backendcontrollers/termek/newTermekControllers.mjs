@@ -1,4 +1,5 @@
 import TermekModel, { TERMEK_EGYSEGEK, TERMEKEK_KATEGORIAK } from '../../../models/Termek.mjs';
+import { opcionalisSzamMezok } from '../../../utils/termekMezok.mjs';
 
 const getNewTermek = (req, res) => {
     try {
@@ -20,9 +21,14 @@ const postNewTermek = async (req, res) => {
         if (!nev?.trim() || !leiras?.trim() || !TERMEKEK_KATEGORIAK.includes(kategoria) || !TERMEK_EGYSEGEK.includes(egyseg) || !vanAr || !Number.isFinite(ar) || ar < 0 || !vanKeszlet || !Number.isFinite(keszlet) || keszlet < 0 || (egyseg === 'db' && !Number.isInteger(keszlet)) || kepek.length === 0) {
             return res
                 .status(400)
-            .json({ msg: 'A név, kategória, leírás, érvényes ár, m³, m² vagy db mértékegység, készletmennyiség és legalább egy kép megadása kötelező. Darab esetén a készlet egész szám legyen!' });
+            .json({ msg: 'A név, kategória, leírás, érvényes ár, érvényes mértékegység, készletmennyiség és legalább egy kép megadása kötelező. Darab esetén a készlet egész szám legyen!' });
         }
-        const newTermek = new TermekModel({ nev: nev.trim(), leiras: leiras.trim(), kategoria, ar, egyseg, keszlet, kepek });
+        const opcionalis = opcionalisSzamMezok(req.body);
+        if (opcionalis.hiba) {
+            return res.status(400).json({ msg: opcionalis.hiba });
+        }
+
+        const newTermek = new TermekModel({ nev: nev.trim(), leiras: leiras.trim(), kategoria, ar, egyseg, keszlet, kepek, ...opcionalis.beallit });
         await newTermek.save();
 
         return res.status(201).json({ msg: 'Létrejött az új termék!' });
