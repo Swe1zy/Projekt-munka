@@ -39,4 +39,7 @@ app.use('/api/frontend-termekek', termekekFRouter);
 import authRouter from '../routes/frontendroutes/auth/authRoutes.mjs';
 app.use('/api/auth', authRouter);
 
+import rendelesRouter from '../routes/frontendroutes/rendelesRoutes.mjs';
+app.use('/api/rendelesek', rendelesRouter);
+
 export default app;

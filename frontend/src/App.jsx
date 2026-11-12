@@ -6,6 +6,7 @@ import CartProvider from './context/CartProvider';
 import ToastProvider from './context/ToastProvider';
 import Home from './pages/Home';
 import Kosar from './pages/Kosar';
+import Vasarlas from './pages/Vasarlas';
 import Login from './pages/Login';
 import Logout from './pages/Logout';
 import Profil from './pages/Profil';
@@ -38,6 +39,10 @@ function App() {
                                 <Route
                                     path="/kosar"
                                     element={<Kosar />}
+                                />
+                                <Route
+                                    path="/vasarlas"
+                                    element={<Vasarlas />}
                                 />
                                 <Route
                                     path="/admin/termekek"

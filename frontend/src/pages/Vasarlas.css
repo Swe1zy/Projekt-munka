@@ -1,0 +1,666 @@
+.vasarlas-oldal {
+    --vasarlas-ink: #17352b;
+    --vasarlas-text: #43564e;
+    --vasarlas-muted: #74837b;
+    --vasarlas-line: #e2e8df;
+    --vasarlas-paper: #fffefa;
+    --vasarlas-bg: #f5f6f1;
+    --vasarlas-orange: #c65a24;
+    --vasarlas-green: #315d46;
+
+    min-height: calc(100vh - 4.5rem);
+    padding: clamp(1.5rem, 4vw, 3.5rem) max(1rem, calc((100vw - 1200px) / 2));
+    background:
+        radial-gradient(ellipse at 92% 3%, rgba(198, 90, 36, 0.075), transparent 30rem),
+        var(--vasarlas-bg);
+    color: var(--vasarlas-text);
+
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    h1,
+    h2,
+    p {
+        margin: 0;
+    }
+}
+
+.vasarlas-fejlec {
+    display: grid;
+    justify-items: center;
+    gap: 0.75rem;
+    max-width: 760px;
+    margin: 0 auto clamp(2rem, 4vw, 3rem);
+    text-align: center;
+
+    h1 {
+        color: var(--vasarlas-ink);
+        font-size: clamp(2rem, 5vw, 3.3rem);
+        font-weight: 850;
+        letter-spacing: -0.045em;
+        line-height: 1.08;
+    }
+
+    > p {
+        max-width: 40rem;
+        color: var(--vasarlas-muted);
+        line-height: 1.65;
+    }
+}
+
+.vasarlas-vissza {
+    justify-self: start;
+    margin-bottom: 0.6rem;
+    color: var(--vasarlas-green);
+    font-size: 0.92rem;
+    font-weight: 750;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.vasarlas-felirat {
+    color: var(--vasarlas-orange);
+    font-size: 0.73rem;
+    font-weight: 850;
+    letter-spacing: 0.14em;
+}
+
+.vasarlas-elrendezes {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 390px);
+    align-items: start;
+    gap: clamp(1.25rem, 3vw, 2rem);
+    width: min(100%, 1120px);
+    margin: 0 auto;
+}
+
+.vasarlas-urlap {
+    display: grid;
+    gap: 1.2rem;
+}
+
+.vasarlas-kartya,
+.vasarlas-osszegzes {
+    border: 1px solid rgba(220, 228, 218, 0.95);
+    border-radius: 1.2rem;
+    background: var(--vasarlas-paper);
+    box-shadow: 0 8px 26px rgba(32, 54, 41, 0.055);
+}
+
+.vasarlas-kartya {
+    display: grid;
+    gap: 1.5rem;
+    padding: clamp(1.2rem, 3vw, 1.8rem);
+}
+
+.vasarlas-szekcio-fej {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+
+    > span {
+        display: grid;
+        flex: 0 0 2.3rem;
+        place-items: center;
+        width: 2.3rem;
+        height: 2.3rem;
+        border-radius: 0.75rem;
+        background: #edf3eb;
+        color: var(--vasarlas-green);
+        font-size: 0.82rem;
+        font-weight: 850;
+    }
+
+    h2 {
+        color: var(--vasarlas-ink);
+        font-size: 1.12rem;
+        font-weight: 800;
+    }
+
+    p {
+        margin-top: 0.25rem;
+        color: var(--vasarlas-muted);
+        font-size: 0.87rem;
+    }
+}
+
+.vasarlas-mezok {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1rem;
+}
+
+.vasarlas-mezok label,
+.vasarlas-cim-mezo,
+.vasarlas-nev-mezo,
+.vasarlas-adoszam-mezo,
+.vasarlas-megjegyzes-mezo,
+.vasarlas-cim-mezok label {
+    display: grid;
+    gap: 0.45rem;
+    color: var(--vasarlas-ink);
+    font-size: 0.88rem;
+    font-weight: 750;
+}
+
+.vasarlas-mezok input,
+.vasarlas-cim-mezo textarea,
+.vasarlas-nev-mezo input,
+.vasarlas-adoszam-mezo input,
+.vasarlas-megjegyzes-mezo textarea,
+.vasarlas-cim-mezok input {
+    width: 100%;
+    min-height: 3.1rem;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid #dce4da;
+    border-radius: 0.75rem;
+    outline: none;
+    background: #ffffff;
+    color: var(--vasarlas-ink);
+    font: inherit;
+    font-size: 0.94rem;
+    font-weight: 450;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease;
+
+    &::placeholder {
+        color: #a4afa8;
+    }
+
+    &:focus {
+        border-color: #6d9477;
+        box-shadow: 0 0 0 4px rgba(66, 116, 78, 0.12);
+    }
+}
+
+.vasarlas-cim-mezo textarea,
+.vasarlas-megjegyzes-mezo textarea {
+    min-height: 6rem;
+    resize: vertical;
+}
+
+.vasarlas-cim-blokk {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 1rem;
+}
+
+.vasarlas-cim-blokk > .vasarlas-nev-mezo,
+.vasarlas-cim-blokk > .vasarlas-cim-mezok,
+.vasarlas-cim-blokk > .vasarlas-egyezik-jelolo {
+    grid-column: 1;
+}
+
+.vasarlas-cim-blokk > .vasarlas-megjegyzes-mezo {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+}
+
+.vasarlas-cim-mezok {
+    display: grid;
+    grid-template-columns: minmax(95px, 0.75fr) minmax(115px, 1fr) minmax(170px, 1.65fr);
+    gap: 0.65rem;
+}
+
+.vasarlas-cim-mezok input {
+    min-width: 0;
+}
+
+.vasarlas-cim-mezok input:disabled,
+.vasarlas-nev-mezo input:disabled {
+    background: #f2f4ef;
+    color: #74837b;
+    cursor: not-allowed;
+}
+
+.vasarlas-cim-blokk .vasarlas-cim-mezok {
+    grid-template-columns: minmax(85px, 0.7fr) minmax(110px, 1fr);
+}
+
+.vasarlas-cim-blokk .vasarlas-utca-mezo {
+    grid-column: 1 / -1;
+}
+
+.vasarlas-egyezik-jelolo {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-height: 2.4rem;
+    color: var(--vasarlas-green);
+    font-size: 0.87rem;
+    font-weight: 650;
+    cursor: pointer;
+
+    input {
+        flex: 0 0 1.25rem;
+        width: 1.25rem;
+        height: 1.25rem;
+        margin: 0;
+        accent-color: var(--vasarlas-green);
+    }
+}
+
+.vasarlas-szemely-tipus {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+
+    label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        min-height: 2.8rem;
+        padding: 0.5rem 0.8rem;
+        border: 1px solid var(--vasarlas-line);
+        border-radius: 0.7rem;
+        color: var(--vasarlas-text);
+        font-size: 0.86rem;
+        font-weight: 650;
+        cursor: pointer;
+
+        &.aktiv {
+            border-color: #9db5a0;
+            background: #f3f7f1;
+            color: var(--vasarlas-green);
+        }
+    }
+
+    input {
+        margin: 0;
+        accent-color: var(--vasarlas-green);
+    }
+}
+
+.vasarlas-nev-mezo,
+.vasarlas-adoszam-mezo {
+    width: 100%;
+}
+
+.vasarlas-megjegyzes-mezo {
+    color: var(--vasarlas-muted);
+    font-weight: 600;
+}
+
+.vasarlas-atvetel-valaszto {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.8rem;
+}
+
+.vasarlas-atvetel-kartya {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    min-height: 6.2rem;
+    padding: 1rem;
+    border: 1px solid var(--vasarlas-line);
+    border-radius: 0.9rem;
+    background: #ffffff;
+    cursor: pointer;
+    transition: border-color 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+
+    &.aktiv {
+        border-color: #699076;
+        background: #f4f8f2;
+        box-shadow: inset 0 0 0 1px #699076;
+    }
+
+    input {
+        position: absolute;
+        top: 1.1rem;
+        right: 1rem;
+        accent-color: var(--vasarlas-green);
+    }
+
+    > span:last-child {
+        display: grid;
+        gap: 0.3rem;
+        padding-right: 1rem;
+    }
+
+    strong {
+        color: var(--vasarlas-ink);
+        font-size: 0.91rem;
+    }
+
+    small {
+        color: var(--vasarlas-muted);
+        font-size: 0.8rem;
+        line-height: 1.4;
+    }
+}
+
+.vasarlas-atvetel-ikon {
+    display: grid;
+    flex: 0 0 2rem;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.65rem;
+    background: #f8ece2;
+    color: var(--vasarlas-orange);
+    font-size: 1.35rem;
+    font-weight: 800;
+}
+
+.vasarlas-hiba {
+    padding: 0.85rem 1rem;
+    border: 1px solid #f0c4b8;
+    border-radius: 0.75rem;
+    background: #fff2ee;
+    color: #a33720;
+    font-size: 0.9rem;
+}
+
+.vasarlas-fo-gomb {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    min-height: 3.35rem;
+    padding: 0.8rem 1.25rem;
+    border: 1px solid var(--vasarlas-orange);
+    border-radius: 0.8rem;
+    background: var(--vasarlas-orange);
+    color: #ffffff;
+    font: inherit;
+    font-size: 0.98rem;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: 0 7px 16px rgba(198, 90, 36, 0.19);
+    transition: transform 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        background: #b94e1c;
+        box-shadow: 0 10px 20px rgba(198, 90, 36, 0.24);
+    }
+
+    &:focus-visible {
+        outline: 3px solid rgba(198, 90, 36, 0.25);
+        outline-offset: 3px;
+    }
+
+    &:disabled {
+        cursor: wait;
+        opacity: 0.7;
+    }
+}
+
+.vasarlas-leadas {
+    width: 100%;
+}
+
+.vasarlas-megjegyzes {
+    color: var(--vasarlas-muted);
+    font-size: 0.79rem;
+    text-align: center;
+}
+
+.vasarlas-osszegzes {
+    position: sticky;
+    top: 5.5rem;
+    overflow: hidden;
+    padding: 1.4rem;
+}
+
+.vasarlas-osszegzes-fej {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px solid var(--vasarlas-line);
+
+    h2 {
+        margin-top: 0.35rem;
+        color: var(--vasarlas-ink);
+        font-size: 1.25rem;
+    }
+
+    a {
+        color: var(--vasarlas-green);
+        font-size: 0.83rem;
+        font-weight: 750;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.vasarlas-tetelek {
+    display: grid;
+    gap: 1rem;
+    max-height: 24rem;
+    overflow-y: auto;
+    margin: 0;
+    padding: 1.15rem 0;
+    list-style: none;
+
+    li {
+        display: grid;
+        grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.75rem;
+    }
+}
+
+.vasarlas-tetel-kep {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 0.7rem;
+    background: #eff2e9;
+    color: var(--vasarlas-green);
+    font-weight: 800;
+
+    img {
+        width: 100%;
+        height: 100%;
+        border-radius: inherit;
+        object-fit: cover;
+    }
+
+    small {
+        position: absolute;
+        top: -0.4rem;
+        right: -0.4rem;
+        display: grid;
+        min-width: 1.25rem;
+        height: 1.25rem;
+        place-items: center;
+        padding: 0 0.2rem;
+        border: 2px solid #fffefa;
+        border-radius: 999px;
+        background: var(--vasarlas-green);
+        color: #ffffff;
+        font-size: 0.68rem;
+        font-weight: 800;
+    }
+}
+
+.vasarlas-tetel-adat {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+
+    strong {
+        overflow: hidden;
+        color: var(--vasarlas-ink);
+        font-size: 0.83rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    small {
+        color: var(--vasarlas-muted);
+        font-size: 0.76rem;
+    }
+}
+
+.vasarlas-tetel-ar {
+    color: var(--vasarlas-ink);
+    font-size: 0.82rem;
+    white-space: nowrap;
+}
+
+.vasarlas-vegosszeg {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--vasarlas-line);
+
+    span {
+        color: var(--vasarlas-ink);
+        font-weight: 750;
+    }
+
+    strong {
+        color: var(--vasarlas-orange);
+        font-size: 1.45rem;
+        font-weight: 850;
+        white-space: nowrap;
+    }
+}
+
+.vasarlas-szallitas-info {
+    margin-top: 1rem !important;
+    padding: 0.8rem;
+    border-radius: 0.7rem;
+    background: #f3f6f0;
+    color: var(--vasarlas-muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+.vasarlas-siker,
+.vasarlas-ures {
+    display: grid;
+    justify-items: center;
+    gap: 0.9rem;
+    width: min(100%, 680px);
+    margin: clamp(2rem, 8vh, 6rem) auto;
+    padding: clamp(2rem, 6vw, 4rem);
+    border: 1px solid var(--vasarlas-line);
+    border-radius: 1.5rem;
+    background: var(--vasarlas-paper);
+    box-shadow: 0 16px 50px rgba(32, 54, 41, 0.08);
+    text-align: center;
+
+    h1 {
+        color: var(--vasarlas-ink);
+        font-size: clamp(1.8rem, 4vw, 2.6rem);
+        font-weight: 850;
+        letter-spacing: -0.04em;
+    }
+
+    p {
+        max-width: 34rem;
+        color: var(--vasarlas-muted);
+        line-height: 1.65;
+    }
+}
+
+.vasarlas-siker-ikon {
+    display: grid;
+    place-items: center;
+    width: 4.3rem;
+    height: 4.3rem;
+    border-radius: 50%;
+    background: #e8f3e8;
+    color: var(--vasarlas-green);
+    font-size: 2rem;
+    font-weight: 900;
+}
+
+.vasarlas-azonosito {
+    display: grid;
+    gap: 0.35rem;
+    width: min(100%, 28rem);
+    margin: 0.4rem 0;
+    padding: 1rem;
+    border: 1px dashed #b9cbb9;
+    border-radius: 0.8rem;
+    background: #f5f8f2;
+    color: var(--vasarlas-muted);
+    font-size: 0.83rem;
+
+    strong {
+        color: var(--vasarlas-ink);
+        overflow-wrap: anywhere;
+        font-size: 0.92rem;
+    }
+}
+
+@media (max-width: 850px) {
+    .vasarlas-elrendezes {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .vasarlas-osszegzes {
+        position: static;
+        grid-row: 1;
+    }
+}
+
+@media (max-width: 560px) {
+    .vasarlas-atvetel-valaszto {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .vasarlas-cim-blokk {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .vasarlas-cim-blokk > .vasarlas-nev-mezo,
+    .vasarlas-cim-blokk > .vasarlas-cim-mezok,
+    .vasarlas-cim-blokk > .vasarlas-egyezik-jelolo,
+    .vasarlas-cim-blokk > .vasarlas-megjegyzes-mezo {
+        grid-column: 1;
+        grid-row: auto;
+    }
+
+    .vasarlas-cim-blokk .vasarlas-cim-mezok,
+    .vasarlas-cim-mezok {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .vasarlas-cim-mezok .vasarlas-utca-mezo {
+        grid-column: 1;
+    }
+
+    .vasarlas-fejlec {
+        text-align: left;
+        justify-items: start;
+    }
+
+    .vasarlas-osszegzes {
+        padding: 1.1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vasarlas-fo-gomb,
+    .vasarlas-mezok input,
+    .vasarlas-nev-mezo input,
+    .vasarlas-adoszam-mezo input,
+    .vasarlas-cim-mezok input,
+    .vasarlas-megjegyzes-mezo textarea,
+    .vasarlas-atvetel-kartya {
+        transition: none;
+    }
+}

@@ -125,6 +125,7 @@ const Kosar = () => {
                         <Link className="kosar-gomb-masodik" to="/termekek">
                             Vásárlás folytatása
                         </Link>
+                        <Link className="kosar-vasarlas" to="/vasarlas">Vásárlás</Link>
                         <button type="button" className="kosar-uritese" onClick={kosarUritese}>
                             Kosár ürítése
                         </button>
