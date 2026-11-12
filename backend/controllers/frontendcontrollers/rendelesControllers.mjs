@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import Stripe from 'stripe';
 import RendelesModel from '../../models/Rendeles.mjs';
 import TermekModel from '../../models/Termek.mjs';
 import { KISZALLITAS } from '../../config/uzlet.mjs';
@@ -63,6 +64,10 @@ const tetelekBetoltese = async (tetelek, { keszletEllenorzes = true } = {}) => {
 const postRendeles = async (req, res) => {
     try {
         const { email, atvetelModja, tetelek } = req.body ?? {};
+        const fizetesiMod = req.body?.fizetesiMod === 'stripe' ? 'stripe' : 'atutalas';
+        if (fizetesiMod === 'stripe' && !process.env.STRIPE_SECRET_KEY) {
+            return res.status(503).json({ msg: 'Az online bankkártyás fizetés nincs beállítva a szerveren.' });
+        }
         const normalizaltEmail = typeof email === 'string' ? email.trim().toLowerCase() : '';
         const bejovoSzamlazasiAdatok = req.body?.szamlazasiAdatok ?? {};
         const szamlazasiTipus = bejovoSzamlazasiAdatok.tipus;
@@ -140,6 +145,9 @@ const postRendeles = async (req, res) => {
                 msg: `Házhozszállítás ${osszesites.minimumRendelesiErtek.toLocaleString('hu-HU')} Ft termékérték felett kérhető.`,
             });
         }
+        if (fizetesiMod === 'stripe' && Math.round(osszesites.vegosszeg) <= 0) {
+            return res.status(400).json({ msg: 'Bankkártyás fizetéshez a végösszegnek pozitívnak kell lennie.' });
+        }
         const rendelesTetelek = osszesites.sorok.map(({ termekId, nev, mennyiseg, egyseg, egysegar }) => (
             { termekId, nev, mennyiseg, egyseg, egysegar }
         ));
@@ -157,6 +165,7 @@ const postRendeles = async (req, res) => {
         }
 
         let rendeles;
+        let checkoutSession;
         try {
             rendeles = await RendelesModel.create({
                 userId: req.authUser?._id ?? null,
@@ -168,7 +177,11 @@ const postRendeles = async (req, res) => {
                 szallitasiAdatok,
                 szamlazasiAdatok,
                 tetelek: rendelesTetelek,
-                vegosszeg: osszesites.vegosszeg,
+                // A Stripe HUF-ban egész forintot fogad el; online fizetésnél a
+                // rendelés végösszegét is ehhez igazítjuk.
+                vegosszeg: fizetesiMod === 'stripe' ? Math.round(osszesites.vegosszeg) : osszesites.vegosszeg,
+                fizetesiMod,
+                fizetesiAllapot: fizetesiMod === 'stripe' ? 'fizetesre_var' : 'atutalasra_var',
                 osszesites: {
                     termekOsszeg: osszesites.termekOsszeg,
                     kedvezmenySzazalek: osszesites.kedvezmenySzazalek,
@@ -182,19 +195,56 @@ const postRendeles = async (req, res) => {
                 atvetelNapja,
                 idosav,
             });
+
+            if (fizetesiMod === 'stripe') {
+                const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+                const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
+                checkoutSession = await stripe.checkout.sessions.create({
+                    mode: 'payment',
+                    customer_email: normalizaltEmail,
+                    line_items: [{
+                        price_data: {
+                            currency: 'huf',
+                            product_data: {
+                                name: `Tüzép rendelés ${String(rendeles._id).slice(-6).toUpperCase()}`,
+                                description: `${rendeles.tetelek.length} terméktétel, szállítással és díjakkal együtt`,
+                            },
+                            unit_amount: Math.round(rendeles.vegosszeg),
+                        },
+                        quantity: 1,
+                    }],
+                    metadata: { orderId: String(rendeles._id) },
+                    success_url: `${frontendUrl}/fizetes/sikeres?session_id={CHECKOUT_SESSION_ID}`,
+                    cancel_url: `${frontendUrl}/fizetes/megszakitva?session_id={CHECKOUT_SESSION_ID}`,
+                    expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+                });
+                rendeles.stripeSessionId = checkoutSession.id;
+                await rendeles.save();
+            }
         } catch (error) {
-            // Ha a rendelés nem mentődött el, a levont készletet visszaadjuk.
+            // Ha a rendelés vagy a Stripe-munkamenet nem jött létre, visszaállítjuk a készletet.
+            if (checkoutSession?.status === 'open') {
+                try {
+                    await new Stripe(process.env.STRIPE_SECRET_KEY).checkout.sessions.expire(checkoutSession.id);
+                } catch (expireError) {
+                    console.error('Félbemaradt Stripe-munkamenet lezárási hiba:', expireError.message);
+                }
+            }
+            if (rendeles) await RendelesModel.deleteOne({ _id: rendeles._id });
             await keszletVisszaadas(rendelesTetelek);
             throw error;
         }
 
-        // Visszaigazoló és bolti e-mail, készletriasztás – a háttérben, a választ nem tartják fel.
-        hatterben(() => rendelesErtesitesek(rendeles._id), 'Rendelés-értesítés');
+        // Online rendelésnél értesítünk csak a Stripe fizetési visszaigazolása után.
+        if (fizetesiMod === 'atutalas') {
+            hatterben(() => rendelesErtesitesek(rendeles._id), 'Rendelés-értesítés');
+        }
         hatterben(() => keszletRiasztas(levonas.valtozasok), 'Készletriasztás');
 
         return res.status(201).json({
             msg: 'A rendelésedet rögzítettük.',
             rendeles: { id: rendeles._id, vegosszeg: rendeles.vegosszeg },
+            ...(checkoutSession ? { fizetesiUrl: checkoutSession.url } : {}),
         });
     } catch (error) {
         console.error('Rendelésmentési hiba:', error);

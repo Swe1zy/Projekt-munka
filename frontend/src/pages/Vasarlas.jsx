@@ -45,6 +45,7 @@ const Vasarlas = () => {
     const [szamlazasiMegjegyzes, setSzamlazasiMegjegyzes] = useState('');
     const [kuldes, setKuldes] = useState(false);
     const [hiba, setHiba] = useState('');
+    const [fizetesiMod, setFizetesiMod] = useState('atutalas');
     const [rendelesAzonosito, setRendelesAzonosito] = useState('');
     const [napValasztas, setNapValasztas] = useState('');
     const [idosav, setIdosav] = useState('delelott');
@@ -106,10 +107,16 @@ const Vasarlas = () => {
                     atvetelNapja,
                     idosav: hazhoz ? idosav : undefined,
                     darus: hazhoz && darus,
+                    fizetesiMod,
                 }),
             });
             const valasz = await response.json();
             if (!response.ok) throw new Error(valasz.msg || 'A rendelést nem sikerült rögzíteni.');
+
+            if (valasz.fizetesiUrl) {
+                window.location.assign(valasz.fizetesiUrl);
+                return;
+            }
 
             setRendelesAzonosito(valasz.rendeles.id);
             urit();
@@ -306,12 +313,38 @@ const Vasarlas = () => {
                         </label>
                     </section>
 
+                    <section className="vasarlas-kartya">
+                        <div className="vasarlas-szekcio-fej">
+                            <span>04</span>
+                            <div><h2>Fizetési mód</h2><p>Válaszd ki, hogyan szeretnéd rendezni a rendelést.</p></div>
+                        </div>
+                        <div className="vasarlas-szemely-tipus">
+                            <label className={fizetesiMod === 'atutalas' ? 'aktiv' : ''}>
+                                <input type="radio" name="fizetesiMod" value="atutalas" checked={fizetesiMod === 'atutalas'} onChange={(event) => setFizetesiMod(event.target.value)} />
+                                Banki átutalás / díjbekérő
+                            </label>
+                            <label className={fizetesiMod === 'stripe' ? 'aktiv' : ''}>
+                                <input type="radio" name="fizetesiMod" value="stripe" checked={fizetesiMod === 'stripe'} onChange={(event) => setFizetesiMod(event.target.value)} />
+                                Bankkártya (Stripe)
+                            </label>
+                        </div>
+                        <p className="vasarlas-segitseg">
+                            {fizetesiMod === 'stripe'
+                                ? 'A rendelés összegét a Stripe biztonságos fizetési oldalán tudod kifizetni.'
+                                : 'A rendelés rögzítése után e-mailben küldjük a díjbekérőt.'}
+                        </p>
+                    </section>
+
                     {hiba && <p className="vasarlas-hiba" role="alert">{hiba}</p>}
                     <button className="vasarlas-fo-gomb vasarlas-leadas" type="submit" disabled={kuldes || !atvetelNapja || minimumHiany > 0}>
-                        {kuldes ? 'Rendelés rögzítése…' : 'Rendelés leadása'}
+                        {kuldes ? 'Feldolgozás…' : fizetesiMod === 'stripe' ? 'Tovább a bankkártyás fizetéshez' : 'Rendelés leadása'}
                         {!kuldes && <span aria-hidden="true">→</span>}
                     </button>
-                    <p className="vasarlas-megjegyzes">A rendelés leadásával még nem történik online fizetés.</p>
+                    <p className="vasarlas-megjegyzes">
+                        {fizetesiMod === 'stripe'
+                            ? 'A fizetési adataidat a Stripe kezeli; a kártyaadatok nem jutnak el az áruház szerverére.'
+                            : 'A rendelés leadásával még nem történik online fizetés.'}
+                    </p>
                 </form>
 
                 <aside className="vasarlas-osszegzes">

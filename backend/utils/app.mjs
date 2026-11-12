@@ -3,9 +3,13 @@ import ejs from 'ejs';
 import path from 'path';
 import cors from 'cors';
 import { fileURLToPath } from 'url';
+import { stripeWebhook } from '../controllers/frontendcontrollers/stripeFizetesControllers.mjs';
 
 const app = express();
 
+// A Stripe aláírás-ellenőrzéshez a nyers törzs szükséges, ezért ez a route
+// szándékosan a JSON parser előtt van regisztrálva.
+app.post('/api/rendelesek/stripe-webhook', express.raw({ type: 'application/json' }), stripeWebhook);
 app.use(express.json({ limit: '30mb' }));
 app.use(cors({
 	origin: process.env.FRONTEND_URL || 'http://localhost:5173',

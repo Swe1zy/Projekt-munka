@@ -19,6 +19,8 @@ import AdminRendelesek from './pages/AdminRendelesek';
 import AdminArajanlatok from './pages/AdminArajanlatok';
 import Arajanlat from './pages/Arajanlat';
 import Kalkulator from './pages/Kalkulator';
+import StripeSikeres from './pages/StripeSikeres';
+import StripeMegszakitva from './pages/StripeMegszakitva';
 
 function App() {
     return (
@@ -48,6 +50,14 @@ function App() {
                                 <Route
                                     path="/vasarlas"
                                     element={<Vasarlas />}
+                                />
+                                <Route
+                                    path="/fizetes/sikeres"
+                                    element={<StripeSikeres />}
+                                />
+                                <Route
+                                    path="/fizetes/megszakitva"
+                                    element={<StripeMegszakitva />}
                                 />
                                 <Route
                                     path="/admin/termekek"

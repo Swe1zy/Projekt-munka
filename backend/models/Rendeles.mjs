@@ -155,6 +155,24 @@ const rendelesSchema = new mongoose.Schema(
             min: 0,
             required: true,
         },
+        fizetesiMod: {
+            type: String,
+            enum: ['atutalas', 'stripe'],
+            default: 'atutalas',
+        },
+        fizetesiAllapot: {
+            type: String,
+            enum: ['atutalasra_var', 'fizetesre_var', 'fizetve', 'fizetes_lejart'],
+            default: 'atutalasra_var',
+        },
+        stripeSessionId: {
+            type: String,
+            default: '',
+        },
+        fizetve: {
+            type: Date,
+            default: null,
+        },
         // A végösszeg összetevői a rendelés pillanatában (régebbi rendeléseknél hiányzik).
         osszesites: {
             type: new mongoose.Schema(

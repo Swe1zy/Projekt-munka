@@ -82,6 +82,10 @@ export const vevoLevel = (rendeles) => {
     const azonosito = rovidAzonosito(rendeles._id);
     const atvetel = atvetelSzoveg(rendeles);
     const profilLink = rendeles.userId ? `${frontendUrl()}/profil#rendeleseim` : null;
+    const onlineFizetve = rendeles.fizetesiMod === 'stripe' && rendeles.fizetesiAllapot === 'fizetve';
+    const fizetesiHtml = onlineFizetve
+        ? '<p style="margin-top:18px;">A bankkártyás fizetés sikeresen megtörtént. Köszönjük!</p>'
+        : `<p style="margin-top:18px;">A díjbekérőt csatoltuk. Kérjük, a végösszeget ${DIJBEKERO.fizetesiHataridoNap} napon belül utald át a(z) <strong>${esc(ELADO.bankszamla)}</strong> számlaszámra, közleményként a <strong>${azonosito}</strong> azonosítót megadva.</p>`;
     const html = keret(`
 <h1 style="margin:8px 0 12px;font-size:22px;color:${SZIN.tinta};">Köszönjük a rendelésed!</h1>
 <p>Kedves ${esc(rendeles.szamlazasiAdatok.nev)}!</p>
@@ -92,7 +96,7 @@ ${rendeles.atvetelModja === 'szemelyes_atvetel' ? `<br><span style="color:${SZIN
 </div>
 ${tetelTablazat(rendeles)}
 ${osszesitoHtml(rendeles)}
-<p style="margin-top:18px;">A díjbekérőt csatoltuk. Kérjük, a végösszeget ${DIJBEKERO.fizetesiHataridoNap} napon belül utald át a(z) <strong>${esc(ELADO.bankszamla)}</strong> számlaszámra, közleményként a <strong>${azonosito}</strong> azonosítót megadva.</p>
+${fizetesiHtml}
 ${profilLink ? `<p><a href="${esc(profilLink)}" style="color:${SZIN.narancs};font-weight:bold;">Rendelésed állapota a profilodban →</a></p>` : ''}
 <p style="color:${SZIN.halvany};font-size:12px;">Kérdés esetén válaszolj erre a levélre, vagy hívj minket: ${esc(TELEPHELY.telefon)}.</p>`);
 
@@ -107,7 +111,9 @@ ${profilLink ? `<p><a href="${esc(profilLink)}" style="color:${SZIN.narancs};fon
         ...osszesitoSorok(rendeles).map(([cimke, ertek]) => `${cimke}: ${ertek}`),
         `Fizetendő: ${forint(rendeles.vegosszeg)}`,
         '',
-        `Utalás: ${ELADO.bankszamla}, közlemény: ${azonosito}, határidő: ${DIJBEKERO.fizetesiHataridoNap} nap.`,
+        onlineFizetve
+            ? 'A bankkártyás fizetés sikeresen megtörtént.'
+            : `Utalás: ${ELADO.bankszamla}, közlemény: ${azonosito}, határidő: ${DIJBEKERO.fizetesiHataridoNap} nap.`,
         profilLink ? `Rendelésed állapota: ${profilLink}` : '',
     ].join('\n');
 
