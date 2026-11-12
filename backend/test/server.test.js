@@ -1,5 +1,6 @@
 const getRequest = require("../helpers/getRequest.js");
 const postRequest = require("../helpers/postRequest.js");
+const request = require("supertest");
 const { describe, expect, it } = require("@jest/globals");
 
 describe("GET végpontok", () => {
@@ -31,5 +32,14 @@ describe("GET végpontok", () => {
         const response = await postRequest("/api/auth/logout");
 
         expect(response.body.msg).toBe("Sikeresen kijelentkeztél!");
+    });
+});
+
+describe("Dashboard végpont", () => {
+    it("GET /api/dashboard - bejelentkezés nélkül nem adja ki az adatokat", async () => {
+        const response = await request("http://localhost:3600").get("/api/dashboard");
+
+        expect(response.status).toBe(401);
+        expect(response.body.osszegzes).toBeUndefined();
     });
 });

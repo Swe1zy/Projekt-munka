@@ -14,6 +14,7 @@ import Register from './pages/Register';
 import Termekek from './pages/Termekek';
 import TermekReszlet from './pages/TermekReszlet';
 import AdminTermekek from './pages/AdminTermekek';
+import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
     return (
@@ -47,6 +48,10 @@ function App() {
                                 <Route
                                     path="/admin/termekek"
                                     element={<AdminTermekek />}
+                                />
+                                <Route
+                                    path="/admin/dashboard"
+                                    element={<AdminDashboard />}
                                 />
                                 <Route
                                     path="/register"

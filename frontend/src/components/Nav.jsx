@@ -148,6 +148,7 @@ const Nav = () => {
                     Főoldal
                 </NavLink>
                 <NavLink to="/termekek">Termékek</NavLink>
+                {user?.role === 'admin' && <NavLink to="/admin/dashboard">Dashboard</NavLink>}
                 {user?.role === 'admin' && <NavLink to="/admin/termekek">Termékkezelés</NavLink>}
             </div>
 

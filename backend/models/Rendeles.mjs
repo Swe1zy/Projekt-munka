@@ -108,6 +108,9 @@ const rendelesSchema = new mongoose.Schema(
     { timestamps: true },
 );
 
+// A dashboard időszakos lekérdezései dátum szerint szűrnek.
+rendelesSchema.index({ createdAt: -1 });
+
 const RendelesModel = mongoose.model('rendeles', rendelesSchema);
 
 export default RendelesModel;

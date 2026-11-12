@@ -42,4 +42,7 @@ app.use('/api/auth', authRouter);
 import rendelesRouter from '../routes/frontendroutes/rendelesRoutes.mjs';
 app.use('/api/rendelesek', rendelesRouter);
 
+import dashboardRouter from '../routes/backendroutes/dashboardRoutes.mjs';
+app.use('/api/dashboard', dashboardRouter);
+
 export default app;
