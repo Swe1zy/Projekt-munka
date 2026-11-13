@@ -13,6 +13,7 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [jelszo, setJelszo] = useState('');
     const [jelszoMegerosites, setJelszoMegerosites] = useState('');
+    const [aszfElfogadva, setAszfElfogadva] = useState(false);
     const [hiba, setHiba] = useState('');
     const [kuldes, setKuldes] = useState(false);
 
@@ -34,13 +35,20 @@ const Register = () => {
             return;
         }
 
+        if (!aszfElfogadva) {
+            setHiba(
+                'A regisztrációhoz el kell fogadnod az Általános Szerződési Feltételeket!',
+            );
+            return;
+        }
+
         setKuldes(true);
 
         try {
             const response = await fetch(`${API_URL}/auth/register`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nev, email, jelszo }),
+                body: JSON.stringify({ nev, email, jelszo, aszfElfogadva }),
             });
 
             const valasz = await response.json();
@@ -109,6 +117,29 @@ const Register = () => {
                         }
                         required
                     />
+                </label>
+
+                <label className="auth-jelolo">
+                    <input
+                        type="checkbox"
+                        checked={aszfElfogadva}
+                        onChange={(event) =>
+                            setAszfElfogadva(event.target.checked)
+                        }
+                        required
+                    />
+                    <span>
+                        Elolvastam és elfogadom az{' '}
+                        {/* Új lapon nyílik, hogy a már kitöltött űrlap ne vesszen el. */}
+                        <Link
+                            to="/aszf"
+                            target="_blank"
+                            rel="noreferrer"
+                        >
+                            Általános Szerződési Feltételeket
+                        </Link>
+                        .
+                    </span>
                 </label>
 
                 {hiba && (

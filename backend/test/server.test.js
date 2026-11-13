@@ -35,6 +35,25 @@ describe("GET végpontok", () => {
     });
 });
 
+describe("Regisztráció", () => {
+    it("POST /api/auth/register - az ÁSZF elfogadása nélkül 400-at ad", async () => {
+        const response = await request("http://localhost:3600")
+            .post("/api/auth/register")
+            .send({ nev: "Teszt Elek", email: "aszf-nelkul@example.com", jelszo: "titkosjelszo" });
+
+        expect(response.status).toBe(400);
+        expect(response.body.msg).toMatch(/Általános Szerződési Feltételeket/);
+    });
+
+    it("GET /api/beallitasok - visszaadja az ÁSZF verzióját és az eladó adatait", async () => {
+        const response = await request("http://localhost:3600").get("/api/beallitasok");
+
+        expect(response.body.aszf.verzio).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+        expect(response.body.aszf.elado.nev).toBeTruthy();
+        expect(response.body.aszf.elado.bankszamla).toBeUndefined();
+    });
+});
+
 describe("Dashboard végpont", () => {
     it("GET /api/dashboard - bejelentkezés nélkül nem adja ki az adatokat", async () => {
         const response = await request("http://localhost:3600").get("/api/dashboard");

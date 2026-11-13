@@ -92,7 +92,22 @@ export const ELADO = {
     bankszamla: '00000000-00000000-00000000',
     email: TELEPHELY.email,
     telefon: TELEPHELY.telefon,
+    // Az ÁSZF-ben kötelezően feltüntetendő cégadatok.
+    cegjegyzekszam: '00-00-000000',
+    nyilvantarto: 'Minta Törvényszék Cégbírósága',
 };
+
+// A weboldal tárhelyszolgáltatója (az ÁSZF-ben szerepel). FIGYELEM: MINTA értékek – cseréld a valódiakra!
+export const TARHELY = {
+    nev: 'Minta Tárhely Kft.',
+    cim: '1234 Mintaváros, Szerver utca 1.',
+    email: 'info@tarhely.example',
+};
+
+// Az ÁSZF hatályos verziója (a hatálybalépés napja). Regisztrációkor ezt és az elfogadás
+// idejét mentjük a felhasználóhoz. Ha az ÁSZF szövege (frontend/src/pages/Aszf.jsx)
+// érdemben változik, ezt a dátumot is át kell írni.
+export const ASZF_VERZIO = '2026-11-13';
 
 export const DIJBEKERO = {
     // A díjbekérő kiállításától számított fizetési határidő (nap).

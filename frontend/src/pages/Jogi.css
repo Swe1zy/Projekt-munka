@@ -1,0 +1,143 @@
+.jogi-oldal {
+    padding: clamp(1.5rem, 5vw, 3.5rem) 1rem;
+    background: #f5f6f1;
+    color: #43564e;
+}
+
+.jogi-kartya {
+    width: min(100%, 52rem);
+    margin-inline: auto;
+    padding: clamp(1.5rem, 5vw, 3rem);
+    border: 1px solid #e2e8df;
+    border-radius: 1.4rem;
+    background: #fffefa;
+    box-shadow: 0 16px 48px rgba(32, 54, 41, 0.09);
+    line-height: 1.7;
+}
+
+.jogi-felirat {
+    color: #c65a24;
+    font-size: 0.75rem;
+    font-weight: 850;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.jogi-kartya h1 {
+    margin: 0.25rem 0 0.5rem;
+    color: #17352b;
+    font-size: clamp(1.7rem, 5vw, 2.4rem);
+    line-height: 1.2;
+}
+
+.jogi-hataly {
+    margin: 0 0 1.5rem;
+    color: #6b7c74;
+    font-size: 0.92rem;
+}
+
+.jogi-kartya h2 {
+    margin: 2.25rem 0 0.6rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8df;
+    color: #17352b;
+    font-size: 1.2rem;
+}
+
+.jogi-kartya p,
+.jogi-kartya ul {
+    margin: 0 0 0.85rem;
+}
+
+.jogi-kartya ul {
+    padding-left: 1.3rem;
+}
+
+.jogi-kartya li {
+    margin-bottom: 0.35rem;
+}
+
+.jogi-kartya a {
+    color: #b94e1c;
+    font-weight: 600;
+}
+
+.jogi-kartya a:focus-visible {
+    outline: 2px solid #c65a24;
+    outline-offset: 2px;
+}
+
+.jogi-adatok {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.35rem 1.25rem;
+    margin: 0 0 0.85rem;
+}
+
+.jogi-adatok dt {
+    color: #6b7c74;
+}
+
+.jogi-adatok dd {
+    margin: 0;
+    color: #17352b;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.jogi-uzenet {
+    padding: 0.7rem 0.9rem;
+    border: 1px solid #f3d3c2;
+    border-radius: 0.75rem;
+    background: #fff3e8;
+    color: #8a3d16;
+}
+
+.jogi-tabla-keret {
+    margin: 0 0 0.85rem;
+    overflow-x: auto;
+}
+
+.jogi-tabla {
+    width: 100%;
+    min-width: 36rem;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.jogi-tabla th,
+.jogi-tabla td {
+    padding: 0.65rem 0.75rem;
+    border-bottom: 1px solid #e2e8df;
+    text-align: left;
+    vertical-align: top;
+}
+
+.jogi-tabla thead th {
+    color: #6b7c74;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.jogi-tabla code {
+    padding: 0.1rem 0.35rem;
+    border-radius: 0.35rem;
+    background: #eef1ea;
+    color: #17352b;
+    font-family: var(--mono);
+    font-size: 0.88em;
+    white-space: nowrap;
+}
+
+@media (max-width: 34rem) {
+    .jogi-adatok {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .jogi-adatok dd {
+        margin-bottom: 0.5rem;
+    }
+}

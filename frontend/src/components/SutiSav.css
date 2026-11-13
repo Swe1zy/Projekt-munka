@@ -1,0 +1,75 @@
+/* Sticky, nem fixed: görgetés közben a képernyő alján marad, az oldal legalján
+   viszont a lábléc alatt a saját helyére kerül, így semmit sem takar ki végleg. */
+.suti-sav {
+    position: sticky;
+    bottom: 1rem;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 1.5rem;
+    width: calc(100% - 2rem);
+    max-width: 56rem;
+    margin: 1rem auto;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-bottom: 3px solid #bd6a3d;
+    border-radius: 0.9rem;
+    background: #293a30;
+    box-shadow: 0 12px 36px rgba(27, 39, 30, 0.35);
+    color: #e0e5df;
+}
+
+.suti-sav p {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+
+.suti-sav strong {
+    color: #ffffff;
+}
+
+.suti-sav a {
+    color: #e0a477;
+    font-weight: 650;
+    white-space: nowrap;
+}
+
+.suti-sav a:hover {
+    color: #f0c19d;
+}
+
+.suti-sav-gomb {
+    flex-shrink: 0;
+    min-height: 2.75rem;
+    padding: 0.6rem 1.5rem;
+    border: 0;
+    border-radius: 0.65rem;
+    background: #bd6a3d;
+    color: #ffffff;
+    cursor: pointer;
+    font-weight: 750;
+    transition: background-color 0.2s ease;
+}
+
+.suti-sav-gomb:hover {
+    background: #a95731;
+}
+
+.suti-sav a:focus-visible,
+.suti-sav-gomb:focus-visible {
+    outline: 2px solid #e0a477;
+    outline-offset: 2px;
+}
+
+@media (max-width: 40rem) {
+    .suti-sav {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .suti-sav a {
+        white-space: normal;
+    }
+}

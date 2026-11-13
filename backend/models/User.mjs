@@ -23,6 +23,12 @@ const userSchema = new mongoose.Schema(
             enum: ['user', 'admin'],
             default: 'user',
         },
+        // Az ÁSZF regisztrációkori elfogadásának nyoma. A korábban regisztrált
+        // felhasználóknál és az .env-ből létrehozott admin fióknál nincs kitöltve.
+        aszfElfogadas: {
+            verzio: String,
+            idopont: Date,
+        },
     },
     { timestamps: true },
 );

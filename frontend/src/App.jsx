@@ -1,6 +1,8 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
 import Nav from './components/Nav';
+import Lablec from './components/Lablec';
+import SutiSav from './components/SutiSav';
 import AuthProvider from './context/AuthProvider';
 import CartProvider from './context/CartProvider';
 import ToastProvider from './context/ToastProvider';
@@ -21,6 +23,8 @@ import Arajanlat from './pages/Arajanlat';
 import Kalkulator from './pages/Kalkulator';
 import StripeSikeres from './pages/StripeSikeres';
 import StripeMegszakitva from './pages/StripeMegszakitva';
+import Aszf from './pages/Aszf';
+import SutiTajekoztato from './pages/SutiTajekoztato';
 
 function App() {
     return (
@@ -99,7 +103,17 @@ function App() {
                                     path="/profil"
                                     element={<Profil />}
                                 />
+                                <Route
+                                    path="/aszf"
+                                    element={<Aszf />}
+                                />
+                                <Route
+                                    path="/sutik"
+                                    element={<SutiTajekoztato />}
+                                />
                             </Routes>
+                            <Lablec />
+                            <SutiSav />
                         </AuthProvider>
                     </CartProvider>
                 </ToastProvider>

@@ -88,6 +88,35 @@
     font-weight: 400;
 }
 
+.auth-jelolo {
+    align-items: flex-start;
+    color: var(--auth-text);
+    cursor: pointer;
+    display: flex;
+    font-size: 0.92rem;
+    gap: 0.6rem;
+    line-height: 1.45;
+}
+
+.auth-jelolo input {
+    accent-color: var(--auth-accent);
+    cursor: pointer;
+    flex-shrink: 0;
+    height: 1.15rem;
+    margin: 0.1rem 0 0;
+    width: 1.15rem;
+}
+
+.auth-jelolo input:focus-visible {
+    outline: 3px solid rgba(249, 115, 22, 0.45);
+    outline-offset: 2px;
+}
+
+.auth-jelolo a {
+    color: var(--auth-accent-text);
+    font-weight: 600;
+}
+
 .auth-uzenet {
     border-radius: 0.75rem;
     font-size: 0.92rem;

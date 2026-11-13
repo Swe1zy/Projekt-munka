@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import UserModel from '../../../models/User.mjs';
+import { ASZF_VERZIO } from '../../../config/uzlet.mjs';
 import { clearAuthCookie, createAuthToken, setAuthCookie } from '../../../utils/authToken.mjs';
 
 const EMAIL_MINTA = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -21,7 +22,7 @@ const publikusFelhasznalo = (user) => ({
 
 const postRegister = async (req, res) => {
     try {
-        const { nev, email, jelszo } = req.body ?? {};
+        const { nev, email, jelszo, aszfElfogadva } = req.body ?? {};
 
         if (
             typeof nev !== 'string' ||
@@ -39,6 +40,13 @@ const postRegister = async (req, res) => {
             return res.status(400).json({ msg: JELSZO_HIBA });
         }
 
+        // Csak a kifejezett elfogadás számít, ezért szigorúan a true értéket várjuk.
+        if (aszfElfogadva !== true) {
+            return res.status(400).json({
+                msg: 'A regisztrációhoz el kell fogadnod az Általános Szerződési Feltételeket!',
+            });
+        }
+
         const normalizaltEmail = email.trim().toLowerCase();
 
         if (await UserModel.exists({ email: normalizaltEmail })) {
@@ -52,6 +60,7 @@ const postRegister = async (req, res) => {
             nev: nev.trim(),
             email: normalizaltEmail,
             jelszo: hash,
+            aszfElfogadas: { verzio: ASZF_VERZIO, idopont: new Date() },
         });
 
         return res
