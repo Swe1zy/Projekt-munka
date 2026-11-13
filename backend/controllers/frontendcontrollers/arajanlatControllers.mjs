@@ -94,6 +94,20 @@ const postArajanlat = async (req, res) => {
     }
 };
 
+// A bejelentkezett vevő saját árajánlatkérései (a belső megjegyzés nélkül).
+const getSajatArajanlatok = async (req, res) => {
+    try {
+        const ajanlatok = await ArajanlatModel.find({ userId: req.authUser._id })
+            .sort({ createdAt: -1 })
+            .limit(50)
+            .lean();
+        return res.status(200).json({ arajanlatok: ajanlatok.map((ajanlat) => arajanlatValasz(ajanlat)) });
+    } catch (error) {
+        console.error('Saját árajánlatok lekérési hiba:', error);
+        return res.status(500).json({ msg: 'Az árajánlatkéréseidet most nem sikerült betölteni.' });
+    }
+};
+
 const getArajanlatok = async (req, res) => {
     try {
         const allapot = typeof req.query.allapot === 'string' ? req.query.allapot : 'osszes';
@@ -150,4 +164,4 @@ const patchArajanlat = async (req, res) => {
     }
 };
 
-export { postArajanlat, getArajanlatok, patchArajanlat };
+export { postArajanlat, getSajatArajanlatok, getArajanlatok, patchArajanlat };

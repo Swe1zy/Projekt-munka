@@ -28,6 +28,25 @@ export const kovetkezoAllapotok = (allapot, atvetelModja) =>
         (uj) => uj !== 'kiszallitas_alatt' || atvetelModja === 'hazhozszallitas',
     );
 
+export const FIZETESI_ALLAPOTOK = {
+    atutalasra_var: 'Átutalásra vár',
+    fizetesre_var: 'Bankkártyás fizetésre vár',
+    fizetve: 'Fizetve',
+    fizetes_lejart: 'A fizetés lejárt',
+};
+
+// A vevő addig mondhatja le maga a rendelést, amíg a bolt nem kezdte el feldolgozni,
+// és még nincs kifizetve (a kifizetett rendelés lemondása visszatérítéssel jár).
+export const vevoLemondhatja = (rendeles) =>
+    rendeles.allapot === 'feldolgozasra_var' && rendeles.fizetesiAllapot !== 'fizetve';
+
+// Félbehagyott bankkártyás fizetés: a rendelés él, a Stripe-munkamenet létrejött, de pénz még nem érkezett.
+export const fizetesPotolhato = (rendeles) =>
+    rendeles.allapot === 'feldolgozasra_var'
+    && rendeles.fizetesiMod === 'stripe'
+    && rendeles.fizetesiAllapot === 'fizetesre_var'
+    && Boolean(rendeles.stripeSessionId);
+
 const allapotTortenetSchema = new mongoose.Schema(
     {
         allapot: {

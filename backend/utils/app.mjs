@@ -57,6 +57,9 @@ app.use('/api/admin/rendelesek', rendelesKezelesRouter);
 import beallitasokRouter from '../routes/frontendroutes/beallitasokRoutes.mjs';
 app.use('/api/beallitasok', beallitasokRouter);
 
+import fiokRouter from '../routes/frontendroutes/fiokRoutes.mjs';
+app.use('/api/fiok', fiokRouter);
+
 import arajanlatRouter from '../routes/frontendroutes/arajanlatRoutes.mjs';
 app.use('/api/arajanlatok', arajanlatRouter);
 

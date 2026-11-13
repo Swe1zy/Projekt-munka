@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import Stripe from 'stripe';
-import RendelesModel from '../../models/Rendeles.mjs';
+import RendelesModel, { fizetesPotolhato } from '../../models/Rendeles.mjs';
 import { hatterben, rendelesErtesitesek } from '../../utils/ertesitesek.mjs';
 import { keszletVisszaadas } from '../../utils/keszlet.mjs';
 
@@ -64,12 +64,72 @@ const getStripeFizetesEllenorzes = async (req, res) => {
         if (!rendeles) return res.status(409).json({ msg: 'A fizetést még nem igazolta vissza a Stripe.' });
         return res.status(200).json({
             msg: 'A fizetés sikeres.',
-            rendeles: { id: rendeles._id, vegosszeg: rendeles.vegosszeg },
+            rendeles: {
+                id: rendeles._id,
+                vegosszeg: rendeles.vegosszeg,
+                // Ebből tudja a frontend, mely tételeket vegye ki a kosárból.
+                tetelek: rendeles.tetelek.map(({ termekId, mennyiseg }) => ({ termekId, mennyiseg })),
+            },
         });
     } catch (error) {
         console.error('Stripe fizetés-ellenőrzési hiba:', error.message);
         return res.status(500).json({ msg: 'A fizetés állapotát most nem sikerült ellenőrizni.' });
     }
+};
+
+// A pénztárban megkezdett, de be nem fejezett bankkártyás fizetés folytatása a profilból.
+// Új fizetési munkamenetet szándékosan nem nyitunk: a készlet csak a határidőig van
+// lefoglalva, a lejárt rendelést a vevő az „Újrarendelem” gombbal adhatja le újra.
+const postFizetesFolytatas = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const rendeles = mongoose.isValidObjectId(id)
+            ? await RendelesModel.findOne({ _id: id, userId: req.authUser._id }).lean()
+            : null;
+        if (!rendeles) return res.status(404).json({ msg: 'A rendelés nem található.' });
+        if (rendeles.fizetesiAllapot === 'fizetve') return res.status(409).json({ msg: 'Ezt a rendelést már kifizetted.' });
+        if (!fizetesPotolhato(rendeles)) {
+            return res.status(409).json({ msg: 'Ennél a rendelésnél már nem indítható bankkártyás fizetés.' });
+        }
+        if (!process.env.STRIPE_SECRET_KEY) {
+            return res.status(503).json({ msg: 'Az online bankkártyás fizetés nincs beállítva a szerveren.' });
+        }
+
+        const session = await stripePeldany().checkout.sessions.retrieve(rendeles.stripeSessionId);
+        if (session.payment_status === 'paid') {
+            await fizetesSikeres(session);
+            return res.status(200).json({ fizetve: true, msg: 'A fizetésed közben megérkezett, a rendelést kifizetettként rögzítettük.' });
+        }
+        if (session.status === 'open' && session.url) {
+            return res.status(200).json({ fizetesiUrl: session.url });
+        }
+        if (session.status === 'expired') {
+            await fizetesLejart(session);
+            return res.status(410).json({
+                msg: 'A fizetési határidő lejárt, ezért a rendelést lemondtuk, és a tételeket felszabadítottuk. Az „Újrarendelem” gombbal újra kosárba teheted őket.',
+            });
+        }
+        return res.status(409).json({ msg: 'A fizetés feldolgozás alatt áll, kérjük, nézz vissza pár perc múlva.' });
+    } catch (error) {
+        console.error('Stripe fizetés-folytatási hiba:', error.message);
+        return res.status(500).json({ msg: 'A fizetést most nem sikerült megnyitni. Próbáld újra később.' });
+    }
+};
+
+/**
+ * Vevői lemondás előtt lezárja a rendelés még nyitott fizetési munkamenetét, hogy a
+ * lemondott rendelést már ne lehessen kifizetni. Ha a fizetés közben megérkezett,
+ * azt rögzíti, és `fizetve: true` értékkel jelzi.
+ */
+export const fuggoFizetesLezarasa = async (rendeles) => {
+    const stripe = stripePeldany();
+    const session = await stripe.checkout.sessions.retrieve(rendeles.stripeSessionId);
+    if (session.payment_status === 'paid') {
+        await fizetesSikeres(session);
+        return { fizetve: true };
+    }
+    if (session.status === 'open') await stripe.checkout.sessions.expire(session.id);
+    return { fizetve: false };
 };
 
 const postStripeFizetesMegszakit = async (req, res) => {
@@ -122,4 +182,4 @@ const stripeWebhook = async (req, res) => {
     }
 };
 
-export { getStripeFizetesEllenorzes, postStripeFizetesMegszakit, stripeWebhook };
+export { getStripeFizetesEllenorzes, postFizetesFolytatas, postStripeFizetesMegszakit, stripeWebhook };

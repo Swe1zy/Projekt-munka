@@ -117,10 +117,12 @@ const Aszf = () => {
                         Szolgáltatónak.
                     </li>
                     <li>
-                        A Vásárló a fiókja törlését bármikor kérheti a
-                        Szolgáltató e-mail címén. A törlés a jogszabály alapján
-                        megőrzendő adatokat (például a számviteli
-                        bizonylatokat) nem érinti.
+                        A Vásárló a fiókját a Profilom oldalon bármikor
+                        törölheti, és ugyanott letöltheti a fiókjához tartozó
+                        adatokat. A törlés a jogszabály alapján megőrzendő
+                        adatokat (például a rendelések számviteli
+                        bizonylatait) nem érinti; folyamatban lévő rendelés
+                        mellett a fiók nem törölhető.
                     </li>
                     <li>
                         A Szolgáltató felfüggesztheti vagy törölheti azt a
@@ -178,6 +180,13 @@ const Aszf = () => {
                         Vásárló fiókjában utólag is megtekinthetők.
                     </li>
                     <li>
+                        Amíg a megrendelés feldolgozása nem kezdődött meg, és a
+                        megrendelés nincs kifizetve, a regisztrált Vásárló azt
+                        a fiókjában díjmentesen lemondhatja. A már kifizetett
+                        vagy feldolgozás alatt álló megrendelés a
+                        Szolgáltatóval egyeztetve mondható le.
+                    </li>
+                    <li>
                         Ha a megrendelt termék nem áll rendelkezésre, a
                         Szolgáltató erről haladéktalanul tájékoztatja a
                         Vásárlót, és a már kifizetett összeget visszatéríti.
@@ -190,7 +199,10 @@ const Aszf = () => {
                         <strong>Bankkártyás fizetés:</strong> a fizetés a
                         Stripe biztonságos fizetési oldalán történik. A
                         kártyaadatokat a Stripe kezeli, azok a Szolgáltatóhoz
-                        nem jutnak el.
+                        nem jutnak el. A fizetésre a megrendelés leadásától
+                        számítva korlátozott idő áll rendelkezésre; ha ez
+                        eredménytelenül telik el, a megrendelés törlődik, és a
+                        lefoglalt termékek felszabadulnak.
                     </li>
                     <li>
                         <strong>Banki átutalás:</strong> a Szolgáltató

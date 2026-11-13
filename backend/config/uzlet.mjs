@@ -109,6 +109,10 @@ export const TARHELY = {
 // érdemben változik, ezt a dátumot is át kell írni.
 export const ASZF_VERZIO = '2026-11-13';
 
+// Bankkártyás fizetésnél ennyi ideig foglaljuk a készletet: a Stripe fizetési oldala
+// eddig él, utána a ki nem fizetett rendelés lemondódik (a Stripe legalább 30 percet vár el).
+export const STRIPE_FIZETESI_IDO_PERC = 30;
+
 export const DIJBEKERO = {
     // A díjbekérő kiállításától számított fizetési határidő (nap).
     fizetesiHataridoNap: 8,

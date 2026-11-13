@@ -152,6 +152,39 @@ ${osszesitoHtml(rendeles)}
     return { targy: `Új rendelés #${azonosito} – ${sz.nev} – ${forint(rendeles.vegosszeg)}`, html, szoveg };
 };
 
+// A boltnak szól, ha a vevő a profiljából maga mondja le a rendelését.
+export const lemondasLevel = (rendeles) => {
+    const azonosito = rovidAzonosito(rendeles._id);
+    const atvetel = atvetelSzoveg(rendeles);
+    const sz = rendeles.szamlazasiAdatok;
+    const adminLink = `${frontendUrl()}/admin/rendelesek?allapot=lemondva`;
+    const fizetes = rendeles.fizetesiMod === 'stripe'
+        ? 'Bankkártyás rendelés volt, a fizetés nem történt meg.'
+        : 'Átutalásos rendelés volt: ha a vevő időközben már utalt, az összeget vissza kell téríteni.';
+    const html = keret(`
+<h1 style="margin:8px 0 12px;font-size:20px;color:${SZIN.tinta};">A vevő lemondta: #${azonosito}</h1>
+<p><strong>${esc(sz.nev)}</strong><br><a href="mailto:${esc(rendeles.email)}">${esc(rendeles.email)}</a></p>
+<p>A rendelést a vevő a profiljából mondta le, a tételek visszakerültek a készletbe. ${esc(fizetes)}</p>
+<div style="margin:12px 0;padding:12px 14px;background:${SZIN.hatter};border-radius:8px;">
+<strong>${esc(atvetel.cim)} lett volna:</strong> ${esc(atvetel.nap)}<br>${esc(atvetel.hely)}
+</div>
+${tetelTablazat(rendeles)}
+<p style="margin-top:18px;"><strong>Végösszeg:</strong> ${forint(rendeles.vegosszeg)}</p>
+<p><a href="${esc(adminLink)}" style="color:${SZIN.narancs};font-weight:bold;">Lemondott rendelések →</a></p>`);
+
+    const szoveg = [
+        `A vevő lemondta a rendelést: #${azonosito}`,
+        `${sz.nev} <${rendeles.email}>`,
+        `${atvetel.cim} lett volna: ${atvetel.nap} – ${atvetel.hely}`,
+        ...rendeles.tetelek.map((tetel) => `- ${tetel.nev}: ${szam(tetel.mennyiseg)} ${tetel.egyseg}`),
+        `Végösszeg: ${forint(rendeles.vegosszeg)}`,
+        fizetes,
+        adminLink,
+    ].join('\n');
+
+    return { targy: `Lemondott rendelés #${azonosito} – ${sz.nev}`, html, szoveg };
+};
+
 export const keszletLevel = (termekek, kuszob) => {
     const elfogyott = termekek.filter((termek) => termek.uj <= 0).length;
     const html = keret(`

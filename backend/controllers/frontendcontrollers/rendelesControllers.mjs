@@ -1,25 +1,23 @@
 import mongoose from 'mongoose';
 import Stripe from 'stripe';
-import RendelesModel from '../../models/Rendeles.mjs';
+import RendelesModel, { fizetesPotolhato, vevoLemondhatja } from '../../models/Rendeles.mjs';
 import TermekModel from '../../models/Termek.mjs';
-import { KISZALLITAS } from '../../config/uzlet.mjs';
+import { KISZALLITAS, STRIPE_FIZETESI_IDO_PERC, boltErtesitesiEmail } from '../../config/uzlet.mjs';
 import { rendelesOsszesites } from '../../utils/arazas.mjs';
+import { adoszamValid, cimValid, nevValid, szoveg } from '../../utils/cimek.mjs';
 import { dijbekeroFajlnev, dijbekeroPdf } from '../../utils/dijbekero.mjs';
+import { emailKuldes } from '../../utils/email.mjs';
 import { hatterben, keszletRiasztas, rendelesErtesitesek } from '../../utils/ertesitesek.mjs';
 import { keszletLevonas, keszletVisszaadas } from '../../utils/keszlet.mjs';
+import { lemondasLevel } from '../../utils/levelek.mjs';
 import { valaszthatoNapok } from '../../utils/naptar.mjs';
-import { rendelesValasz } from '../../utils/rendelesFormazas.mjs';
+import { raklapEgyenleg, rendelesValasz } from '../../utils/rendelesFormazas.mjs';
+import { fuggoFizetesLezarasa } from './stripeFizetesControllers.mjs';
 
 const SAJAT_RENDELESEK_LIMIT = 50;
 
 const EMAIL_MINTA = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_MENNYISEG = 999;
-const cimValid = (cim) => cim &&
-    /^\d{4}$/.test(cim.iranyitoszam) &&
-    cim.telepules.length >= 2 && cim.telepules.length <= 100 &&
-    cim.utca.length >= 3 && cim.utca.length <= 200;
-
-const szoveg = (ertek) => typeof ertek === 'string' ? ertek.trim() : '';
 
 /**
  * A kosár tételeinek ellenőrzése és betöltése az adatbázisból. Az árat, nevet és
@@ -87,10 +85,10 @@ const postRendeles = async (req, res) => {
         if (!EMAIL_MINTA.test(normalizaltEmail)) {
             return res.status(400).json({ msg: 'Adj meg érvényes e-mail-címet.' });
         }
-        if (!['maganszemely', 'ceg'].includes(szamlazasiTipus) || szamlazasiNev.length < 2 || szamlazasiNev.length > 120 || !cimValid(szamlazasiAdatok)) {
+        if (!['maganszemely', 'ceg'].includes(szamlazasiTipus) || !nevValid(szamlazasiNev) || !cimValid(szamlazasiAdatok)) {
             return res.status(400).json({ msg: 'Töltsd ki helyesen a számlázási nevet és címet.' });
         }
-        if (szamlazasiTipus === 'ceg' && (adoszam.length < 5 || adoszam.length > 32)) {
+        if (szamlazasiTipus === 'ceg' && !adoszamValid(adoszam)) {
             return res.status(400).json({ msg: 'Céges számlázásnál add meg az érvényes adószámot.' });
         }
         if (!['hazhozszallitas', 'szemelyes_atvetel'].includes(atvetelModja)) {
@@ -107,7 +105,7 @@ const postRendeles = async (req, res) => {
                 utca: szallitasiEgyezik ? szamlazasiAdatok.utca : szoveg(bejovoSzallitasiAdatok.utca),
                 megjegyzes: szoveg(bejovoSzallitasiAdatok.megjegyzes).slice(0, 500),
             };
-            if (szallitasiAdatok.atvevoNev.length < 2 || szallitasiAdatok.atvevoNev.length > 120 || !cimValid(szallitasiAdatok)) {
+            if (!nevValid(szallitasiAdatok.atvevoNev) || !cimValid(szallitasiAdatok)) {
                 return res.status(400).json({ msg: 'Töltsd ki helyesen a szállítási nevet és címet.' });
             }
         }
@@ -216,7 +214,7 @@ const postRendeles = async (req, res) => {
                     metadata: { orderId: String(rendeles._id) },
                     success_url: `${frontendUrl}/fizetes/sikeres?session_id={CHECKOUT_SESSION_ID}`,
                     cancel_url: `${frontendUrl}/fizetes/megszakitva?session_id={CHECKOUT_SESSION_ID}`,
-                    expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
+                    expires_at: Math.floor(Date.now() / 1000) + STRIPE_FIZETESI_IDO_PERC * 60,
                 });
                 rendeles.stripeSessionId = checkoutSession.id;
                 await rendeles.save();
@@ -254,15 +252,92 @@ const postRendeles = async (req, res) => {
 
 const getSajatRendelesek = async (req, res) => {
     try {
-        const rendelesek = await RendelesModel.find({ userId: req.authUser._id })
-            .sort({ createdAt: -1 })
-            .limit(SAJAT_RENDELESEK_LIMIT)
-            .lean();
+        const [rendelesek, raklaposRendelesek] = await Promise.all([
+            RendelesModel.find({ userId: req.authUser._id })
+                .sort({ createdAt: -1 })
+                .limit(SAJAT_RENDELESEK_LIMIT)
+                .lean(),
+            // Az egyenleg a lista korlátjától függetlenül az összes átvett rendelésből számol.
+            RendelesModel.find(
+                { userId: req.authUser._id, allapot: 'teljesitve', 'osszesites.raklapok': { $gt: 0 } },
+                { allapot: 1, 'osszesites.raklapok': 1, 'osszesites.raklapBetetdij': 1, visszahozottRaklapok: 1 },
+            ).lean(),
+        ]);
 
-        return res.status(200).json({ rendelesek: rendelesek.map((rendeles) => rendelesValasz(rendeles)) });
+        return res.status(200).json({
+            rendelesek: rendelesek.map((rendeles) => rendelesValasz(rendeles)),
+            raklapEgyenleg: raklapEgyenleg(raklaposRendelesek),
+        });
     } catch (error) {
         console.error('Saját rendelések lekérési hiba:', error);
         return res.status(500).json({ msg: 'A rendeléseidet most nem sikerült betölteni.' });
+    }
+};
+
+// A vevő a saját rendelését addig mondhatja le, amíg az feldolgozásra vár és nincs kifizetve.
+const postRendelesLemondas = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const sajatSzuro = { _id: id, userId: req.authUser._id };
+        const rendeles = mongoose.isValidObjectId(id) ? await RendelesModel.findOne(sajatSzuro).lean() : null;
+        if (!rendeles) {
+            return res.status(404).json({ msg: 'A rendelés nem található.' });
+        }
+        if (!vevoLemondhatja(rendeles)) {
+            const msg = rendeles.allapot === 'lemondva'
+                ? 'Ez a rendelés már le van mondva.'
+                : rendeles.allapot !== 'feldolgozasra_var'
+                    ? 'A rendelés feldolgozása már megkezdődött, ezért online nem mondható le. Kérjük, keresd a telephelyet.'
+                    : 'A már kifizetett rendelést a telephellyel egyeztetve tudod lemondani.';
+            return res.status(409).json({ msg });
+        }
+
+        // Félbehagyott bankkártyás fizetésnél előbb a fizetési oldalt zárjuk le,
+        // hogy a lemondott rendelést utólag már ne lehessen kifizetni.
+        if (fizetesPotolhato(rendeles)) {
+            const { fizetve } = await fuggoFizetesLezarasa(rendeles);
+            if (fizetve) {
+                return res.status(409).json({
+                    msg: 'Közben megérkezett a bankkártyás fizetésed, ezért a rendelést a telephellyel egyeztetve tudod lemondani.',
+                });
+            }
+        }
+
+        // Feltételes frissítés: ha az állapot közben megváltozott (pl. a bolt visszaigazolta),
+        // nem mondjuk le, így a készlet sem kerülhet vissza kétszer.
+        const frissitett = await RendelesModel.findOneAndUpdate(
+            { ...sajatSzuro, allapot: 'feldolgozasra_var', fizetesiAllapot: { $ne: 'fizetve' } },
+            {
+                $set: {
+                    allapot: 'lemondva',
+                    ...(rendeles.fizetesiAllapot === 'fizetesre_var' ? { fizetesiAllapot: 'fizetes_lejart' } : {}),
+                },
+                $push: { allapotTortenet: { allapot: 'lemondva', datum: new Date(), megjegyzes: 'A vevő lemondta a rendelést.' } },
+            },
+            { returnDocument: 'after', runValidators: true, lean: true },
+        );
+        if (!frissitett) {
+            // A fizetési oldal lezárása miatt a Stripe értesítése megelőzhetett minket.
+            const aktualis = await RendelesModel.findOne(sajatSzuro).lean();
+            if (aktualis?.allapot === 'lemondva') {
+                return res.status(200).json({ msg: 'A rendelést lemondtuk.', rendeles: rendelesValasz(aktualis) });
+            }
+            return res.status(409).json({ msg: 'A rendelés állapota közben megváltozott. Frissítsd az oldalt, és nézd meg az aktuális állapotot.' });
+        }
+
+        await keszletVisszaadas(rendeles.tetelek);
+        hatterben(
+            () => emailKuldes({ cimzett: boltErtesitesiEmail(), ...lemondasLevel(frissitett) }),
+            'Lemondás-értesítés',
+        );
+
+        return res.status(200).json({
+            msg: 'A rendelést lemondtuk, a lefoglalt tételeket felszabadítottuk.',
+            rendeles: rendelesValasz(frissitett),
+        });
+    } catch (error) {
+        console.error('Vevői rendeléslemondási hiba:', error);
+        return res.status(500).json({ msg: 'A rendelést most nem sikerült lemondani. Próbáld újra később.' });
     }
 };
 
@@ -317,4 +392,4 @@ const getDijbekero = async (req, res) => {
     }
 };
 
-export { postRendeles, getSajatRendelesek, postOsszesito, getDijbekero };
+export { postRendeles, getSajatRendelesek, postRendelesLemondas, postOsszesito, getDijbekero };

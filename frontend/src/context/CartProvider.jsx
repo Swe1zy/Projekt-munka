@@ -101,6 +101,14 @@ const CartProvider = ({ children }) => {
 
     const urit = useCallback(() => setTetelek([]), []);
 
+    // Egy kifizetett rendelés tételeit veszi ki a kosárból. Ami azóta más mennyiséggel
+    // vagy újként került a kosárba, az megmarad (pl. ha a fizetést később, a profilból pótolták).
+    const rendeltTetelekTorlese = useCallback((rendeltTetelek) => {
+        setTetelek((lista) => lista.filter((elem) => !rendeltTetelek.some(
+            (rendelt) => rendelt.termekId === elem.id && Math.abs(rendelt.mennyiseg - elem.mennyiseg) < 0.005,
+        )));
+    }, []);
+
     const value = useMemo(() => {
         // A tizedes (0,01-es lépésű) árak miatt kerekítünk, hogy ne legyen lebegőpontos hiba.
         const vegosszeg =
@@ -108,8 +116,8 @@ const CartProvider = ({ children }) => {
                 tetelek.reduce((osszeg, elem) => osszeg + elem.ar * elem.mennyiseg, 0) * 100,
             ) / 100;
 
-        return { tetelek, vegosszeg, hozzaad, mennyisegBeallit, torol, urit };
-    }, [tetelek, hozzaad, mennyisegBeallit, torol, urit]);
+        return { tetelek, vegosszeg, hozzaad, mennyisegBeallit, torol, urit, rendeltTetelekTorlese };
+    }, [tetelek, hozzaad, mennyisegBeallit, torol, urit, rendeltTetelekTorlese]);
 
     return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 };

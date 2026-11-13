@@ -5,12 +5,17 @@ import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import OsszesitoSorok from '../components/arazas/OsszesitoSorok';
 import Telephely from '../components/Telephely';
+import { apiKeres, useLekeres } from '../utils/api';
 import { napCimke, useBeallitasok } from '../utils/beallitasok';
 import { forint } from '../utils/termek';
 import { useOsszesito } from '../utils/useOsszesito';
 import './Vasarlas.css';
 
-const uresCim = () => ({ iranyitoszam: '', telepules: '', utca: '' });
+const cimResz = (adat) => ({
+    iranyitoszam: adat?.iranyitoszam ?? '',
+    telepules: adat?.telepules ?? '',
+    utca: adat?.utca ?? '',
+});
 
 const CimMezok = ({ cim, frissit, tipus, letiltva = false }) => (
     <div className="vasarlas-cim-mezok">
@@ -29,20 +34,24 @@ const CimMezok = ({ cim, frissit, tipus, letiltva = false }) => (
     </div>
 );
 
-const Vasarlas = () => {
+// A pénztár űrlapja. Bejelentkezett vásárlónál a kezdőértékek a profilban mentett
+// adatokból jönnek (`mentettAdatok`), ezért csak azok betöltése után jelenik meg.
+const VasarlasUrlap = ({ user, mentettAdatok }) => {
     const { tetelek, vegosszeg, urit } = useCart();
-    const { user } = useAuth();
-    const [email, setEmail] = useState('');
+    const mentettSzamlazas = mentettAdatok?.szamlazas;
+    const mentettSzallitas = mentettAdatok?.szallitas;
+    const [email, setEmail] = useState(user?.email ?? '');
     const [atvetelModja, setAtvetelModja] = useState('hazhozszallitas');
-    const [szallitasiEgyezik, setSzallitasiEgyezik] = useState(true);
-    const [szallitasiNev, setSzallitasiNev] = useState('');
-    const [szallitasiAdatok, setSzallitasiAdatok] = useState(uresCim);
-    const [futarnakMegjegyzes, setFutarnakMegjegyzes] = useState('');
-    const [szamlazasiTipus, setSzamlazasiTipus] = useState('maganszemely');
-    const [szamlazasiNev, setSzamlazasiNev] = useState('');
-    const [adoszam, setAdoszam] = useState('');
-    const [szamlazasiAdatok, setSzamlazasiAdatok] = useState(uresCim);
+    const [szallitasiEgyezik, setSzallitasiEgyezik] = useState(!mentettSzallitas);
+    const [szallitasiNev, setSzallitasiNev] = useState(mentettSzallitas?.atvevoNev ?? '');
+    const [szallitasiAdatok, setSzallitasiAdatok] = useState(() => cimResz(mentettSzallitas));
+    const [futarnakMegjegyzes, setFutarnakMegjegyzes] = useState(mentettSzallitas?.megjegyzes ?? '');
+    const [szamlazasiTipus, setSzamlazasiTipus] = useState(mentettSzamlazas?.tipus ?? 'maganszemely');
+    const [szamlazasiNev, setSzamlazasiNev] = useState(mentettSzamlazas?.nev ?? '');
+    const [adoszam, setAdoszam] = useState(mentettSzamlazas?.adoszam ?? '');
+    const [szamlazasiAdatok, setSzamlazasiAdatok] = useState(() => cimResz(mentettSzamlazas));
     const [szamlazasiMegjegyzes, setSzamlazasiMegjegyzes] = useState('');
+    const [adatokMentese, setAdatokMentese] = useState(false);
     const [kuldes, setKuldes] = useState(false);
     const [hiba, setHiba] = useState('');
     const [fizetesiMod, setFizetesiMod] = useState('atutalas');
@@ -112,6 +121,22 @@ const Vasarlas = () => {
             });
             const valasz = await response.json();
             if (!response.ok) throw new Error(valasz.msg || 'A rendelést nem sikerült rögzíteni.');
+
+            // A rendelés már rögzült: ha a címek mentése nem sikerül, attól még nem hiúsul meg.
+            if (user && adatokMentese) {
+                await apiKeres('/fiok/mentett-adatok', {
+                    method: 'PUT',
+                    body: {
+                        szamlazas: { tipus: szamlazasiTipus, nev: szamlazasiNev, adoszam, ...szamlazasiAdatok },
+                        // Személyes átvételnél nincs szállítási cím az űrlapon: a korábban mentett megmarad.
+                        szallitas: !hazhoz
+                            ? mentettSzallitas ?? null
+                            : szallitasiEgyezik
+                                ? null
+                                : { atvevoNev: szallitasiNev, ...szallitasiAdatok, megjegyzes: futarnakMegjegyzes },
+                    },
+                }).catch(() => {});
+            }
 
             if (valasz.fizetesiUrl) {
                 window.location.assign(valasz.fizetesiUrl);
@@ -311,6 +336,23 @@ const Vasarlas = () => {
                             Megjegyzés az ügyfélszolgálatnak
                             <textarea rows="3" maxLength="500" value={szamlazasiMegjegyzes} onChange={(event) => setSzamlazasiMegjegyzes(event.target.value)} placeholder="Opcionális megjegyzés" />
                         </label>
+                        {user && (
+                            <>
+                                <label className="vasarlas-egyezik-jelolo">
+                                    <input type="checkbox" checked={adatokMentese} onChange={(event) => setAdatokMentese(event.target.checked)} />
+                                    <span>
+                                        {mentettAdatok
+                                            ? 'A profilomban mentett adatok frissítése ezekkel a számlázási és szállítási adatokkal'
+                                            : 'Számlázási és szállítási adatok mentése a profilomba a következő rendeléshez'}
+                                    </span>
+                                </label>
+                                {mentettAdatok && (
+                                    <p className="vasarlas-segitseg">
+                                        Az űrlapot a profilodban mentett adatokkal töltöttük ki. <Link to="/profil#adataim">Mentett adatok kezelése</Link>
+                                    </p>
+                                )}
+                            </>
+                        )}
                     </section>
 
                     <section className="vasarlas-kartya">
@@ -399,6 +441,23 @@ const Vasarlas = () => {
             </div>
         </main>
     );
+};
+
+const Vasarlas = () => {
+    const { user, authReady } = useAuth();
+    const fiok = useLekeres(authReady && user ? '/fiok' : null);
+
+    // A munkamenet és a mentett adatok megérkezéséig várunk, hogy az űrlap már kitöltve jelenjen meg.
+    // Ha a mentett adatok betöltése nem sikerül, a pénztár üres űrlappal ugyanúgy használható.
+    if (!authReady || fiok.betoltes) {
+        return (
+            <main className="vasarlas-oldal">
+                <section className="vasarlas-ures" aria-busy="true"><p>Pénztár betöltése…</p></section>
+            </main>
+        );
+    }
+
+    return <VasarlasUrlap key={user?.id ?? 'vendeg'} user={user} mentettAdatok={fiok.adat?.mentettAdatok ?? null} />;
 };
 
 export default Vasarlas;

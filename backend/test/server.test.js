@@ -110,6 +110,25 @@ describe("Szállítás, beállítások, árajánlat", () => {
     });
 });
 
+describe("Fiók- és profilvégpontok jogosultsága", () => {
+    const vedettVegpontok = [
+        ["get", "/api/fiok"],
+        ["patch", "/api/fiok"],
+        ["put", "/api/fiok/mentett-adatok"],
+        ["get", "/api/fiok/adatok"],
+        ["post", "/api/fiok/torles"],
+        ["get", "/api/arajanlatok/sajat"],
+        ["post", "/api/rendelesek/000000000000000000000000/lemondas"],
+        ["post", "/api/rendelesek/000000000000000000000000/fizetes"],
+    ];
+
+    it.each(vedettVegpontok)("%s %s - bejelentkezés nélkül 401-et ad", async (metodus, utvonal) => {
+        const response = await request("http://localhost:3600")[metodus](utvonal).send({});
+
+        expect(response.status).toBe(401);
+    });
+});
+
 describe("Díjbekérő és export jogosultsága", () => {
     it("GET /api/rendelesek/:id/dijbekero - bejelentkezés nélkül 401-et ad", async () => {
         const response = await request("http://localhost:3600").get("/api/rendelesek/000000000000000000000000/dijbekero");

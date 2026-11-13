@@ -1,5 +1,12 @@
-import { KISZALLITAS } from '../config/uzlet.mjs';
-import { ATVETELI_MODOK, RENDELES_ALLAPOTOK, kovetkezoAllapotok } from '../models/Rendeles.mjs';
+import { KISZALLITAS, STRIPE_FIZETESI_IDO_PERC } from '../config/uzlet.mjs';
+import {
+    ATVETELI_MODOK,
+    FIZETESI_ALLAPOTOK,
+    RENDELES_ALLAPOTOK,
+    fizetesPotolhato,
+    kovetkezoAllapotok,
+    vevoLemondhatja,
+} from '../models/Rendeles.mjs';
 
 const allapotObjektum = (allapot) => ({ allapot, cimke: RENDELES_ALLAPOTOK[allapot] ?? allapot });
 
@@ -16,6 +23,22 @@ export const raklapAdatok = (rendeles) => {
         visszahozottRaklapok: visszahozott,
         visszajaroBetetdij: Math.round(visszahozott * raklaponkent),
     };
+};
+
+// A vevő raklap-egyenlege az átvett (teljesített) rendelései alapján: hány raklap van
+// még nála, és ezek visszahozásakor mennyi betétdíjat kap vissza.
+export const raklapEgyenleg = (rendelesek) => {
+    const egyenleg = { kintLevoRaklapok: 0, visszakaphatoBetetdij: 0, visszahozottRaklapok: 0, visszakapottBetetdij: 0 };
+    for (const rendeles of rendelesek) {
+        if (rendeles.allapot !== 'teljesitve') continue;
+        const { raklapok, visszahozottRaklapok, visszajaroBetetdij } = raklapAdatok(rendeles);
+        const betetdij = rendeles.osszesites?.raklapBetetdij ?? 0;
+        egyenleg.kintLevoRaklapok += raklapok - visszahozottRaklapok;
+        egyenleg.visszakaphatoBetetdij += betetdij - visszajaroBetetdij;
+        egyenleg.visszahozottRaklapok += visszahozottRaklapok;
+        egyenleg.visszakapottBetetdij += visszajaroBetetdij;
+    }
+    return egyenleg;
 };
 
 // Egységes rendelés-válasz a vásárlói és az admin felülethez.
@@ -52,7 +75,15 @@ export const rendelesValasz = (rendeles, { admin = false } = {}) => {
         vegosszeg: rendeles.vegosszeg,
         fizetesiMod: rendeles.fizetesiMod ?? 'atutalas',
         fizetesiAllapot: rendeles.fizetesiAllapot ?? 'atutalasra_var',
+        fizetesiAllapotCimke: FIZETESI_ALLAPOTOK[rendeles.fizetesiAllapot ?? 'atutalasra_var'],
         fizetve: rendeles.fizetve ?? null,
+        // A vevő saját felületén elérhető műveletek (a végpontok ugyanezt ellenőrzik).
+        lemondhato: vevoLemondhatja(rendeles),
+        fizetheto: fizetesPotolhato(rendeles),
+        // A Stripe-munkamenet a rendeléssel együtt jön létre, a határidő ebből adódik.
+        fizetesiHatarido: fizetesPotolhato(rendeles)
+            ? new Date(new Date(rendeles.createdAt).getTime() + STRIPE_FIZETESI_IDO_PERC * 60 * 1000)
+            : null,
         osszesites: rendeles.osszesites ?? null,
         atvetelNapja: rendeles.atvetelNapja ?? null,
         idosav: rendeles.idosav ?? null,

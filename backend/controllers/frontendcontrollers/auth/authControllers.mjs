@@ -3,7 +3,7 @@ import UserModel from '../../../models/User.mjs';
 import { ASZF_VERZIO } from '../../../config/uzlet.mjs';
 import { clearAuthCookie, createAuthToken, setAuthCookie } from '../../../utils/authToken.mjs';
 
-const EMAIL_MINTA = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const EMAIL_MINTA = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MIN_JELSZO_HOSSZ = 8;
 // A bcrypt csak az első 72 bájtot veszi figyelembe.
 const MAX_JELSZO_BAJT = 72;
@@ -13,7 +13,7 @@ const ervenyesJelszo = (jelszo) =>
     jelszo.length >= MIN_JELSZO_HOSSZ &&
     Buffer.byteLength(jelszo) <= MAX_JELSZO_BAJT;
 
-const publikusFelhasznalo = (user) => ({
+export const publikusFelhasznalo = (user) => ({
     id: user._id,
     nev: user.nev,
     email: user.email,

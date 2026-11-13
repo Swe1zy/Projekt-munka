@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { API_URL } from '../config';
+import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import './FizetesEredmeny.css';
 
 const StripeSikeres = () => {
     const [searchParams] = useSearchParams();
-    const { urit } = useCart();
+    const { user } = useAuth();
+    const { urit, rendeltTetelekTorlese } = useCart();
     const sessionId = searchParams.get('session_id');
     const [allapot, setAllapot] = useState({ betoltes: true, sikeres: false, uzenet: 'Ellenőrizzük a fizetés visszaigazolását…' });
 
@@ -22,7 +24,10 @@ const StripeSikeres = () => {
                 const valasz = await response.json();
                 if (!response.ok) throw new Error(valasz.msg || 'A fizetést még nem igazolta vissza a rendszer.');
                 if (!aktiv) return;
-                urit();
+                // A profilból pótolt fizetésnél a kosárban már más is lehet, ezért csak
+                // a most kifizetett rendelés tételeit vesszük ki belőle.
+                if (Array.isArray(valasz.rendeles?.tetelek)) rendeltTetelekTorlese(valasz.rendeles.tetelek);
+                else urit();
                 setAllapot({ betoltes: false, sikeres: true, uzenet: 'A fizetés sikeresen megtörtént. A rendelés visszaigazolását e-mailben küldjük.' });
             } catch (error) {
                 if (aktiv) setAllapot({ betoltes: false, sikeres: false, uzenet: error.message });
@@ -30,7 +35,7 @@ const StripeSikeres = () => {
         };
         ellenoriz();
         return () => { aktiv = false; };
-    }, [sessionId, urit]);
+    }, [sessionId, urit, rendeltTetelekTorlese]);
 
     return (
         <main className="fizetes-eredmeny-oldal">
@@ -42,7 +47,9 @@ const StripeSikeres = () => {
                 <h1>{allapot.betoltes ? 'Egy pillanat…' : allapot.sikeres ? 'Köszönjük a rendelést!' : 'A fizetés ellenőrzése sikertelen'}</h1>
                 <p>{allapot.uzenet}</p>
                 {allapot.sikeres ? (
-                    <Link className="fizetes-eredmeny-gomb" to="/termekek">Vissza a termékekhez</Link>
+                    <Link className="fizetes-eredmeny-gomb" to={user ? '/profil#rendeleseim' : '/termekek'}>
+                        {user ? 'Rendelés követése' : 'Vissza a termékekhez'}
+                    </Link>
                 ) : (
                     <Link className="fizetes-eredmeny-gomb" to="/vasarlas">Vissza a vásárláshoz</Link>
                 )}
