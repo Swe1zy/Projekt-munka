@@ -75,7 +75,13 @@
     color: var(--db-muted);
 }
 
-.db-fejlec > a {
+.db-fejlec-linkek {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.db-fejlec-linkek a {
     padding: 0.65rem 0.95rem;
     border: 1px solid #fed7aa;
     border-radius: 999px;
@@ -86,7 +92,7 @@
     transition: transform 180ms ease, background-color 180ms ease;
 }
 
-.db-fejlec > a:hover {
+.db-fejlec-linkek a:hover {
     background: #ffedd5;
     transform: translateY(-2px);
 }
@@ -188,6 +194,8 @@
 
 .db-idoszak button:focus-visible,
 .db-frissit:focus-visible,
+.db-osszevetes select:focus-visible,
+.db-link:focus-visible,
 .db-nezet-gomb:focus-visible,
 .db-oszlopdiagram-vaszon:focus-visible {
     outline: 3px solid rgba(232, 117, 36, 0.35);
@@ -889,4 +897,338 @@
         right: auto;
         left: 0;
     }
+}
+
+/* ---------- Egyedi időszak és összevetés ---------- */
+
+.db-egyedi--aktiv summary {
+    border-color: var(--db-ink);
+    color: #ffffff;
+    background: var(--db-ink);
+}
+
+.db-egyedi-urlap {
+    display: grid;
+    gap: 0.6rem;
+    padding: 0.5rem;
+    color: var(--db-text);
+    font-size: 0.86rem;
+}
+
+.db-egyedi-urlap label {
+    display: grid;
+    gap: 0.25rem;
+    font-weight: 650;
+}
+
+.db-egyedi-urlap input {
+    min-height: 38px;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--db-border);
+    border-radius: 8px;
+    color: var(--db-ink);
+    font: inherit;
+}
+
+.db-egyedi-urlap small {
+    color: var(--db-muted);
+    font-size: 0.76rem;
+}
+
+.db-alkalmaz {
+    min-height: 38px;
+    border: 0;
+    border-radius: 8px;
+    color: #ffffff;
+    background: var(--db-ink);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.db-alkalmaz:hover {
+    background: #1e293b;
+}
+
+.db-urlap-hiba {
+    color: #991b1b;
+    font-weight: 600;
+}
+
+.db-osszevetes {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--db-muted);
+    font-size: 0.86rem;
+    font-weight: 650;
+}
+
+.db-osszevetes select {
+    min-height: 38px;
+    padding: 0.35rem 0.7rem;
+    border: 1px solid var(--db-border);
+    border-radius: 999px;
+    color: var(--db-text);
+    background: var(--db-surface);
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* ---------- Linkek, kulcsszámok, chipek ---------- */
+
+.db-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.db-link:hover {
+    color: var(--db-accent-dark);
+    text-decoration: underline;
+}
+
+.db-kulcsszamok {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+    gap: 0.9rem 1.1rem;
+    margin: 0;
+}
+
+.db-kulcsszamok > div {
+    display: grid;
+    align-content: start;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.db-kulcsszamok dt {
+    color: var(--db-muted);
+    font-size: 0.8rem;
+    font-weight: 650;
+}
+
+.db-kulcsszamok dd {
+    display: grid;
+    gap: 0.1rem;
+    margin: 0;
+}
+
+.db-kulcsszamok strong {
+    color: var(--db-ink);
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+}
+
+.db-kulcsszam--kiemelt strong {
+    font-size: 1.55rem;
+}
+
+.db-kulcsszamok dd span {
+    color: var(--db-muted);
+    font-size: 0.8rem;
+}
+
+.db-alcim {
+    margin: 0.2rem 0 -0.3rem;
+    color: var(--db-text);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.db-megjegyzes {
+    color: var(--db-muted);
+    font-size: 0.8rem;
+}
+
+.db-chipek {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.db-chipek a {
+    display: inline-flex;
+    gap: 0.35rem;
+    padding: 0.3rem 0.7rem;
+    border: 1px solid var(--db-border);
+    border-radius: 999px;
+    color: var(--db-text);
+    background: var(--db-wash);
+    font-size: 0.8rem;
+    text-decoration: none;
+}
+
+.db-chipek a:hover {
+    border-color: #cbd5e1;
+    background: var(--db-surface);
+}
+
+.db-kartya-linkek {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* ---------- Figyelmeztetések ---------- */
+
+.db-csempe--figyelmeztetes {
+    border-color: #f5d48a;
+    background: #fffbeb;
+}
+
+.db-figyelmeztetes-szoveg {
+    color: #92400e !important;
+    font-weight: 650;
+}
+
+.db-riasztas {
+    display: grid;
+    gap: 0.5rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid #fecaca;
+    border-left: 4px solid var(--db-critical);
+    border-radius: 12px;
+    color: #7f1d1d;
+    background: #fef2f2;
+    font-size: 0.9rem;
+}
+
+.db-riasztas ul {
+    display: grid;
+    gap: 0.3rem;
+    margin: 0;
+    padding-left: 1.1rem;
+}
+
+.db-riasztas li span,
+.db-riasztas li small {
+    color: #991b1b;
+    font-size: 0.82rem;
+}
+
+.db-riasztas li small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ---------- Közelgő kiszállítások ---------- */
+
+.db-kozelgo-fej th {
+    padding-top: 1rem;
+    background: var(--db-surface);
+    color: var(--db-ink);
+    font-size: 0.92rem;
+    font-weight: 750;
+    text-transform: none;
+    letter-spacing: normal;
+}
+
+.db-kozelgo tbody:first-of-type .db-kozelgo-fej th {
+    padding-top: 0.6rem;
+}
+
+.db-kozelgo-fej th small {
+    margin-left: 0.6rem;
+    color: var(--db-muted);
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.db-kozelgo--lejart .db-kozelgo-fej th span {
+    color: var(--db-critical);
+}
+
+.db-kozelgo tbody tr.db-kozelgo-fej:hover {
+    background: transparent;
+}
+
+/* ---------- Hőtérkép ---------- */
+
+.db-hoterkep {
+    display: grid;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.db-hoterkep-osszegzes {
+    color: var(--db-text);
+    font-size: 0.88rem;
+}
+
+.db-hoterkep-tabla {
+    width: 100%;
+    min-width: 640px;
+    border-collapse: separate;
+    border-spacing: 3px;
+    font-size: 0.75rem;
+}
+
+.db-hoterkep-tabla th {
+    color: var(--db-muted);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.db-hoterkep-tabla thead th {
+    height: 1.2rem;
+    text-align: left;
+}
+
+.db-hoterkep-tabla tbody th {
+    padding-right: 0.4rem;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.db-hoterkep-cella {
+    height: 1.6rem;
+    min-width: 0.9rem;
+    border-radius: 4px;
+    background: rgb(30 122 76 / calc(0.12 + 0.88 * var(--erosseg, 0)));
+}
+
+.db-hoterkep-cella--ures {
+    background: var(--db-wash);
+}
+
+.db-hoterkep-ossz {
+    padding-left: 0.5rem;
+    color: var(--db-text);
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.db-hoterkep-jelmagyarazat {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    color: var(--db-muted);
+    font-size: 0.78rem;
+}
+
+.db-hoterkep-jelmagyarazat .db-hoterkep-cella {
+    display: inline-block;
+    width: 1.1rem;
+    height: 0.9rem;
+}
+
+/* Csak képernyőolvasónak látható szöveg */
+.db-rejtett {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
 }

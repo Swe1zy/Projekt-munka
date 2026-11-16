@@ -552,3 +552,42 @@
 .ar-dokumentumok .ar-email-hiba {
     color: var(--ar-danger);
 }
+
+/* A dashboardról érkező fizetési szűrő, egy kattintással törölhető */
+.ar-aktiv-szurok {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.ar-szuro-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 34px;
+    padding: 0.3rem 0.8rem;
+    border: 1px solid #fed7aa;
+    border-radius: 999px;
+    color: var(--ar-accent-dark);
+    background: var(--ar-accent-soft);
+    font: inherit;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.ar-szuro-chip:hover {
+    border-color: var(--ar-accent-dark);
+}
+
+.ar-szuro-chip:focus-visible {
+    outline: 3px solid rgba(232, 117, 36, 0.35);
+    outline-offset: 2px;
+}
+
+.ar-dokumentumok .ar-fizetes-gomb {
+    justify-self: start;
+    min-height: 36px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.84rem;
+}

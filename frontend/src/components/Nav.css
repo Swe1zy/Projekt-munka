@@ -87,11 +87,13 @@
 }
 
 .nav-linkek a:hover::after,
-.nav-linkek a[aria-current='page']::after {
+.nav-linkek a[aria-current='page']::after,
+.nav-linkek a.nav-link--aktiv::after {
     width: 40%;
 }
 
-.nav-linkek a[aria-current='page'] {
+.nav-linkek a[aria-current='page'],
+.nav-linkek a.nav-link--aktiv {
     color: var(--nav-text-hover);
     background-color: var(--nav-hover-bg);
 }
@@ -356,7 +358,8 @@
 }
 .nav-linkek { gap: .35rem; }
 .nav-linkek a { padding: .65rem .9rem; font-size: .92rem; font-weight: 650; }
-.nav-linkek a[aria-current='page'] { background: rgba(255,255,255,.12); }
+.nav-linkek a[aria-current='page'],
+.nav-linkek a.nav-link--aktiv { background: rgba(255,255,255,.12); }
 .nav-linkek a::after { display: none; }
 .nav-fiok-gomb, .nav-kosar-gomb { width: 2.8rem; height: 2.8rem; border-color: rgba(255,255,255,.2); background: rgba(255,255,255,.07); }
 .nav-kosar-gomb { background: #bd6a3d; border-color: #bd6a3d; color: #fff; }

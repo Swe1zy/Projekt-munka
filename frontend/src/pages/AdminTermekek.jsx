@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Link, Navigate, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation, useSearchParams } from 'react-router-dom';
 import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import { useBeallitasok } from '../utils/beallitasok';
@@ -49,9 +49,26 @@ const kepekLista = (termek) => {
     return [termek.kep, termek.kep1, termek.kep2, termek.kep3].filter(Boolean);
 };
 
+const urlapTermekbol = (termek) => ({
+    id: termek._id,
+    nev: termek.nev || '',
+    kategoria: termek.kategoria || '',
+    leiras: termek.leiras || '',
+    ar: String(termek.ar ?? ''),
+    egyseg: termek.egyseg || '',
+    keszlet: String(termek.keszlet ?? ''),
+    suly: String(termek.suly ?? ''),
+    raklapon: String(termek.raklapon ?? ''),
+    darabPerEgyseg: String(termek.darabPerEgyseg ?? ''),
+    kepek: kepekLista(termek).length ? kepekLista(termek) : [''],
+});
+
 const AdminTermekek = () => {
     const { user, authReady } = useAuth();
     const location = useLocation();
+    const [searchParams] = useSearchParams();
+    // A dashboard linkje (?szerkeszt=<id>) egyből a termék szerkesztését nyitja meg.
+    const [szerkesztendo] = useState(() => searchParams.get('szerkeszt'));
     const [termekek, setTermekek] = useState([]);
     const [urlap, setUrlap] = useState(uresUrlap);
     const [betoltes, setBetoltes] = useState(true);
@@ -64,6 +81,7 @@ const AdminTermekek = () => {
         const valasz = await response.json();
         if (!response.ok) throw new Error(valasz.msg || 'A terméklista betöltése nem sikerült.');
         setTermekek(valasz.termekek);
+        return valasz.termekek;
     }, []);
 
     useEffect(() => {
@@ -71,6 +89,10 @@ const AdminTermekek = () => {
         let aktiv = true;
         const timeout = window.setTimeout(() => {
             termekekBetoltese()
+                .then((lista) => {
+                    const termek = szerkesztendo && lista.find((elem) => String(elem._id) === szerkesztendo);
+                    if (aktiv && termek) setUrlap(urlapTermekbol(termek));
+                })
                 .catch((error) => {
                     if (aktiv) setHiba(error.message);
                 })
@@ -83,7 +105,7 @@ const AdminTermekek = () => {
             aktiv = false;
             window.clearTimeout(timeout);
         };
-    }, [authReady, user, termekekBetoltese]);
+    }, [authReady, user, termekekBetoltese, szerkesztendo]);
 
     if (!authReady) return <p className="admin-allapot">Munkamenet ellenőrzése…</p>;
     if (!user) {
@@ -100,19 +122,7 @@ const AdminTermekek = () => {
     const mezoFrissitese = (mezo, ertek) => setUrlap((elozo) => ({ ...elozo, [mezo]: ertek }));
 
     const termekSzerkesztese = (termek) => {
-        setUrlap({
-            id: termek._id,
-            nev: termek.nev || '',
-            kategoria: termek.kategoria || '',
-            leiras: termek.leiras || '',
-            ar: String(termek.ar ?? ''),
-            egyseg: termek.egyseg || '',
-            keszlet: String(termek.keszlet ?? ''),
-            suly: String(termek.suly ?? ''),
-            raklapon: String(termek.raklapon ?? ''),
-            darabPerEgyseg: String(termek.darabPerEgyseg ?? ''),
-            kepek: kepekLista(termek).length ? kepekLista(termek) : [''],
-        });
+        setUrlap(urlapTermekbol(termek));
         setHiba('');
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };

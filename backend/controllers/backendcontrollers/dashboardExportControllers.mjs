@@ -1,9 +1,10 @@
 import { KESZLET_RIASZTASI_KUSZOB } from '../../config/uzlet.mjs';
-import RendelesModel, { ATVETELI_MODOK, RENDELES_ALLAPOTOK } from '../../models/Rendeles.mjs';
+import RendelesModel, { ATVETELI_MODOK, FIZETESI_ALLAPOTOK, FIZETESI_MODOK, RENDELES_ALLAPOTOK } from '../../models/Rendeles.mjs';
 import TermekModel from '../../models/Termek.mjs';
 import { csvKeszites } from '../../utils/csv.mjs';
 import { rovidAzonosito } from '../../utils/rendelesFormazas.mjs';
-import { BEVETEL, ERVENYES_RENDELES, IDOSZAKOK, IDOZONA, idoszakHatarai, idosorKulcsok } from './dashboardControllers.mjs';
+import { IDOZONA, idoszakFeldolgozas, idosorKulcsok } from '../../utils/dashboardIdoszak.mjs';
+import { BEVETEL, ERVENYES_RENDELES } from './dashboardControllers.mjs';
 
 const idopontFormazo = new Intl.DateTimeFormat('sv-SE', {
     timeZone: IDOZONA,
@@ -17,13 +18,15 @@ const idopontFormazo = new Intl.DateTimeFormat('sv-SE', {
 const idopont = (datum) => idopontFormazo.format(new Date(datum));
 const kerekit = (ertek) => Math.round((Number(ertek) || 0) * 100) / 100;
 
-const rendelesekExport = async ({ kezdet }) => {
-    const rendelesek = await RendelesModel.find({ createdAt: { $gte: kezdet } }).sort({ createdAt: 1 }).lean();
+const ablak = ({ kezdet, veg }) => ({ createdAt: { $gte: kezdet, $lt: veg } });
+
+const rendelesekExport = async (idoszak) => {
+    const rendelesek = await RendelesModel.find(ablak(idoszak)).sort({ createdAt: 1 }).lean();
     return {
         fejlec: [
             'Azonosító', 'Leadva', 'Állapot', 'Vevő', 'E-mail', 'Vevő típusa', 'Adószám', 'Átvétel', 'Átvétel napja',
             'Település', 'Tételek', 'Termékek (Ft)', 'Kedvezmény (Ft)', 'Szállítás (Ft)', 'Raklap-betétdíj (Ft)',
-            'Végösszeg (Ft)', 'Visszahozott raklap', 'Fiók',
+            'Végösszeg (Ft)', 'Fizetési mód', 'Fizetés', 'Visszahozott raklap', 'Fiók',
         ],
         sorok: rendelesek.map((r) => [
             rovidAzonosito(r._id),
@@ -42,16 +45,18 @@ const rendelesekExport = async ({ kezdet }) => {
             kerekit(r.osszesites?.szallitasiDij),
             kerekit(r.osszesites?.raklapBetetdij),
             kerekit(r.vegosszeg),
+            FIZETESI_MODOK[r.fizetesiMod ?? 'atutalas'] ?? r.fizetesiMod,
+            FIZETESI_ALLAPOTOK[r.fizetesiAllapot ?? 'atutalasra_var'] ?? r.fizetesiAllapot,
             r.visszahozottRaklapok ?? 0,
             r.userId ? 'regisztrált' : 'vendég',
         ]),
     };
 };
 
-const idosorExport = async ({ kezdet, idoszak, most }) => {
+const idosorExport = async (idoszak) => {
     const formatum = idoszak.bontas === 'honap' ? '%Y-%m' : '%Y-%m-%d';
     const adatok = await RendelesModel.aggregate([
-        { $match: { createdAt: { $gte: kezdet }, ...ERVENYES_RENDELES } },
+        { $match: { ...ablak(idoszak), ...ERVENYES_RENDELES } },
         {
             $group: {
                 _id: { $dateToString: { format: formatum, date: '$createdAt', timezone: IDOZONA } },
@@ -63,7 +68,7 @@ const idosorExport = async ({ kezdet, idoszak, most }) => {
     const terkep = new Map(adatok.map((sor) => [sor._id, sor]));
     return {
         fejlec: [idoszak.bontas === 'honap' ? 'Hónap' : 'Nap', 'Bevétel (Ft)', 'Rendelések'],
-        sorok: idosorKulcsok(idoszak, kezdet, most).map((kulcs) => [
+        sorok: idosorKulcsok(idoszak).map((kulcs) => [
             kulcs,
             kerekit(terkep.get(kulcs)?.bevetel),
             terkep.get(kulcs)?.rendelesek ?? 0,
@@ -71,9 +76,9 @@ const idosorExport = async ({ kezdet, idoszak, most }) => {
     };
 };
 
-const termekekExport = async ({ kezdet }) => {
+const termekekExport = async (idoszak) => {
     const adatok = await RendelesModel.aggregate([
-        { $match: { createdAt: { $gte: kezdet }, ...ERVENYES_RENDELES } },
+        { $match: { ...ablak(idoszak), ...ERVENYES_RENDELES } },
         { $sort: { createdAt: 1 } },
         { $unwind: '$tetelek' },
         {
@@ -129,21 +134,21 @@ const EXPORTOK = {
 const getDashboardExport = async (req, res) => {
     try {
         const tipus = typeof req.query.tipus === 'string' ? req.query.tipus : '';
-        const idoszakKulcs = typeof req.query.idoszak === 'string' ? req.query.idoszak : '30nap';
         const exportalo = Object.hasOwn(EXPORTOK, tipus) ? EXPORTOK[tipus] : null;
-        if (!exportalo || !Object.hasOwn(IDOSZAKOK, idoszakKulcs)) {
+        if (!exportalo) {
             return res.status(400).json({ msg: `Érvénytelen export. Típusok: ${Object.keys(EXPORTOK).join(', ')}.` });
         }
 
-        const idoszak = IDOSZAKOK[idoszakKulcs];
         const most = new Date();
-        const { kezdet } = idoszakHatarai(idoszak, most);
-        const { fejlec, sorok } = await exportalo.keszit({ kezdet, idoszak, most });
+        const idoszak = idoszakFeldolgozas(req.query, most);
+        if (idoszak.hiba) return res.status(400).json({ msg: idoszak.hiba });
+        const { fejlec, sorok } = await exportalo.keszit(idoszak);
 
         const datum = idopont(most).slice(0, 10);
+        const idoszakNev = idoszak.tol ? `${idoszak.tol}_${idoszak.ig}` : idoszak.kulcs;
         const fajlnev = exportalo.idoszakFuggetlen
             ? `${exportalo.nev}-${datum}.csv`
-            : `${exportalo.nev}-${idoszakKulcs}-${datum}.csv`;
+            : `${exportalo.nev}-${idoszakNev}-${datum}.csv`;
         res.setHeader('Content-Type', 'text/csv; charset=utf-8');
         res.setHeader('Content-Disposition', `attachment; filename="${fajlnev}"`);
         res.setHeader('Cache-Control', 'private, no-store');

@@ -1,11 +1,21 @@
 import mongoose from 'mongoose';
-import RendelesModel, { RENDELES_ALLAPOTOK, kovetkezoAllapotok } from '../../models/Rendeles.mjs';
+import RendelesModel, { FIZETESI_ALLAPOTOK, RENDELES_ALLAPOTOK, kovetkezoAllapotok } from '../../models/Rendeles.mjs';
 import { keszletVisszaadas } from '../../utils/keszlet.mjs';
 import { rendelesValasz } from '../../utils/rendelesFormazas.mjs';
 
 const OLDALMERET = 20;
 const MAX_KERESES_HOSSZ = 100;
 const MAX_MEGJEGYZES_HOSSZ = 300;
+
+// Átutalásos, még ki nem fizetett rendelés. A régi rendeléseknél a fizetési mód hiányozhat
+// (alapértéke átutalás; a null a hiányzót is lefedi), az állapot pedig régi értékű is lehet.
+const ATUTALASRA_VAR = {
+    fizetesiMod: { $in: ['atutalas', null] },
+    fizetesiAllapot: { $ne: 'fizetve' },
+};
+
+// Fizetési állapot szerinti szűrés (a dashboard linkjeihez).
+const fizetesSzuro = (fizetes) => (fizetes === 'atutalasra_var' ? ATUTALASRA_VAR : { fizetesiAllapot: fizetes });
 
 const regexEscape = (szoveg) => szoveg.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -29,13 +39,21 @@ const getRendelesek = async (req, res) => {
             return res.status(400).json({ msg: 'Érvénytelen állapotszűrő.' });
         }
 
+        const fizetes = typeof req.query.fizetes === 'string' && req.query.fizetes ? req.query.fizetes : null;
+        if (fizetes && !Object.hasOwn(FIZETESI_ALLAPOTOK, fizetes)) {
+            return res.status(400).json({ msg: 'Érvénytelen fizetési szűrő.' });
+        }
+
         const kereses = typeof req.query.kereses === 'string'
             ? req.query.kereses.trim().slice(0, MAX_KERESES_HOSSZ)
             : '';
         const kertOldal = Number.parseInt(req.query.oldal, 10);
         const oldal = Number.isInteger(kertOldal) && kertOldal > 0 ? kertOldal : 1;
 
-        const keresesSzuro = kereses ? keresesiFeltetel(kereses) : {};
+        const keresesSzuro = {
+            ...(kereses ? keresesiFeltetel(kereses) : {}),
+            ...(fizetes ? fizetesSzuro(fizetes) : {}),
+        };
         const szuro = allapot === 'osszes' ? keresesSzuro : { ...keresesSzuro, allapot };
 
         const [rendelesek, talalatok, allapotSzamok] = await Promise.all([
@@ -45,7 +63,7 @@ const getRendelesek = async (req, res) => {
                 .limit(OLDALMERET)
                 .lean(),
             RendelesModel.countDocuments(szuro),
-            // A fülek számlálói a keresésre igen, az állapotszűrőre nem szűkülnek.
+            // A fülek számlálói a keresésre és a fizetési szűrőre igen, az állapotszűrőre nem szűkülnek.
             RendelesModel.aggregate([
                 { $match: keresesSzuro },
                 { $group: { _id: '$allapot', db: { $sum: 1 } } },
@@ -166,4 +184,39 @@ const patchRaklapVisszavetel = async (req, res) => {
     }
 };
 
-export { getRendelesek, patchRendelesAllapot, patchRaklapVisszavetel };
+// Átutalásos rendelés kifizetettnek jelölése, amikor a pénz beérkezett a bankszámlára.
+// A bankkártyás fizetést a Stripe-webhook rögzíti, azt itt nem lehet kézzel módosítani.
+const patchFizetesBeerkezett = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(404).json({ msg: 'A rendelés nem található.' });
+        }
+
+        const frissitett = await RendelesModel.findOneAndUpdate(
+            {
+                _id: id,
+                allapot: { $ne: 'lemondva' },
+                ...ATUTALASRA_VAR,
+            },
+            { $set: { fizetesiMod: 'atutalas', fizetesiAllapot: 'fizetve', fizetve: new Date() } },
+            { returnDocument: 'after', lean: true },
+        );
+        if (!frissitett) {
+            const letezik = await RendelesModel.exists({ _id: id });
+            return letezik
+                ? res.status(400).json({ msg: 'Ez a rendelés nem átutalásra vár (már kifizették, lemondták, vagy bankkártyás).' })
+                : res.status(404).json({ msg: 'A rendelés nem található.' });
+        }
+
+        return res.status(200).json({
+            msg: 'Az átutalás beérkezését rögzítetted, a rendelés kifizetett.',
+            rendeles: rendelesValasz(frissitett, { admin: true }),
+        });
+    } catch (error) {
+        console.error('Fizetésrögzítési hiba:', error);
+        return res.status(500).json({ msg: 'A fizetést most nem sikerült rögzíteni.' });
+    }
+};
+
+export { getRendelesek, patchRendelesAllapot, patchRaklapVisszavetel, patchFizetesBeerkezett };

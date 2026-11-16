@@ -19,6 +19,14 @@ const SZUROK = [
     { allapot: 'lemondva', cimke: 'Lemondva' },
 ];
 
+// A dashboardról érkező fizetési szűrők (?fizetes=…).
+const FIZETES_SZUROK = {
+    atutalasra_var: 'Átutalásra vár',
+    fizetesre_var: 'Kártyás fizetésre vár',
+    fizetve: 'Fizetve',
+    fizetes_lejart: 'Lejárt kártyás fizetés',
+};
+
 const GOMB_FELIRATOK = {
     visszaigazolva: 'Visszaigazolás',
     kiszallitas_alatt: 'Kiszállításra átad',
@@ -66,20 +74,23 @@ const AdminRendelesek = () => {
     const { user, authReady } = useAuth();
     const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
-    const [keresesMezo, setKeresesMezo] = useState('');
+    // A dashboard linkjei kereséssel (?kereses=…) és lenyitandó rendeléssel (?rendeles=…) nyitják az oldalt.
+    const [keresesMezo, setKeresesMezo] = useState(() => searchParams.get('kereses') ?? '');
     // A keresés és az oldalszám együtt változik: új keresésnél az első oldalra ugrunk.
-    const [lekerdezes, setLekerdezes] = useState({ kereses: '', oldal: 1 });
+    const [lekerdezes, setLekerdezes] = useState(() => ({ kereses: (searchParams.get('kereses') ?? '').trim(), oldal: 1 }));
     const [frissites, setFrissites] = useState(0);
     const [valasz, setValasz] = useState({ kulcs: null, adat: null, hiba: '' });
-    const [nyitott, setNyitott] = useState(null);
+    const [nyitott, setNyitott] = useState(() => searchParams.get('rendeles'));
     const [megjegyzes, setMegjegyzes] = useState('');
     const [folyamatban, setFolyamatban] = useState(false);
     const [uzenet, setUzenet] = useState({ tipus: '', szoveg: '' });
 
     const kertAllapot = searchParams.get('allapot');
     const allapot = SZUROK.some((szuro) => szuro.allapot === kertAllapot) ? kertAllapot : 'osszes';
+    const kertFizetes = searchParams.get('fizetes');
+    const fizetes = Object.hasOwn(FIZETES_SZUROK, kertFizetes ?? '') ? kertFizetes : null;
     const { kereses, oldal } = lekerdezes;
-    const keresKulcs = `${allapot}|${kereses}|${oldal}|${frissites}`;
+    const keresKulcs = `${allapot}|${fizetes}|${kereses}|${oldal}|${frissites}`;
     const admin = user?.role === 'admin';
 
     // Gépelés közben nem kérdezünk le minden betűre, csak egy rövid szünet után.
@@ -96,6 +107,7 @@ const AdminRendelesek = () => {
         const vezerlo = new AbortController();
         const parameterek = new URLSearchParams({ allapot, oldal: String(oldal) });
         if (kereses) parameterek.set('kereses', kereses);
+        if (fizetes) parameterek.set('fizetes', fizetes);
 
         fetch(`${API_URL}/admin/rendelesek?${parameterek}`, { credentials: 'include', signal: vezerlo.signal })
             .then(async (response) => {
@@ -109,7 +121,7 @@ const AdminRendelesek = () => {
             });
 
         return () => vezerlo.abort();
-    }, [authReady, admin, allapot, kereses, oldal, keresKulcs]);
+    }, [authReady, admin, allapot, fizetes, kereses, oldal, keresKulcs]);
 
     if (!authReady) return <p className="ar-allapot-szoveg">Munkamenet ellenőrzése…</p>;
     // Csak a kijelentkezett felhasználót küldjük a belépéshez; a bejelentkezett, de nem
@@ -120,10 +132,46 @@ const AdminRendelesek = () => {
     const { adat, hiba } = valasz;
     const betoltes = valasz.kulcs !== keresKulcs;
 
-    const szuroValtas = (uj) => {
-        setSearchParams(uj === 'osszes' ? {} : { allapot: uj }, { replace: true });
+    // Az URL többi paramétere (pl. a fizetési szűrő) megmarad, a lenyitott rendelés nem.
+    const urlFrissites = (valtozasok) => {
+        const uj = new URLSearchParams(searchParams);
+        uj.delete('rendeles');
+        for (const [kulcs, ertek] of Object.entries(valtozasok)) {
+            if (ertek) uj.set(kulcs, ertek);
+            else uj.delete(kulcs);
+        }
+        setSearchParams(uj, { replace: true });
         setLekerdezes((elozo) => ({ ...elozo, oldal: 1 }));
         setNyitott(null);
+    };
+
+    const szuroValtas = (uj) => urlFrissites({ allapot: uj === 'osszes' ? null : uj });
+
+    const fizetesRogzitese = async (rendeles) => {
+        if (!window.confirm(`Beérkezett a #${rendeles.rovidAzonosito} rendelés átutalása (${forint(rendeles.vegosszeg)})?`)) return;
+
+        setFolyamatban(true);
+        setUzenet({ tipus: '', szoveg: '' });
+        try {
+            const response = await fetch(`${API_URL}/admin/rendelesek/${rendeles.id}/fizetes`, {
+                method: 'PATCH',
+                credentials: 'include',
+            });
+            const eredmeny = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(eredmeny.msg || 'A fizetést nem sikerült rögzíteni.');
+            setValasz((elozo) => ({
+                ...elozo,
+                adat: {
+                    ...elozo.adat,
+                    rendelesek: elozo.adat.rendelesek.map((elem) => (elem.id === rendeles.id ? eredmeny.rendeles : elem)),
+                },
+            }));
+            setUzenet({ tipus: 'siker', szoveg: `#${rendeles.rovidAzonosito}: ${eredmeny.msg}` });
+        } catch (error) {
+            setUzenet({ tipus: 'hiba', szoveg: error.message });
+        } finally {
+            setFolyamatban(false);
+        }
     };
 
     const lapozas = (irany) => {
@@ -223,6 +271,15 @@ const AdminRendelesek = () => {
                         </button>
                     ))}
                 </div>
+                {fizetes && (
+                    <div className="ar-aktiv-szurok">
+                        <button type="button" className="ar-szuro-chip" onClick={() => urlFrissites({ fizetes: null })}>
+                            Fizetés: {FIZETES_SZUROK[fizetes]}
+                            <span aria-hidden="true">✕</span>
+                            <span className="ar-rejtett"> – szűrő törlése</span>
+                        </button>
+                    </div>
+                )}
                 <label className="ar-kereso">
                     <span className="ar-rejtett">Keresés</span>
                     <input
@@ -247,7 +304,7 @@ const AdminRendelesek = () => {
                 <section className={`ar-lista${betoltes ? ' ar-lista--frissul' : ''}`} aria-busy={betoltes} aria-label="Rendelések">
                     {adat.rendelesek.length === 0 ? (
                         <p className="ar-ures">
-                            {kereses ? 'Nincs a keresésnek megfelelő rendelés.' : 'Ebben az állapotban nincs rendelés.'}
+                            {kereses || fizetes ? 'Nincs a szűrésnek megfelelő rendelés.' : 'Ebben az állapotban nincs rendelés.'}
                         </p>
                     ) : adat.rendelesek.map((rendeles) => {
                         const nyitva = nyitott === rendeles.id;
@@ -274,7 +331,10 @@ const AdminRendelesek = () => {
                                     </span>
                                     <span className="ar-oszlop ar-osszeg">
                                         <strong>{forint(rendeles.vegosszeg)}</strong>
-                                        <small>{szam(rendeles.tetelek.length)} tétel</small>
+                                        <small>
+                                            {szam(rendeles.tetelek.length)} tétel
+                                            {rendeles.allapot !== 'lemondva' && (rendeles.fizetesiAllapot === 'fizetve' ? ' · fizetve' : ' · nincs fizetve')}
+                                        </small>
                                     </span>
                                     <span className="ar-oszlop ar-jelveny">
                                         <AllapotJelveny allapot={rendeles.allapot} cimke={rendeles.cimke} />
@@ -316,6 +376,20 @@ const AdminRendelesek = () => {
                                                     <a href={`${API_URL}/rendelesek/${rendeles.id}/dijbekero`} target="_blank" rel="noreferrer">
                                                         Díjbekérő (PDF) ↗
                                                     </a>
+                                                    <small>
+                                                        Fizetés: {rendeles.fizetesiMod === 'stripe' ? 'bankkártya' : 'átutalás'} · {rendeles.fizetesiAllapotCimke ?? 'Átutalásra vár'}
+                                                        {rendeles.fizetve && ` (${teljesIdopont(rendeles.fizetve)})`}
+                                                    </small>
+                                                    {rendeles.fizetesiMod !== 'stripe' && rendeles.fizetesiAllapot !== 'fizetve' && rendeles.allapot !== 'lemondva' && (
+                                                        <button
+                                                            type="button"
+                                                            className="ar-gomb aj-gomb-masodlagos ar-fizetes-gomb"
+                                                            disabled={folyamatban}
+                                                            onClick={() => fizetesRogzitese(rendeles)}
+                                                        >
+                                                            Átutalás beérkezett
+                                                        </button>
+                                                    )}
                                                     <ErtesitesNaplo ertesitesek={rendeles.ertesitesek} />
                                                 </div>
                                             </div>
