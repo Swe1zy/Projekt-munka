@@ -156,10 +156,16 @@ const Nav = () => {
                 </NavLink>
                 <NavLink to="/termekek">Termékek</NavLink>
                 <NavLink to="/kalkulator">Kalkulátor</NavLink>
-                {user?.role === 'admin' && <NavLink to="/admin/dashboard">Dashboard</NavLink>}
-                {user?.role === 'admin' && <NavLink to="/admin/rendelesek">Rendelések</NavLink>}
-                {user?.role === 'admin' && <NavLink to="/admin/arajanlatok">Árajánlatok</NavLink>}
-                {user?.role === 'admin' && <NavLink to="/admin/termekek">Termékkezelés</NavLink>}
+                {/* A rendelések, árajánlatok és a termékkezelés a dashboardról érhető el,
+                    ezért az admin aloldalakon is a Dashboard menüpont marad kiemelve. */}
+                {user?.role === 'admin' && (
+                    <NavLink
+                        to="/admin/dashboard"
+                        className={({ isActive }) => (isActive || pathname.startsWith('/admin/') ? 'nav-link--aktiv' : undefined)}
+                    >
+                        Dashboard
+                    </NavLink>
+                )}
             </div>
 
             <div className="nav-jobb">

@@ -28,6 +28,11 @@ export const kovetkezoAllapotok = (allapot, atvetelModja) =>
         (uj) => uj !== 'kiszallitas_alatt' || atvetelModja === 'hazhozszallitas',
     );
 
+export const FIZETESI_MODOK = {
+    atutalas: 'Átutalás',
+    stripe: 'Bankkártya',
+};
+
 export const FIZETESI_ALLAPOTOK = {
     atutalasra_var: 'Átutalásra vár',
     fizetesre_var: 'Bankkártyás fizetésre vár',

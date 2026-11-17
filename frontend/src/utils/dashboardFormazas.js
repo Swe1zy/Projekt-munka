@@ -47,3 +47,27 @@ export const tengelyErtekek = (maximum, celDarab = 4) => {
     if (ertekek.at(-1) < maximum) ertekek.push(ertekek.at(-1) + lepes);
     return ertekek;
 };
+
+const datumFormazo = new Intl.DateTimeFormat('hu-HU', { year: 'numeric', month: 'short', day: 'numeric' });
+const atvetelNapFormazo = new Intl.DateTimeFormat('hu-HU', { month: 'short', day: 'numeric', weekday: 'long', timeZone: 'UTC' });
+
+export const datum = (ertek) => datumFormazo.format(new Date(ertek));
+
+// „ÉÉÉÉ-HH-NN” naptári nap (pl. kiszállítás napja) olvasható alakban: „nov. 18., szerda”.
+export const naptariNap = (kulcs) => {
+    const [ev, honap, nap] = kulcs.split('-').map(Number);
+    return atvetelNapFormazo.format(new Date(Date.UTC(ev, honap - 1, nap)));
+};
+
+// Időtartam emberi alakban: perc, óra vagy nap.
+export const idotartam = (ms) => {
+    if (ms === null || ms === undefined) return '–';
+    const perc = ms / 60000;
+    if (perc < 60) return `${Math.max(1, Math.round(perc))} perc`;
+    const ora = perc / 60;
+    if (ora < 48) return `${szamFormazo.format(Math.round(ora * 10) / 10)} óra`;
+    return `${szamFormazo.format(Math.round((ora / 24) * 10) / 10)} nap`;
+};
+
+// Tömeg kg-ban, 1 tonna felett tonnában.
+export const tomeg = (kg) => (kg >= 1000 ? `${szamFormazo.format(Math.round(kg / 100) / 10)} t` : `${szamFormazo.format(Math.round(kg))} kg`);
