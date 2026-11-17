@@ -3,7 +3,15 @@ import RendelesModel, { fizetesPotolhato, vevoLemondhatja } from '../../models/R
 import TermekModel from '../../models/Termek.mjs';
 import { KISZALLITAS, STRIPE_FIZETESI_IDO_PERC, boltErtesitesiEmail } from '../../config/uzlet.mjs';
 import { rendelesOsszesites } from '../../utils/arazas.mjs';
-import { adoszamValid, cimValid, nevValid, szoveg } from '../../utils/cimek.mjs';
+import {
+    MAX_BEHAJTAS_HOSSZ,
+    MAX_MEGJEGYZES_HOSSZ,
+    adoszamValid,
+    cimValid,
+    nevValid,
+    szoveg,
+    telefonValid,
+} from '../../utils/cimek.mjs';
 import { dijbekeroFajlnev, dijbekeroPdf } from '../../utils/dijbekero.mjs';
 import { emailKuldes } from '../../utils/email.mjs';
 import { hatterben, keszletRiasztas, rendelesErtesitesek } from '../../utils/ertesitesek.mjs';
@@ -102,13 +110,22 @@ const postRendeles = async (req, res) => {
                 iranyitoszam: szallitasiEgyezik ? szamlazasiAdatok.iranyitoszam : szoveg(bejovoSzallitasiAdatok.iranyitoszam),
                 telepules: szallitasiEgyezik ? szamlazasiAdatok.telepules : szoveg(bejovoSzallitasiAdatok.telepules),
                 utca: szallitasiEgyezik ? szamlazasiAdatok.utca : szoveg(bejovoSzallitasiAdatok.utca),
-                megjegyzes: szoveg(bejovoSzallitasiAdatok.megjegyzes).slice(0, 500),
+                megjegyzes: szoveg(bejovoSzallitasiAdatok.megjegyzes).slice(0, MAX_MEGJEGYZES_HOSSZ),
+                behajtas: szoveg(bejovoSzallitasiAdatok.behajtas).slice(0, MAX_BEHAJTAS_HOSSZ),
             };
             if (!nevValid(szallitasiAdatok.atvevoNev) || !cimValid(szallitasiAdatok)) {
                 return res.status(400).json({ msg: 'Töltsd ki helyesen a szállítási nevet és címet.' });
             }
         }
         const hazhoz = atvetelModja === 'hazhozszallitas';
+        // A sofőrnek/darusnak el kell érnie az átvevőt, ezért házhozszállításnál kötelező.
+        const telefon = szoveg(req.body?.telefon);
+        if (hazhoz && !telefon) {
+            return res.status(400).json({ msg: 'Házhozszállításhoz add meg a telefonszámod.' });
+        }
+        if (telefon && !telefonValid(telefon)) {
+            return res.status(400).json({ msg: 'A telefonszám formátuma érvénytelen (pl. +36 30 123 4567).' });
+        }
         const valaszthato = valaszthatoNapok(atvetelModja).map((nap) => nap.datum);
         const atvetelNapja = szoveg(req.body?.atvetelNapja);
         if (!valaszthato.includes(atvetelNapja)) {
@@ -168,6 +185,7 @@ const postRendeles = async (req, res) => {
                 userId: req.authUser?._id ?? null,
                 email: normalizaltEmail,
                 teljesNev: szamlazasiNev,
+                telefon,
                 atvetelModja,
                 szallitasiCim: normalizaltCim,
                 szallitasiEgyezik: atvetelModja === 'hazhozszallitas' && szallitasiEgyezik,

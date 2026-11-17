@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { apiKeres } from '../../utils/api';
+import { useBeallitasok } from '../../utils/beallitasok';
+import { ervenyesAdoszam } from '../../utils/fiok';
+import { forint } from '../../utils/termek';
 import CimMezok from './CimMezok';
 import Uzenet from './Uzenet';
 
@@ -10,29 +13,47 @@ const cimResz = (adat) => ({
     utca: adat?.utca ?? '',
 });
 
-// A pénztárat előtöltő számlázási és szállítási adatok szerkesztése.
-const MentettAdatok = ({ mentettAdatok, mentve }) => {
+// Céges számlázásnál jelzi, jár-e (és mekkora) mennyiségi kedvezmény az adószámmal.
+const KedvezmenyJelzes = ({ adoszam }) => {
+    const { adat: beallitasok } = useBeallitasok();
+    const savok = beallitasok?.cegesKedvezmenySavok ?? [];
+    if (!adoszam.trim()) return null;
+
+    if (!ervenyesAdoszam(adoszam)) {
+        return (
+            <p className="profil-kedvezmeny profil-kedvezmeny--nem">
+                Ez az adószám nem a megszokott formátumú (12345678-1-12), ezért céges kedvezmény nem jár rá.
+            </p>
+        );
+    }
+    return (
+        <p className="profil-kedvezmeny">
+            <strong>✓ Jogosult vagy céges mennyiségi kedvezményre.</strong>
+            {savok.length > 0 && (
+                <span> {savok.map((sav) => `${forint(sav.minimum)} felett ${sav.szazalek}%`).join(', ')} a termékek árából.</span>
+            )}
+        </p>
+    );
+};
+
+// A pénztárat előtöltő számlázási adatok szerkesztése.
+const MentettAdatok = ({ mentettAdatok, frissult }) => {
     const szamlazas = mentettAdatok?.szamlazas;
-    const szallitas = mentettAdatok?.szallitas;
     const [tipus, setTipus] = useState(szamlazas?.tipus ?? 'maganszemely');
     const [nev, setNev] = useState(szamlazas?.nev ?? '');
     const [adoszam, setAdoszam] = useState(szamlazas?.adoszam ?? '');
     const [szamlazasiCim, setSzamlazasiCim] = useState(() => cimResz(szamlazas));
-    const [egyezik, setEgyezik] = useState(!szallitas);
-    const [atvevoNev, setAtvevoNev] = useState(szallitas?.atvevoNev ?? '');
-    const [szallitasiCim, setSzallitasiCim] = useState(() => cimResz(szallitas));
-    const [megjegyzes, setMegjegyzes] = useState(szallitas?.megjegyzes ?? '');
     const [uzenet, setUzenet] = useState(null);
     const [kuldes, setKuldes] = useState(false);
 
-    const cimFrissit = (frissito) => (mezo, ertek) => frissito((elozo) => ({ ...elozo, [mezo]: ertek }));
+    const cimFrissit = (mezo, ertek) => setSzamlazasiCim((elozo) => ({ ...elozo, [mezo]: ertek }));
 
     const kuld = async (body, siker) => {
         setUzenet(null);
         setKuldes(true);
         try {
             const valasz = await apiKeres('/fiok/mentett-adatok', { method: 'PUT', body });
-            mentve(valasz.mentettAdatok);
+            frissult(valasz);
             siker?.();
             setUzenet({ tipus: 'siker', szoveg: valasz.msg });
         } catch (error) {
@@ -44,10 +65,7 @@ const MentettAdatok = ({ mentettAdatok, mentve }) => {
 
     const bekuld = (event) => {
         event.preventDefault();
-        kuld({
-            szamlazas: { tipus, nev, adoszam: tipus === 'ceg' ? adoszam : '', ...szamlazasiCim },
-            szallitas: egyezik ? null : { atvevoNev, ...szallitasiCim, megjegyzes },
-        });
+        kuld({ szamlazas: { tipus, nev, adoszam: tipus === 'ceg' ? adoszam : '', ...szamlazasiCim } });
     };
 
     const torol = () => {
@@ -56,10 +74,6 @@ const MentettAdatok = ({ mentettAdatok, mentve }) => {
             setNev('');
             setAdoszam('');
             setSzamlazasiCim(uresCim());
-            setEgyezik(true);
-            setAtvevoNev('');
-            setSzallitasiCim(uresCim());
-            setMegjegyzes('');
         });
     };
 
@@ -69,118 +83,72 @@ const MentettAdatok = ({ mentettAdatok, mentve }) => {
             onSubmit={bekuld}
         >
             <div className="profil-panel-fej">
-                <h2>Számlázási és szállítási adatok</h2>
+                <h2>Számlázási adatok</h2>
                 <p>A pénztár ezekkel az adatokkal tölti ki előre az űrlapot, rendeléskor még módosíthatod őket.</p>
             </div>
 
-            <fieldset className="profil-csoport">
-                <legend>Számlázás</legend>
-                <div
-                    className="profil-valaszto"
-                    role="radiogroup"
-                    aria-label="Számlázás típusa"
-                >
-                    <label className={tipus === 'maganszemely' ? 'aktiv' : undefined}>
-                        <input
-                            type="radio"
-                            name="mentett-tipus"
-                            value="maganszemely"
-                            checked={tipus === 'maganszemely'}
-                            onChange={(event) => setTipus(event.target.value)}
-                        />
-                        Magánszemély
-                    </label>
-                    <label className={tipus === 'ceg' ? 'aktiv' : undefined}>
-                        <input
-                            type="radio"
-                            name="mentett-tipus"
-                            value="ceg"
-                            checked={tipus === 'ceg'}
-                            onChange={(event) => setTipus(event.target.value)}
-                        />
-                        Cég / jogi személy
-                    </label>
-                </div>
+            <div
+                className="profil-valaszto"
+                role="radiogroup"
+                aria-label="Számlázás típusa"
+            >
+                <label className={tipus === 'maganszemely' ? 'aktiv' : undefined}>
+                    <input
+                        type="radio"
+                        name="mentett-tipus"
+                        value="maganszemely"
+                        checked={tipus === 'maganszemely'}
+                        onChange={(event) => setTipus(event.target.value)}
+                    />
+                    Magánszemély
+                </label>
+                <label className={tipus === 'ceg' ? 'aktiv' : undefined}>
+                    <input
+                        type="radio"
+                        name="mentett-tipus"
+                        value="ceg"
+                        checked={tipus === 'ceg'}
+                        onChange={(event) => setTipus(event.target.value)}
+                    />
+                    Cég / jogi személy
+                </label>
+            </div>
 
-                <div className="profil-mezo-par">
+            <div className="profil-mezo-par">
+                <label className="auth-mezo">
+                    {tipus === 'ceg' ? 'Cég neve' : 'Számlázási név'}
+                    <input
+                        type="text"
+                        autoComplete="billing name"
+                        minLength="2"
+                        maxLength="120"
+                        value={nev}
+                        onChange={(event) => setNev(event.target.value)}
+                        required
+                    />
+                </label>
+                {tipus === 'ceg' && (
                     <label className="auth-mezo">
-                        {tipus === 'ceg' ? 'Cég neve' : 'Számlázási név'}
+                        Adószám
                         <input
                             type="text"
-                            autoComplete="billing name"
-                            minLength="2"
-                            maxLength="120"
-                            value={nev}
-                            onChange={(event) => setNev(event.target.value)}
+                            autoComplete="off"
+                            minLength="5"
+                            maxLength="32"
+                            value={adoszam}
+                            onChange={(event) => setAdoszam(event.target.value)}
+                            placeholder="12345678-1-12"
                             required
                         />
                     </label>
-                    {tipus === 'ceg' && (
-                        <label className="auth-mezo">
-                            Adószám
-                            <input
-                                type="text"
-                                autoComplete="off"
-                                minLength="5"
-                                maxLength="32"
-                                value={adoszam}
-                                onChange={(event) => setAdoszam(event.target.value)}
-                                placeholder="12345678-1-12"
-                                required
-                            />
-                        </label>
-                    )}
-                </div>
-                <CimMezok
-                    tipus="szamlazas"
-                    cim={szamlazasiCim}
-                    frissit={cimFrissit(setSzamlazasiCim)}
-                />
-            </fieldset>
-
-            <fieldset className="profil-csoport">
-                <legend>Szállítás</legend>
-                <label className="auth-jelolo">
-                    <input
-                        type="checkbox"
-                        checked={egyezik}
-                        onChange={(event) => setEgyezik(event.target.checked)}
-                    />
-                    <span>A szállítási cím megegyezik a számlázási címmel</span>
-                </label>
-
-                {!egyezik && (
-                    <>
-                        <label className="auth-mezo">
-                            Átvevő neve
-                            <input
-                                type="text"
-                                autoComplete="shipping name"
-                                minLength="2"
-                                maxLength="120"
-                                value={atvevoNev}
-                                onChange={(event) => setAtvevoNev(event.target.value)}
-                                required
-                            />
-                        </label>
-                        <CimMezok
-                            tipus="szallitas"
-                            cim={szallitasiCim}
-                            frissit={cimFrissit(setSzallitasiCim)}
-                        />
-                        <label className="auth-mezo">
-                            Megjegyzés a futárnak
-                            <textarea
-                                rows="2"
-                                maxLength="500"
-                                value={megjegyzes}
-                                onChange={(event) => setMegjegyzes(event.target.value)}
-                                placeholder="Kapucsengő, behajtás vagy egyéb hasznos információ (nem kötelező)"
-                            />
-                        </label>
-                    </>
                 )}
-            </fieldset>
+            </div>
+            {tipus === 'ceg' && <KedvezmenyJelzes adoszam={adoszam} />}
+            <CimMezok
+                tipus="szamlazas"
+                cim={szamlazasiCim}
+                frissit={cimFrissit}
+            />
 
             <Uzenet uzenet={uzenet} />
 
@@ -190,7 +158,7 @@ const MentettAdatok = ({ mentettAdatok, mentve }) => {
                     className="auth-gomb"
                     disabled={kuldes}
                 >
-                    {kuldes ? 'Mentés…' : 'Adatok mentése'}
+                    {kuldes ? 'Mentés…' : 'Számlázási adatok mentése'}
                 </button>
                 {mentettAdatok && (
                     <button

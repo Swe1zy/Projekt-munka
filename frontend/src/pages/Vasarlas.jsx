@@ -7,6 +7,7 @@ import OsszesitoSorok from '../components/arazas/OsszesitoSorok';
 import Telephely from '../components/Telephely';
 import { apiKeres, useLekeres } from '../utils/api';
 import { napCimke, useBeallitasok } from '../utils/beallitasok';
+import { TELEFON_MINTA, TELEFON_PELDA, cimSor } from '../utils/fiok';
 import { forint } from '../utils/termek';
 import { useOsszesito } from '../utils/useOsszesito';
 import './Vasarlas.css';
@@ -34,18 +35,25 @@ const CimMezok = ({ cim, frissit, tipus, letiltva = false }) => (
     </div>
 );
 
-// A pénztár űrlapja. Bejelentkezett vásárlónál a kezdőértékek a profilban mentett
-// adatokból jönnek (`mentettAdatok`), ezért csak azok betöltése után jelenik meg.
-const VasarlasUrlap = ({ user, mentettAdatok }) => {
+// A pénztár űrlapja. Bejelentkezett vásárlónál a kezdőértékek a profil adataiból
+// jönnek (`fiok`: telefon, számlázás, címjegyzék, kiszállítási beállítások), ezért
+// csak azok betöltése után jelenik meg. Vendégnél `fiok` null.
+const VasarlasUrlap = ({ user, fiok }) => {
     const { tetelek, vegosszeg, urit } = useCart();
+    const mentettAdatok = fiok?.mentettAdatok ?? null;
     const mentettSzamlazas = mentettAdatok?.szamlazas;
-    const mentettSzallitas = mentettAdatok?.szallitas;
+    const mentettCimek = fiok?.szallitasiCimek ?? [];
+    const alapCim = mentettCimek.find((cim) => cim.id === fiok?.alapertelmezettCim) ?? mentettCimek[0];
     const [email, setEmail] = useState(user?.email ?? '');
+    const [telefon, setTelefon] = useState(fiok?.telefon ?? '');
     const [atvetelModja, setAtvetelModja] = useState('hazhozszallitas');
-    const [szallitasiEgyezik, setSzallitasiEgyezik] = useState(!mentettSzallitas);
-    const [szallitasiNev, setSzallitasiNev] = useState(mentettSzallitas?.atvevoNev ?? '');
-    const [szallitasiAdatok, setSzallitasiAdatok] = useState(() => cimResz(mentettSzallitas));
-    const [futarnakMegjegyzes, setFutarnakMegjegyzes] = useState(mentettSzallitas?.megjegyzes ?? '');
+    // A szállítási cím forrása: 'szamlazasi' (a számlázási cím), 'uj' vagy egy mentett cím azonosítója.
+    const [cimValasztas, setCimValasztas] = useState(alapCim?.id ?? 'szamlazasi');
+    const szallitasiEgyezik = cimValasztas === 'szamlazasi';
+    const [szallitasiNev, setSzallitasiNev] = useState(alapCim?.atvevoNev ?? '');
+    const [szallitasiAdatok, setSzallitasiAdatok] = useState(() => cimResz(alapCim));
+    const [futarnakMegjegyzes, setFutarnakMegjegyzes] = useState(alapCim?.megjegyzes ?? '');
+    const [behajtas, setBehajtas] = useState(alapCim?.behajtas ?? '');
     const [szamlazasiTipus, setSzamlazasiTipus] = useState(mentettSzamlazas?.tipus ?? 'maganszemely');
     const [szamlazasiNev, setSzamlazasiNev] = useState(mentettSzamlazas?.nev ?? '');
     const [adoszam, setAdoszam] = useState(mentettSzamlazas?.adoszam ?? '');
@@ -57,8 +65,8 @@ const VasarlasUrlap = ({ user, mentettAdatok }) => {
     const [fizetesiMod, setFizetesiMod] = useState('atutalas');
     const [rendelesAzonosito, setRendelesAzonosito] = useState('');
     const [napValasztas, setNapValasztas] = useState('');
-    const [idosav, setIdosav] = useState('delelott');
-    const [darus, setDarus] = useState(false);
+    const [idosav, setIdosav] = useState(fiok?.szallitasiBeallitasok?.idosav || 'delelott');
+    const [darus, setDarus] = useState(Boolean(fiok?.szallitasiBeallitasok?.darus));
     const { adat: beallitasok, hiba: beallitasHiba } = useBeallitasok();
 
     const hazhoz = atvetelModja === 'hazhozszallitas';
@@ -83,6 +91,42 @@ const VasarlasUrlap = ({ user, mentettAdatok }) => {
         frissito((elozo) => ({ ...elozo, [mezo]: ertek }));
     };
 
+    // Mentett cím választásakor az adatai kerülnek a (továbbra is szerkeszthető) mezőkbe.
+    const cimValasztasa = (ertek) => {
+        setCimValasztas(ertek);
+        if (ertek === 'szamlazasi') return;
+        const cim = mentettCimek.find((elem) => elem.id === ertek);
+        setSzallitasiNev(cim?.atvevoNev ?? '');
+        setSzallitasiAdatok(cimResz(cim));
+        setFutarnakMegjegyzes(cim?.megjegyzes ?? '');
+        setBehajtas(cim?.behajtas ?? '');
+    };
+
+    // A rendelés már rögzült: ha a profil frissítése nem sikerül, attól még nem hiúsul meg.
+    const profilFrissitese = async () => {
+        const szallitas = { atvevoNev: szallitasiNev, ...szallitasiAdatok, megjegyzes: futarnakMegjegyzes, behajtas };
+        const valasztottCim = mentettCimek.find((cim) => cim.id === cimValasztas);
+        const cimValtozott = valasztottCim && Object.entries(szallitas).some(([mezo, ertek]) => (valasztottCim[mezo] ?? '') !== ertek);
+        const keresek = [
+            apiKeres('/fiok/mentett-adatok', {
+                method: 'PUT',
+                body: { szamlazas: { tipus: szamlazasiTipus, nev: szamlazasiNev, adoszam, ...szamlazasiAdatok } },
+            }),
+        ];
+        if (telefon.trim() && telefon.trim() !== (fiok?.telefon ?? '')) {
+            keresek.push(apiKeres('/fiok', { method: 'PATCH', body: { telefon } }));
+        }
+        if (hazhoz && cimValasztas === 'uj') {
+            keresek.push(apiKeres('/fiok/cimek', { method: 'POST', body: szallitas }));
+        } else if (hazhoz && cimValtozott) {
+            keresek.push(apiKeres(`/fiok/cimek/${valasztottCim.id}`, {
+                method: 'PUT',
+                body: { ...szallitas, megnevezes: valasztottCim.megnevezes },
+            }));
+        }
+        await Promise.allSettled(keresek);
+    };
+
     const rendelesLead = async (event) => {
         event.preventDefault();
         setHiba('');
@@ -95,6 +139,7 @@ const VasarlasUrlap = ({ user, mentettAdatok }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email,
+                    telefon,
                     teljesNev: szamlazasiNev,
                     atvetelModja,
                     szallitasiEgyezik,
@@ -103,6 +148,7 @@ const VasarlasUrlap = ({ user, mentettAdatok }) => {
                             atvevoNev: szallitasiEgyezik ? szamlazasiNev : szallitasiNev,
                             ...(szallitasiEgyezik ? szamlazasiAdatok : szallitasiAdatok),
                             megjegyzes: futarnakMegjegyzes,
+                            behajtas,
                         }
                         : null,
                     szamlazasiAdatok: {
@@ -122,21 +168,7 @@ const VasarlasUrlap = ({ user, mentettAdatok }) => {
             const valasz = await response.json();
             if (!response.ok) throw new Error(valasz.msg || 'A rendelést nem sikerült rögzíteni.');
 
-            // A rendelés már rögzült: ha a címek mentése nem sikerül, attól még nem hiúsul meg.
-            if (user && adatokMentese) {
-                await apiKeres('/fiok/mentett-adatok', {
-                    method: 'PUT',
-                    body: {
-                        szamlazas: { tipus: szamlazasiTipus, nev: szamlazasiNev, adoszam, ...szamlazasiAdatok },
-                        // Személyes átvételnél nincs szállítási cím az űrlapon: a korábban mentett megmarad.
-                        szallitas: !hazhoz
-                            ? mentettSzallitas ?? null
-                            : szallitasiEgyezik
-                                ? null
-                                : { atvevoNev: szallitasiNev, ...szallitasiAdatok, megjegyzes: futarnakMegjegyzes },
-                    },
-                }).catch(() => {});
-            }
+            if (user && adatokMentese) await profilFrissitese();
 
             if (valasz.fizetesiUrl) {
                 window.location.assign(valasz.fizetesiUrl);
@@ -212,6 +244,11 @@ const VasarlasUrlap = ({ user, mentettAdatok }) => {
                                 E-mail-cím
                                 <input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="nev@email.hu" required />
                             </label>
+                            <label>
+                                Telefonszám{hazhoz ? ' *' : ''}
+                                <input type="tel" autoComplete="tel" pattern={TELEFON_MINTA} title={`Pl. ${TELEFON_PELDA}`} maxLength="40" value={telefon} onChange={(event) => setTelefon(event.target.value)} placeholder={TELEFON_PELDA} required={hazhoz} />
+                                {hazhoz && <small className="vasarlas-segitseg">Kiszállítás előtt ezen a számon keres a sofőr.</small>}
+                            </label>
                         </div>
                     </section>
 
@@ -234,6 +271,18 @@ const VasarlasUrlap = ({ user, mentettAdatok }) => {
                         </div>
                         {atvetelModja === 'hazhozszallitas' && (
                             <div className="vasarlas-cim-blokk">
+                                {mentettCimek.length > 0 && (
+                                    <label className="vasarlas-nev-mezo">
+                                        Szállítási cím
+                                        <select value={cimValasztas} onChange={(event) => cimValasztasa(event.target.value)}>
+                                            {mentettCimek.map((cim) => (
+                                                <option key={cim.id} value={cim.id}>{cim.megnevezes} – {cimSor(cim)}</option>
+                                            ))}
+                                            <option value="szamlazasi">A számlázási címre</option>
+                                            <option value="uj">Új cím megadása</option>
+                                        </select>
+                                    </label>
+                                )}
                                 <label className="vasarlas-nev-mezo">
                                     Átvevő neve *
                                     <input type="text" autoComplete="shipping name" minLength="2" maxLength="120" value={szallitasiEgyezik ? szamlazasiNev : szallitasiNev} onChange={(event) => setSzallitasiNev(event.target.value)} placeholder="Átvevő teljes neve" required disabled={szallitasiEgyezik} />
@@ -244,9 +293,15 @@ const VasarlasUrlap = ({ user, mentettAdatok }) => {
                                     frissit={(mezo, ertek) => cimFrissit(szallitasiEgyezik ? setSzamlazasiAdatok : setSzallitasiAdatok, mezo, ertek)}
                                     letiltva={szallitasiEgyezik}
                                 />
-                                <label className="vasarlas-egyezik-jelolo">
-                                    <input type="checkbox" checked={szallitasiEgyezik} onChange={(event) => setSzallitasiEgyezik(event.target.checked)} />
-                                    <span>A szállítási adatok megegyeznek a számlázási adatokkal</span>
+                                {mentettCimek.length === 0 && (
+                                    <label className="vasarlas-egyezik-jelolo">
+                                        <input type="checkbox" checked={szallitasiEgyezik} onChange={(event) => cimValasztasa(event.target.checked ? 'szamlazasi' : 'uj')} />
+                                        <span>A szállítási adatok megegyeznek a számlázási adatokkal</span>
+                                    </label>
+                                )}
+                                <label className="vasarlas-megjegyzes-mezo">
+                                    Behajtás, lerakodás
+                                    <textarea rows="2" maxLength="300" value={behajtas} onChange={(event) => setBehajtas(event.target.value)} placeholder="pl. 7,5 t-s súlykorlátozás, 3 m széles kapu, a raklapokat az udvarra kérjük (nem kötelező)" />
                                 </label>
                                 <label className="vasarlas-megjegyzes-mezo">
                                     Megjegyzés a futárnak
@@ -342,8 +397,8 @@ const VasarlasUrlap = ({ user, mentettAdatok }) => {
                                     <input type="checkbox" checked={adatokMentese} onChange={(event) => setAdatokMentese(event.target.checked)} />
                                     <span>
                                         {mentettAdatok
-                                            ? 'A profilomban mentett adatok frissítése ezekkel a számlázási és szállítási adatokkal'
-                                            : 'Számlázási és szállítási adatok mentése a profilomba a következő rendeléshez'}
+                                            ? 'A profilom frissítése ezekkel az adatokkal (számlázás, telefonszám, szállítási cím)'
+                                            : 'Adataim mentése a profilomba a következő rendeléshez (számlázás, telefonszám, szállítási cím)'}
                                     </span>
                                 </label>
                                 {mentettAdatok && (
@@ -457,7 +512,7 @@ const Vasarlas = () => {
         );
     }
 
-    return <VasarlasUrlap key={user?.id ?? 'vendeg'} user={user} mentettAdatok={fiok.adat?.mentettAdatok ?? null} />;
+    return <VasarlasUrlap key={user?.id ?? 'vendeg'} user={user} fiok={fiok.adat} />;
 };
 
 export default Vasarlas;

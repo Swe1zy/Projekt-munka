@@ -89,7 +89,7 @@ export const dijbekeroPdf = (rendeles) => new Promise((resolve, reject) => {
             [szamlazas.nev, true],
             [szamlazas.tipus === 'ceg' ? `Adószám: ${szamlazas.adoszam}` : 'Magánszemély'],
             [`${szamlazas.iranyitoszam} ${szamlazas.telepules}, ${szamlazas.utca}`],
-            [rendeles.email],
+            [rendeles.telefon ? `${rendeles.email} · ${rendeles.telefon}` : rendeles.email],
         ]],
     ];
     const dobozSzeles = (SZELES - 16) / 2;

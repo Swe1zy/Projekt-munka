@@ -128,11 +128,12 @@ export const boltLevel = (rendeles) => {
     const html = keret(`
 <h1 style="margin:8px 0 12px;font-size:20px;color:${SZIN.tinta};">Új rendelés: #${azonosito}</h1>
 <p><strong>${esc(sz.nev)}</strong>${sz.tipus === 'ceg' ? ` (cég, adószám: ${esc(sz.adoszam)})` : ''}<br>
-<a href="mailto:${esc(rendeles.email)}">${esc(rendeles.email)}</a> · ${rendeles.userId ? 'regisztrált vásárló' : 'vendég'}<br>
+<a href="mailto:${esc(rendeles.email)}">${esc(rendeles.email)}</a>${rendeles.telefon ? ` · <a href="tel:${esc(rendeles.telefon.replace(/[^\d+]/g, ''))}">${esc(rendeles.telefon)}</a>` : ''} · ${rendeles.userId ? 'regisztrált vásárló' : 'vendég'}<br>
 <span style="color:${SZIN.halvany};">Leadva: ${esc(idopontFormazo.format(new Date(rendeles.createdAt)))}</span></p>
 <div style="margin:12px 0;padding:12px 14px;background:${SZIN.hatter};border-radius:8px;">
 <strong>${esc(atvetel.cim)}:</strong> ${esc(atvetel.nap)}<br>${esc(atvetel.hely)}
 ${rendeles.szallitasiAdatok?.megjegyzes ? `<br>Futárnak: ${esc(rendeles.szallitasiAdatok.megjegyzes)}` : ''}
+${rendeles.szallitasiAdatok?.behajtas ? `<br><strong>Behajtás, lerakodás:</strong> ${esc(rendeles.szallitasiAdatok.behajtas)}` : ''}
 ${rendeles.osszesites?.sulyKg ? `<br><span style="color:${SZIN.halvany};">Tömeg: ${szam(rendeles.osszesites.sulyKg)} kg${rendeles.osszesites.szallitas ? `, ${esc(rendeles.osszesites.szallitas.jarmu)}, ${rendeles.osszesites.szallitas.fuvarok} forduló${rendeles.osszesites.szallitas.darus ? ', darus' : ''}` : ''}</span>` : ''}
 </div>
 ${sz.megjegyzes ? `<p><strong>Megjegyzés:</strong> ${esc(sz.megjegyzes)}</p>` : ''}
@@ -142,8 +143,9 @@ ${osszesitoHtml(rendeles)}
 
     const szoveg = [
         `Új rendelés: #${azonosito}`,
-        `${sz.nev} <${rendeles.email}>`,
+        `${sz.nev} <${rendeles.email}>${rendeles.telefon ? ` · ${rendeles.telefon}` : ''}`,
         `${atvetel.cim}: ${atvetel.nap} – ${atvetel.hely}`,
+        rendeles.szallitasiAdatok?.behajtas ? `Behajtás, lerakodás: ${rendeles.szallitasiAdatok.behajtas}` : '',
         ...rendeles.tetelek.map((tetel) => `- ${tetel.nev}: ${szam(tetel.mennyiseg)} ${tetel.egyseg}`),
         `Fizetendő: ${forint(rendeles.vegosszeg)}`,
         adminLink,
@@ -183,6 +185,75 @@ ${tetelTablazat(rendeles)}
     ].join('\n');
 
     return { targy: `Lemondott rendelés #${azonosito} – ${sz.nev}`, html, szoveg };
+};
+
+// A vevőnek szól, amikor a bolt továbblépteti a rendelését. Megjegyzés: az admin
+// állapotváltáskor írt megjegyzése, ami a vevő profiljában is látszik.
+const ALLAPOT_LEVELEK = {
+    visszaigazolva: {
+        targy: 'Visszaigazoltuk a rendelésed',
+        cim: 'Visszaigazoltuk a rendelésed',
+        bevezeto: (r) => (r.atvetelModja === 'hazhozszallitas'
+            ? 'A rendelésedet feldolgoztuk, a kiszállítást az alábbi időpontra ütemeztük.'
+            : 'A rendelésedet összekészítjük, az alábbi napon átveheted a telephelyünkön.'),
+    },
+    kiszallitas_alatt: {
+        targy: 'Úton van a rendelésed',
+        cim: 'Úton van a rendelésed',
+        bevezeto: (r) => `A rendelésed elindult hozzád.${r.telefon ? ` Érkezés előtt a sofőr a(z) ${r.telefon} számon keres.` : ''}`,
+    },
+    teljesitve: {
+        targy: 'Teljesítettük a rendelésed',
+        cim: 'Köszönjük a vásárlást!',
+        bevezeto: () => 'A rendelésedet teljesítettük. Reméljük, minden rendben megérkezett.',
+    },
+    lemondva: {
+        targy: 'Lemondtuk a rendelésed',
+        cim: 'A rendelésedet lemondtuk',
+        bevezeto: (r) => (r.fizetesiAllapot === 'fizetve'
+            ? 'A rendelésedet lemondtuk. A befizetett összeget hamarosan visszatérítjük.'
+            : 'A rendelésedet lemondtuk. Ha már átutaltad az összeget, visszatérítjük.'),
+    },
+};
+
+export const allapotLevelTamogatott = (allapot) => Object.hasOwn(ALLAPOT_LEVELEK, allapot);
+
+export const allapotLevel = (rendeles, megjegyzes = '') => {
+    const sablon = ALLAPOT_LEVELEK[rendeles.allapot];
+    const azonosito = rovidAzonosito(rendeles._id);
+    const atvetel = atvetelSzoveg(rendeles);
+    const profilLink = rendeles.userId ? `${frontendUrl()}/profil#rendeleseim` : null;
+    const raklapok = rendeles.osszesites?.raklapok ?? 0;
+    const raklapInfo = rendeles.allapot === 'teljesitve' && raklapok > 0
+        ? `A rendeléssel ${szam(raklapok)} raklapot kaptál. A betétdíjat (${forint(rendeles.osszesites.raklapBetetdij)}) a raklapok visszahozásakor visszaadjuk.`
+        : '';
+    const atvetelLathato = rendeles.allapot === 'visszaigazolva' || rendeles.allapot === 'kiszallitas_alatt';
+
+    const html = keret(`
+<h1 style="margin:8px 0 12px;font-size:22px;color:${SZIN.tinta};">${esc(sablon.cim)}</h1>
+<p>Kedves ${esc(rendeles.szamlazasiAdatok.nev)}!</p>
+<p>${esc(sablon.bevezeto(rendeles))} <span style="color:${SZIN.halvany};">(#${azonosito})</span></p>
+${atvetelLathato ? `<div style="margin:16px 0;padding:12px 14px;background:${SZIN.hatter};border-radius:8px;">
+<strong>${esc(atvetel.cim)}:</strong> ${esc(atvetel.nap)}<br>${esc(atvetel.hely)}
+${rendeles.atvetelModja === 'szemelyes_atvetel' ? `<br><span style="color:${SZIN.halvany};font-size:12px;">Nyitvatartás: ${esc(nyitvatartasSzoveg())}</span>` : ''}
+</div>` : ''}
+${megjegyzes ? `<p style="padding:10px 14px;border-left:3px solid ${SZIN.narancs};background:${SZIN.hatter};"><strong>Üzenet a telephelytől:</strong> ${esc(megjegyzes)}</p>` : ''}
+${raklapInfo ? `<p>${esc(raklapInfo)}</p>` : ''}
+${profilLink ? `<p><a href="${esc(profilLink)}" style="color:${SZIN.narancs};font-weight:bold;">Rendelésed a profilodban →</a></p>` : ''}
+<p style="color:${SZIN.halvany};font-size:12px;">Kérdés esetén válaszolj erre a levélre, vagy hívj minket: ${esc(TELEPHELY.telefon)}.${rendeles.userId ? ' Ezeket az értesítéseket a profilod Adataim fülén kapcsolhatod ki.' : ''}</p>`);
+
+    const szoveg = [
+        `${sablon.cim} (#${azonosito})`,
+        '',
+        sablon.bevezeto(rendeles),
+        atvetelLathato ? `${atvetel.cim}: ${atvetel.nap} – ${atvetel.hely}` : '',
+        megjegyzes ? `Üzenet a telephelytől: ${megjegyzes}` : '',
+        raklapInfo,
+        profilLink ? `Rendelésed: ${profilLink}` : '',
+        `Telefon: ${TELEPHELY.telefon}`,
+    ].filter(Boolean).join('\n');
+
+    return { targy: `${sablon.targy} – #${azonosito}`, html, szoveg };
 };
 
 export const keszletLevel = (termekek, kuszob) => {
