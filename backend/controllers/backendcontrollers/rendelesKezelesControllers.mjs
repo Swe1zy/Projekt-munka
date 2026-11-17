@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
-import RendelesModel, { RENDELES_ALLAPOTOK, kovetkezoAllapotok } from '../../models/Rendeles.mjs';
+import RendelesModel, { RENDELES_ALLAPOTOK, fizetesPotolhato, kovetkezoAllapotok } from '../../models/Rendeles.mjs';
+import { fuggoFizetesLezarasa } from '../frontendcontrollers/stripeFizetesControllers.mjs';
 import { keszletVisszaadas } from '../../utils/keszlet.mjs';
 import { rendelesValasz } from '../../utils/rendelesFormazas.mjs';
 
@@ -98,17 +99,38 @@ const patchRendelesAllapot = async (req, res) => {
             });
         }
 
+        // Félbehagyott bankkártyás fizetésnél a lemondás előtt lezárjuk a Stripe fizetési
+        // oldalát, különben a vevő a már lemondott (és készletre visszaírt) rendelést is kifizethetné.
+        const fuggoFizetes = ujAllapot === 'lemondva' && fizetesPotolhato(rendeles);
+        if (fuggoFizetes) {
+            const { fizetve } = await fuggoFizetesLezarasa(rendeles);
+            if (fizetve) {
+                return res.status(409).json({
+                    msg: 'Közben megérkezett a vevő bankkártyás fizetése. Frissítsd a listát; a kifizetett rendelés lemondásához visszatérítés kell.',
+                });
+            }
+        }
+
         // Csak akkor módosítunk, ha az állapot közben nem változott (pl. egy másik
         // admin már lemondta) – így a készlet sem kerülhet vissza kétszer.
         const frissitett = await RendelesModel.findOneAndUpdate(
             { _id: id, allapot: rendeles.allapot },
             {
-                $set: { allapot: ujAllapot },
+                $set: { allapot: ujAllapot, ...(fuggoFizetes ? { fizetesiAllapot: 'fizetes_lejart' } : {}) },
                 $push: { allapotTortenet: { allapot: ujAllapot, datum: new Date(), megjegyzes } },
             },
             { returnDocument: 'after', runValidators: true, lean: true },
         );
         if (!frissitett) {
+            // A fizetési oldal lezárása miatt a Stripe lejárati értesítése megelőzhetett
+            // minket: a rendelést az már lemondta és a készletet is visszaírta.
+            const aktualis = fuggoFizetes ? await RendelesModel.findById(id).lean() : null;
+            if (aktualis?.allapot === 'lemondva') {
+                return res.status(200).json({
+                    msg: 'A rendelést lemondtad, a tételek visszakerültek a készletbe.',
+                    rendeles: rendelesValasz(aktualis, { admin: true }),
+                });
+            }
             return res.status(409).json({
                 msg: 'A rendelés állapotát közben valaki más módosította. Frissítsd a listát, és próbáld újra.',
             });

@@ -378,7 +378,7 @@ const VasarlasUrlap = ({ user, mentettAdatok }) => {
                     </section>
 
                     {hiba && <p className="vasarlas-hiba" role="alert">{hiba}</p>}
-                    <button className="vasarlas-fo-gomb vasarlas-leadas" type="submit" disabled={kuldes || !atvetelNapja || minimumHiany > 0}>
+                    <button className="vasarlas-fo-gomb vasarlas-leadas" type="submit" disabled={kuldes || !atvetelNapja || minimumHiany > 0 || elonezet.keszlethiany.length > 0}>
                         {kuldes ? 'Feldolgozás…' : fizetesiMod === 'stripe' ? 'Tovább a bankkártyás fizetéshez' : 'Rendelés leadása'}
                         {!kuldes && <span aria-hidden="true">→</span>}
                     </button>

@@ -79,6 +79,8 @@ const Register = () => {
                     <input
                         type="text"
                         autoComplete="name"
+                        minLength={2}
+                        maxLength={120}
                         value={nev}
                         onChange={(event) => setNev(event.target.value)}
                         required
@@ -89,6 +91,7 @@ const Register = () => {
                     <input
                         type="email"
                         autoComplete="email"
+                        maxLength={200}
                         value={email}
                         onChange={(event) => setEmail(event.target.value)}
                         required

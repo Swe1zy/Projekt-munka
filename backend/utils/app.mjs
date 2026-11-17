@@ -10,7 +10,8 @@ const app = express();
 // A Stripe aláírás-ellenőrzéshez a nyers törzs szükséges, ezért ez a route
 // szándékosan a JSON parser előtt van regisztrálva.
 app.post('/api/rendelesek/stripe-webhook', express.raw({ type: 'application/json' }), stripeWebhook);
-app.use(express.json({ limit: '30mb' }));
+// Csak JSON-adat és kép-URL érkezik (fájl nem), ezért kis törzsméret is elég.
+app.use(express.json({ limit: '1mb' }));
 app.use(cors({
 	origin: process.env.FRONTEND_URL || 'http://localhost:5173',
 	credentials: true,

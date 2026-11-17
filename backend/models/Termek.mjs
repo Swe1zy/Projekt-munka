@@ -40,6 +40,7 @@ const termekSchema = new mongoose.Schema(
         },
         ar: {
             type: Number,
+            min: 0,
             required: true,
         },
         egyseg: {

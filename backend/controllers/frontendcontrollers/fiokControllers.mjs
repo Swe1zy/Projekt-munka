@@ -6,9 +6,8 @@ import { adoszamValid, cimValid, nevValid, szoveg } from '../../utils/cimek.mjs'
 import { clearAuthCookie } from '../../utils/authToken.mjs';
 import { rendelesValasz } from '../../utils/rendelesFormazas.mjs';
 import { arajanlatValasz } from './arajanlatControllers.mjs';
-import { EMAIL_MINTA, publikusFelhasznalo } from './auth/authControllers.mjs';
+import { EMAIL_MINTA, MAX_EMAIL_HOSSZ, publikusFelhasznalo } from './auth/authControllers.mjs';
 
-const MAX_EMAIL_HOSSZ = 200;
 // Ezekben az állapotokban a rendelés még teljesítésre vár, ezért a fiók nem törölhető.
 const FOLYAMATBAN_LEVO_ALLAPOTOK = ['feldolgozasra_var', 'visszaigazolva', 'kiszallitas_alatt'];
 // Az admin fiókot a szerver minden induláskor az .env alapján állítja helyre.

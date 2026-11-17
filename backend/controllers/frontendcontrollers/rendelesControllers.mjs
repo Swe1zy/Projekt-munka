@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import Stripe from 'stripe';
 import RendelesModel, { fizetesPotolhato, vevoLemondhatja } from '../../models/Rendeles.mjs';
 import TermekModel from '../../models/Termek.mjs';
 import { KISZALLITAS, STRIPE_FIZETESI_IDO_PERC, boltErtesitesiEmail } from '../../config/uzlet.mjs';
@@ -11,12 +10,12 @@ import { hatterben, keszletRiasztas, rendelesErtesitesek } from '../../utils/ert
 import { keszletLevonas, keszletVisszaadas } from '../../utils/keszlet.mjs';
 import { lemondasLevel } from '../../utils/levelek.mjs';
 import { valaszthatoNapok } from '../../utils/naptar.mjs';
+import { EMAIL_MINTA } from './auth/authControllers.mjs';
 import { raklapEgyenleg, rendelesValasz } from '../../utils/rendelesFormazas.mjs';
-import { fuggoFizetesLezarasa } from './stripeFizetesControllers.mjs';
+import { fuggoFizetesLezarasa, stripePeldany } from './stripeFizetesControllers.mjs';
 
 const SAJAT_RENDELESEK_LIMIT = 50;
 
-const EMAIL_MINTA = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX_MENNYISEG = 999;
 
 /**
@@ -195,7 +194,7 @@ const postRendeles = async (req, res) => {
             });
 
             if (fizetesiMod === 'stripe') {
-                const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+                const stripe = stripePeldany();
                 const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').replace(/\/$/, '');
                 checkoutSession = await stripe.checkout.sessions.create({
                     mode: 'payment',
@@ -223,7 +222,7 @@ const postRendeles = async (req, res) => {
             // Ha a rendelés vagy a Stripe-munkamenet nem jött létre, visszaállítjuk a készletet.
             if (checkoutSession?.status === 'open') {
                 try {
-                    await new Stripe(process.env.STRIPE_SECRET_KEY).checkout.sessions.expire(checkoutSession.id);
+                    await stripePeldany().checkout.sessions.expire(checkoutSession.id);
                 } catch (expireError) {
                     console.error('Félbemaradt Stripe-munkamenet lezárási hiba:', expireError.message);
                 }

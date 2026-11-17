@@ -5,23 +5,24 @@ const getNewTermek = (req, res) => {
     try {
         return res.status(200).render('building/new-termek.ejs');
     } catch (error) {
-        return res.status(500).json({ msg: `Hiba: ${error.message}` });
+        console.error('Új termék oldal hiba:', error);
+        return res.status(500).json({ msg: 'Az oldal betöltése nem sikerült.' });
     }
 };
 
 const postNewTermek = async (req, res) => {
     try {
-        const { nev, leiras, kategoria, egyseg } = req.body;
+        const { nev, leiras, kategoria, egyseg } = req.body ?? {};
         const ar = Number(req.body.ar);
         const keszlet = Number(req.body.keszlet);
         const vanAr = req.body.ar !== undefined && req.body.ar !== null && req.body.ar !== '';
         const vanKeszlet = req.body.keszlet !== undefined && req.body.keszlet !== null && req.body.keszlet !== '';
         const kepek = Array.isArray(req.body.kepek) ? req.body.kepek : [];
 
-        if (!nev?.trim() || !leiras?.trim() || !TERMEKEK_KATEGORIAK.includes(kategoria) || !TERMEK_EGYSEGEK.includes(egyseg) || !vanAr || !Number.isFinite(ar) || ar < 0 || !vanKeszlet || !Number.isFinite(keszlet) || keszlet < 0 || (egyseg === 'db' && !Number.isInteger(keszlet)) || kepek.length === 0) {
+        if (typeof nev !== 'string' || typeof leiras !== 'string' || !nev.trim() || !leiras.trim() || !TERMEKEK_KATEGORIAK.includes(kategoria) || !TERMEK_EGYSEGEK.includes(egyseg) || !vanAr || !Number.isFinite(ar) || ar < 0 || !vanKeszlet || !Number.isFinite(keszlet) || keszlet < 0 || (egyseg === 'db' && !Number.isInteger(keszlet)) || kepek.length === 0) {
             return res
                 .status(400)
-            .json({ msg: 'A név, kategória, leírás, érvényes ár, érvényes mértékegység, készletmennyiség és legalább egy kép megadása kötelező. Darab esetén a készlet egész szám legyen!' });
+                .json({ msg: 'A név, kategória, leírás, érvényes ár, érvényes mértékegység, készletmennyiség és legalább egy kép megadása kötelező. Darab esetén a készlet egész szám legyen!' });
         }
         const opcionalis = opcionalisSzamMezok(req.body);
         if (opcionalis.hiba) {
@@ -34,7 +35,7 @@ const postNewTermek = async (req, res) => {
         return res.status(201).json({ msg: 'Létrejött az új termék!' });
     } catch (error) {
         console.error('Termékmentési hiba:', error);
-        return res.status(500).json({ msg: `Termékmentési hiba: ${error.message}` });
+        return res.status(500).json({ msg: 'A termék mentése nem sikerült.' });
     }
 };
 

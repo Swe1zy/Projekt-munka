@@ -22,7 +22,7 @@ const ensureAdmin = async () => {
     await UserModel.findOneAndUpdate(
         { email },
         { $set: { nev, email, jelszo: hash, role: 'admin' } },
-        { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true },
+        { upsert: true, returnDocument: 'after', runValidators: true, setDefaultsOnInsert: true },
     );
     console.log(`Admin fiók készen áll: ${email}`);
 };

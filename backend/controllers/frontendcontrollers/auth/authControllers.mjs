@@ -1,9 +1,11 @@
 import bcrypt from 'bcrypt';
 import UserModel from '../../../models/User.mjs';
 import { ASZF_VERZIO } from '../../../config/uzlet.mjs';
+import { nevValid } from '../../../utils/cimek.mjs';
 import { clearAuthCookie, createAuthToken, setAuthCookie } from '../../../utils/authToken.mjs';
 
 export const EMAIL_MINTA = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const MAX_EMAIL_HOSSZ = 200;
 const MIN_JELSZO_HOSSZ = 8;
 // A bcrypt csak az első 72 bájtot veszi figyelembe.
 const MAX_JELSZO_BAJT = 72;
@@ -28,12 +30,13 @@ const postRegister = async (req, res) => {
             typeof nev !== 'string' ||
             typeof email !== 'string' ||
             typeof jelszo !== 'string' ||
-            !nev.trim() ||
+            !nevValid(nev.trim()) ||
+            email.trim().length > MAX_EMAIL_HOSSZ ||
             !EMAIL_MINTA.test(email.trim())
         ) {
             return res
                 .status(400)
-                .json({ msg: 'A név és egy érvényes e-mail cím megadása kötelező!' });
+                .json({ msg: 'A név (2–120 karakter) és egy érvényes e-mail cím megadása kötelező!' });
         }
 
         if (!ervenyesJelszo(jelszo)) {

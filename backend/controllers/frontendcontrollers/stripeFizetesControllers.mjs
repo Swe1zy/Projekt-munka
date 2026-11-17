@@ -4,9 +4,17 @@ import RendelesModel, { fizetesPotolhato } from '../../models/Rendeles.mjs';
 import { hatterben, rendelesErtesitesek } from '../../utils/ertesitesek.mjs';
 import { keszletVisszaadas } from '../../utils/keszlet.mjs';
 
-const stripePeldany = () => {
-    if (!process.env.STRIPE_SECRET_KEY) throw new Error('A Stripe nincs beállítva.');
-    return new Stripe(process.env.STRIPE_SECRET_KEY);
+// A Stripe-klienst kulcsonként egyszer hozzuk létre, nem minden kérésnél újra.
+let stripeKliens = null;
+let stripeKulcs = null;
+export const stripePeldany = () => {
+    const kulcs = process.env.STRIPE_SECRET_KEY;
+    if (!kulcs) throw new Error('A Stripe nincs beállítva.');
+    if (!stripeKliens || stripeKulcs !== kulcs) {
+        stripeKliens = new Stripe(kulcs);
+        stripeKulcs = kulcs;
+    }
+    return stripeKliens;
 };
 
 const fizetesSikeres = async (session) => {
@@ -16,14 +24,21 @@ const fizetesSikeres = async (session) => {
         _id: session.metadata.orderId,
         stripeSessionId: session.id,
     });
-    if (!rendeles || session.currency !== 'huf' || session.amount_total !== Math.round(rendeles.vegosszeg)) return null;
+    if (!rendeles || session.currency !== 'huf' || session.amount_total !== Math.round(rendeles.vegosszeg)) {
+        // Pénz érkezett, de nem tudjuk rendeléshez kötni: kézi egyeztetés (visszatérítés) kell.
+        console.error('Stripe: kifizetett munkamenet nem párosítható rendeléshez:', session.id, session.metadata?.orderId);
+        return null;
+    }
     if (rendeles.fizetesiAllapot === 'fizetve') return rendeles;
-    if (rendeles.fizetesiAllapot !== 'fizetesre_var') return null;
+    if (rendeles.fizetesiAllapot !== 'fizetesre_var') {
+        console.error(`Stripe: fizetés érkezett egy már nem fizethető rendelésre (${rendeles._id}, ${rendeles.fizetesiAllapot}), kézi visszatérítés szükséges.`);
+        return null;
+    }
 
     const frissitett = await RendelesModel.findOneAndUpdate(
         { _id: rendeles._id, stripeSessionId: session.id, fizetesiAllapot: 'fizetesre_var' },
         { $set: { fizetesiAllapot: 'fizetve', fizetve: new Date() } },
-        { new: true, runValidators: true },
+        { returnDocument: 'after', runValidators: true },
     );
     if (frissitett) {
         hatterben(() => rendelesErtesitesek(frissitett._id), 'Fizetett rendelés értesítése');
@@ -47,7 +62,7 @@ const fizetesLejart = async (session) => {
             $set: { fizetesiAllapot: 'fizetes_lejart', allapot: 'lemondva' },
             $push: { allapotTortenet: { allapot: 'lemondva', datum: new Date(), megjegyzes: 'Az online fizetési munkamenet lejárt.' } },
         },
-        { new: true, runValidators: true },
+        { returnDocument: 'after', runValidators: true },
     );
     if (!rendeles) return false;
     await keszletVisszaadas(rendeles.tetelek);

@@ -21,7 +21,7 @@ const arajanlatTetelSchema = new mongoose.Schema(
 
 const arajanlatSchema = new mongoose.Schema(
     {
-        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'user', default: null },
+        userId: { type: mongoose.Schema.Types.ObjectId, ref: 'user', default: null, index: true },
         nev: { type: String, trim: true, required: true },
         cegnev: { type: String, trim: true, default: '' },
         adoszam: { type: String, trim: true, default: '' },

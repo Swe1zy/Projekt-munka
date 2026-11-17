@@ -68,18 +68,19 @@ const getTermekek = async (req, res) => {
         }
 
         const filter = feltetelek.length ? { $and: feltetelek } : {};
-        const termekek = await TermekModel.find(filter).sort({ createdAt: -1 });
+        const termekek = await TermekModel.find(filter).sort({ createdAt: -1 }).lean();
 
         return res.status(200).json({ termekek, search });
     } catch (error) {
-        return res.status(500).json({ msg: `Hiba: ${error.message}` });
+        console.error('Terméklista-hiba:', error);
+        return res.status(500).json({ msg: 'A termékeket most nem sikerült betölteni.' });
     }
 };
 
 const getEgyTermek = async (req, res) => {
     try {
         const { id } = req.params;
-        const termek = mongoose.isValidObjectId(id) ? await TermekModel.findById(id) : null;
+        const termek = mongoose.isValidObjectId(id) ? await TermekModel.findById(id).lean() : null;
 
         if (!termek) {
             return res.status(404).json({ msg: 'A termék nem található.' });
@@ -87,7 +88,8 @@ const getEgyTermek = async (req, res) => {
 
         return res.status(200).json({ termek });
     } catch (error) {
-        return res.status(500).json({ msg: `Hiba: ${error.message}` });
+        console.error('Termékbetöltési hiba:', error);
+        return res.status(500).json({ msg: 'A terméket most nem sikerült betölteni.' });
     }
 };
 
