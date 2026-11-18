@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import RendelesModel, { FIZETESI_ALLAPOTOK, RENDELES_ALLAPOTOK, fizetesPotolhato, kovetkezoAllapotok } from '../../models/Rendeles.mjs';
 import { fuggoFizetesLezarasa } from '../frontendcontrollers/stripeFizetesControllers.mjs';
+import { allapotErtesites, hatterben } from '../../utils/ertesitesek.mjs';
 import { keszletVisszaadas } from '../../utils/keszlet.mjs';
 import { rendelesValasz } from '../../utils/rendelesFormazas.mjs';
 
@@ -26,6 +27,7 @@ const keresesiFeltetel = (kereses) => {
         $or: [
             { teljesNev: { $regex: minta, $options: 'i' } },
             { email: { $regex: minta, $options: 'i' } },
+            { telefon: { $regex: minta, $options: 'i' } },
             { 'szallitasiAdatok.telepules': { $regex: minta, $options: 'i' } },
             // A felületen a rövid (utolsó 6 karakteres) azonosító látszik, arra is lehet keresni.
             { $expr: { $regexMatch: { input: { $toString: '$_id' }, regex: minta, options: 'i' } } },
@@ -157,6 +159,7 @@ const patchRendelesAllapot = async (req, res) => {
         if (ujAllapot === 'lemondva') {
             await keszletVisszaadas(rendeles.tetelek);
         }
+        hatterben(() => allapotErtesites(frissitett, megjegyzes), 'Állapotváltozás-értesítés');
 
         return res.status(200).json({
             msg: ujAllapot === 'lemondva'

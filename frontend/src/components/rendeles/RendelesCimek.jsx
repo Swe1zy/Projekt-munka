@@ -12,6 +12,7 @@ const RendelesCimek = ({ rendeles }) => {
                 <strong>{szamlazas.nev}</strong>
                 <span>{szamlazas.tipus === 'ceg' ? `Cég · adószám: ${szamlazas.adoszam}` : 'Magánszemély'}</span>
                 <span>{szamlazas.iranyitoszam} {szamlazas.telepules}, {szamlazas.utca}</span>
+                {rendeles.telefon && <span>Tel.: <a href={`tel:${rendeles.telefon.replace(/[^\d+]/g, '')}`}>{rendeles.telefon}</a></span>}
                 {szamlazas.megjegyzes && <span>Megjegyzés: {szamlazas.megjegyzes}</span>}
             </address>
             <address className="rendeles-cim">
@@ -26,6 +27,7 @@ const RendelesCimek = ({ rendeles }) => {
                         <strong>{szallitas.atvevoNev}</strong>
                         <span>{szallitas.iranyitoszam} {szallitas.telepules}, {szallitas.utca}</span>
                         {szallitas.megjegyzes && <span>Futárnak: {szallitas.megjegyzes}</span>}
+                        {szallitas.behajtas && <span>Behajtás, lerakodás: {szallitas.behajtas}</span>}
                     </>
                 ) : (
                     <span>Átvétel a telephelyen</span>

@@ -23,6 +23,20 @@ const mentettSzallitasSchema = new mongoose.Schema(
     { _id: false },
 );
 
+// A címjegyzék egy eleme (pl. „Családi ház – Göd”), a pénztárban választható.
+const szallitasiCimSchema = new mongoose.Schema({
+    megnevezes: { type: String, trim: true, required: true, maxlength: 60 },
+    atvevoNev: { type: String, trim: true, required: true },
+    iranyitoszam: { type: String, trim: true, required: true },
+    telepules: { type: String, trim: true, required: true },
+    utca: { type: String, trim: true, required: true },
+    megjegyzes: { type: String, trim: true, default: '' },
+    // Behajtás, kapu, súlykorlátozás, a raklapok lerakodási helye.
+    behajtas: { type: String, trim: true, default: '' },
+});
+
+export const MAX_SZALLITASI_CIM = 10;
+
 const userSchema = new mongoose.Schema(
     {
         nev: {
@@ -52,8 +66,10 @@ const userSchema = new mongoose.Schema(
             verzio: String,
             idopont: Date,
         },
-        // A profilban elmentett adatok, amelyekkel a pénztár előre kitölti az űrlapot.
-        // Ha nincs külön szállítási adat, a szállítás a számlázási címre megy.
+        // Kapcsolattartási telefonszám (a kiszállításhoz); a pénztár ezzel tölti ki előre.
+        telefon: { type: String, trim: true, default: '' },
+        // A profilban elmentett számlázási adatok, amelyekkel a pénztár előre kitölti az űrlapot.
+        // A `szallitas` a régi, egyetlen mentett szállítási cím: első lekéréskor átkerül a címjegyzékbe.
         mentettAdatok: {
             type: new mongoose.Schema(
                 {
@@ -63,6 +79,27 @@ const userSchema = new mongoose.Schema(
                 { _id: false },
             ),
             default: undefined,
+        },
+        szallitasiCimek: {
+            type: [szallitasiCimSchema],
+            default: [],
+            validate: {
+                validator: (cimek) => cimek.length <= MAX_SZALLITASI_CIM,
+                message: `Legfeljebb ${MAX_SZALLITASI_CIM} szállítási cím menthető.`,
+            },
+        },
+        alapertelmezettCim: { type: mongoose.Schema.Types.ObjectId, default: null },
+        // A pénztár alapértékei házhozszállításnál.
+        szallitasiBeallitasok: {
+            darus: { type: Boolean, default: false },
+            idosav: { type: String, default: '' },
+        },
+        ertesitesiBeallitasok: {
+            // E-mail a rendelés állapotának változásáról (visszaigazolva, úton, teljesítve…).
+            allapotValtozas: { type: Boolean, default: true },
+            // Akciós hírlevél: csak kifejezett hozzájárulással, az időpont a hozzájárulás igazolása.
+            hirlevel: { type: Boolean, default: false },
+            hirlevelIdopont: { type: Date, default: null },
         },
     },
     { timestamps: true },

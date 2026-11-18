@@ -1,8 +1,9 @@
 import { KESZLET_RIASZTASI_KUSZOB, boltErtesitesiEmail } from '../config/uzlet.mjs';
 import RendelesModel from '../models/Rendeles.mjs';
+import UserModel from '../models/User.mjs';
 import { dijbekeroFajlnev, dijbekeroPdf } from './dijbekero.mjs';
 import { emailKuldes } from './email.mjs';
-import { boltLevel, keszletLevel, vevoLevel } from './levelek.mjs';
+import { allapotLevel, allapotLevelTamogatott, boltLevel, keszletLevel, vevoLevel } from './levelek.mjs';
 
 // Az értesítések a válasz után, a háttérben futnak: egy SMTP-hiba sem akadályozhatja
 // meg a rendelés rögzítését. A hibát naplózzuk, és a rendelésnél is eltároljuk.
@@ -57,4 +58,19 @@ export const keszletRiasztas = async (valtozasok) => {
 
     await emailKuldes({ cimzett: boltErtesitesiEmail(), ...keszletLevel(erintett, KESZLET_RIASZTASI_KUSZOB) });
     return erintett;
+};
+
+/**
+ * E-mail a vevőnek, amikor a bolt továbblépteti a rendelését. A regisztrált vevő
+ * a profiljában kikapcsolhatja; a vendég vásárló mindig megkapja.
+ * Eredmény: true, ha a levél elment.
+ */
+export const allapotErtesites = async (rendeles, megjegyzes = '') => {
+    if (!allapotLevelTamogatott(rendeles.allapot)) return false;
+    if (rendeles.userId) {
+        const user = await UserModel.findById(rendeles.userId).select('ertesitesiBeallitasok').lean();
+        if (user?.ertesitesiBeallitasok?.allapotValtozas === false) return false;
+    }
+    await emailKuldes({ cimzett: rendeles.email, ...allapotLevel(rendeles, megjegyzes) });
+    return true;
 };

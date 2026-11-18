@@ -54,6 +54,7 @@ export const rendelesValasz = (rendeles, { admin = false } = {}) => {
         datum: rendeles.createdAt,
         nev: rendeles.teljesNev,
         email: rendeles.email,
+        telefon: rendeles.telefon ?? '',
         ...allapotObjektum(rendeles.allapot),
         allapotTortenet: tortenet.map((bejegyzes) => ({
             ...allapotObjektum(bejegyzes.allapot),

@@ -1,14 +1,18 @@
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { apiKeres } from '../../utils/api';
+import { datum } from '../../utils/dashboardFormazas';
+import { TELEFON_MINTA, TELEFON_PELDA } from '../../utils/fiok';
 import Uzenet from './Uzenet';
 
-// Név és e-mail-cím módosítása. Az e-mail a belépési azonosító, ezért a
-// megváltoztatásához a szerver a jelenlegi jelszót is kéri.
-const ProfilAdatok = () => {
+// Név, e-mail-cím és telefonszám módosítása. Az e-mail a belépési azonosító, ezért a
+// megváltoztatásához a szerver a jelenlegi jelszót is kéri. `frissult` a szerver
+// válaszával (a teljes fiókadattal) frissíti az Adataim fület.
+const ProfilAdatok = ({ fiok, frissult }) => {
     const { user, login } = useAuth();
     const [nev, setNev] = useState(user.nev);
     const [email, setEmail] = useState(user.email);
+    const [telefon, setTelefon] = useState(fiok.telefon);
     const [jelszo, setJelszo] = useState('');
     const [uzenet, setUzenet] = useState(null);
     const [kuldes, setKuldes] = useState(false);
@@ -24,12 +28,14 @@ const ProfilAdatok = () => {
         try {
             const valasz = await apiKeres('/fiok', {
                 method: 'PATCH',
-                body: { nev, email, jelszo: emailValtozott ? jelszo : undefined },
+                body: { nev, email, telefon, jelszo: emailValtozott ? jelszo : undefined },
             });
             // A menü és a munkamenet tárolt adatai is az új nevet és címet mutatják.
             login(valasz.user);
+            frissult(valasz);
             setNev(valasz.user.nev);
             setEmail(valasz.user.email);
+            setTelefon(valasz.telefon);
             setJelszo('');
             setUzenet({ tipus: 'siker', szoveg: valasz.msg });
         } catch (error) {
@@ -48,6 +54,23 @@ const ProfilAdatok = () => {
                 <h2>Személyes adatok</h2>
                 <p>A neved a fiókodban és a menüben jelenik meg, az e-mail-címeddel lépsz be.</p>
             </div>
+
+            <dl className="profil-fiok-info">
+                {fiok.regisztralt && (
+                    <div>
+                        <dt>Regisztráltál</dt>
+                        <dd>{datum(fiok.regisztralt)}</dd>
+                    </div>
+                )}
+                <div>
+                    <dt>Általános Szerződési Feltételek</dt>
+                    <dd>
+                        {fiok.aszfElfogadas
+                            ? `${fiok.aszfElfogadas.verzio} verzió, elfogadva: ${datum(fiok.aszfElfogadas.idopont)}`
+                            : 'Nincs rögzített elfogadás'}
+                    </dd>
+                </div>
+            </dl>
 
             <div className="profil-mezo-par">
                 <label className="auth-mezo">
@@ -74,6 +97,21 @@ const ProfilAdatok = () => {
                         disabled={admin}
                         required
                     />
+                </label>
+                <label className="auth-mezo">
+                    Telefonszám
+                    <input
+                        type="tel"
+                        autoComplete="tel"
+                        pattern={TELEFON_MINTA}
+                        title={`Pl. ${TELEFON_PELDA}`}
+                        maxLength="40"
+                        value={telefon}
+                        onChange={(event) => setTelefon(event.target.value)}
+                        placeholder={TELEFON_PELDA}
+                        disabled={admin}
+                    />
+                    <small>Kiszállításkor ezen a számon keres a sofőr. A pénztár ezzel tölti ki előre a mezőt.</small>
                 </label>
             </div>
 

@@ -1,12 +1,15 @@
 import { Link, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Arajanlataim from '../components/profil/Arajanlataim';
+import ErtesitesiBeallitasok from '../components/profil/ErtesitesiBeallitasok';
 import FiokKezeles from '../components/profil/FiokKezeles';
 import JelszoModositas from '../components/profil/JelszoModositas';
 import MentettAdatok from '../components/profil/MentettAdatok';
 import ProfilAdatok from '../components/profil/ProfilAdatok';
 import RaklapEgyenleg from '../components/profil/RaklapEgyenleg';
 import SajatRendeles from '../components/profil/SajatRendeles';
+import SzallitasiBeallitasok from '../components/profil/SzallitasiBeallitasok';
+import SzallitasiCimek from '../components/profil/SzallitasiCimek';
 import { useLekeres } from '../utils/api';
 import './Auth.css';
 import './Profil.css';
@@ -73,27 +76,46 @@ const Rendeleseim = () => {
     );
 };
 
+// Minden mentés a teljes friss fiókadatot adja vissza, ezzel frissül az egész fül.
 const Adataim = () => {
     const { adat, hiba, modosit } = useLekeres('/fiok');
+    const frissult = (valasz) => modosit((elozo) => ({ ...elozo, ...valasz }));
+
+    if (hiba && !adat) {
+        return (
+            <p
+                className="auth-uzenet auth-hiba"
+                role="alert"
+            >
+                {hiba}
+            </p>
+        );
+    }
+    if (!adat) return <p className="profil-rendelesek-uzenet">Adatok betöltése…</p>;
 
     return (
         <div className="profil-panelek">
-            <ProfilAdatok />
-            {hiba ? (
-                <p
-                    className="auth-uzenet auth-hiba"
-                    role="alert"
-                >
-                    {hiba}
-                </p>
-            ) : !adat ? (
-                <p className="profil-rendelesek-uzenet">Mentett adatok betöltése…</p>
-            ) : (
-                <MentettAdatok
-                    mentettAdatok={adat.mentettAdatok}
-                    mentve={(mentettAdatok) => modosit((elozo) => ({ ...elozo, mentettAdatok }))}
-                />
-            )}
+            <ProfilAdatok
+                fiok={adat}
+                frissult={frissult}
+            />
+            <MentettAdatok
+                mentettAdatok={adat.mentettAdatok}
+                frissult={frissult}
+            />
+            <SzallitasiCimek
+                cimek={adat.szallitasiCimek}
+                alapertelmezettCim={adat.alapertelmezettCim}
+                frissult={frissult}
+            />
+            <SzallitasiBeallitasok
+                beallitasok={adat.szallitasiBeallitasok}
+                frissult={frissult}
+            />
+            <ErtesitesiBeallitasok
+                beallitasok={adat.ertesitesiBeallitasok}
+                frissult={frissult}
+            />
         </div>
     );
 };

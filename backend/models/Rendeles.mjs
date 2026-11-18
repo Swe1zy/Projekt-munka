@@ -109,6 +109,7 @@ const szallitasiAdatokSchema = new mongoose.Schema(
         telepules: { type: String, trim: true, required: true },
         utca: { type: String, trim: true, required: true },
         megjegyzes: { type: String, trim: true, default: '' },
+        behajtas: { type: String, trim: true, default: '' },
     },
     { _id: false },
 );
@@ -132,6 +133,12 @@ const rendelesSchema = new mongoose.Schema(
             type: String,
             required: true,
             trim: true,
+        },
+        // Kapcsolattartási telefonszám (házhozszállításnál kötelező; régi rendeléseknél hiányzik).
+        telefon: {
+            type: String,
+            trim: true,
+            default: '',
         },
         atvetelModja: {
             type: String,
