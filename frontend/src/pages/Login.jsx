@@ -70,6 +70,7 @@ const Login = () => {
                 <label className="auth-mezo">
                     E-mail cím
                     <input
+                        data-teszt-loginemail="email"
                         type="email"
                         autoComplete="email"
                         value={email}
@@ -80,6 +81,7 @@ const Login = () => {
                 <label className="auth-mezo">
                     Jelszó
                     <input
+                        data-teszt-loginjelszo="jelszo"
                         type="password"
                         autoComplete="current-password"
                         value={jelszo}
@@ -89,6 +91,7 @@ const Login = () => {
                 </label>
 
                 <button
+                    data-teszt-logingomb="belepes"
                     type="submit"
                     className="auth-gomb"
                     disabled={kuldes}
