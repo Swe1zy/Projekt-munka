@@ -24,12 +24,20 @@ describe('autentikálás', () => {
     cy.get('[data-teszt-loginjelszo="jelszo"]').type('password123')
     cy.get('[data-teszt-logingomb="belepes"]').click()
   })
-})
 
-// describe('autentikálás', () => {
-//   it('Kijelentkezés', () => {
-//     cy.visit('http://localhost:5173')
-//     cy.get('[data-teszt-profil="profil"]').click()
-//     cy.get('[data-teszt-kijelentkezes="kijelentkezes"]').click()
-//   })
-// })
+  it('Kijelentkezés', () => {
+    cy.visit('http://localhost:5173')
+    cy.get('[data-teszt-profil="profil"]').click()
+    cy.get('[data-teszt-belepes="bejelentkezes"]').click()
+    cy.get('[data-teszt-sutifogadas="rendben"]').click()
+    cy.get('[data-teszt-loginemail="email"]').type('kiss.janos@gmail.com')
+    cy.get('[data-teszt-loginjelszo="jelszo"]').type('password123')
+    cy.get('[data-teszt-logingomb="belepes"]').click()
+
+    cy.get('[data-teszt-profil="profil"]')
+      .should('have.attr', 'aria-label', 'Fiók: Kiss János')
+    cy.get('[data-teszt-profil="profil"]').click()
+    cy.get('[data-teszt-kijelentkezes="kijelentkezes"]').should('be.visible')
+    cy.get('[data-teszt-kijelentkezes="kijelentkezes"]').click()
+  })
+})
