@@ -286,6 +286,7 @@ const Nav = () => {
                 {!user && (
                     <>
                         <NavLink
+                            data-teszt-noprofilreg="regisztracio"
                             to="/register"
                             className="nav-auth-gomb nav-auth-gomb--kiemelt"
                             aria-label="Regisztráció"
@@ -294,6 +295,7 @@ const Nav = () => {
                             <span className="nav-auth-szoveg">Regisztráció</span>
                         </NavLink>
                         <NavLink
+                            data-teszt-noprofilbelepes="bejelentkezes"
                             to="/login"
                             className="nav-auth-gomb"
                             aria-label="Bejelentkezés"
