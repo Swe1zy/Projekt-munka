@@ -35,6 +35,7 @@ const SutiSav = () => {
                 <Link to="/sutik">Részletek a sütitájékoztatóban</Link>
             </p>
             <button
+                data-teszt-sutifogadas="rendben"
                 type="button"
                 className="suti-sav-gomb"
                 onClick={tudomasulVesz}

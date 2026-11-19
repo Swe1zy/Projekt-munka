@@ -150,6 +150,7 @@ const Nav = () => {
             ref={fiokRef}
         >
             <button
+                data-teszt-profil="profil"
                 type="button"
                 className="nav-fiok-gomb"
                 ref={gombRef}
@@ -199,6 +200,7 @@ const Nav = () => {
                             </NavLink>
                             <hr className="nav-fiok-elv" />
                             <NavLink
+                                data-teszt-kijelentkezes="kijelentkezes"
                                 to="/logout"
                                 className="nav-fiok-elem nav-fiok-kilep"
                             >
@@ -209,6 +211,7 @@ const Nav = () => {
                     ) : (
                         <>
                             <NavLink
+                                data-teszt-belepes="bejelentkezes"
                                 to="/login"
                                 className="nav-fiok-elem"
                             >
@@ -216,6 +219,7 @@ const Nav = () => {
                                 Bejelentkezés
                             </NavLink>
                             <NavLink
+                                data-teszt-reg="regisztracio"
                                 to="/register"
                                 className="nav-fiok-elem"
                             >

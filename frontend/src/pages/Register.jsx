@@ -77,6 +77,7 @@ const Register = () => {
                 <label className="auth-mezo">
                     Név
                     <input
+                        data-teszt-regnev="nev"
                         type="text"
                         autoComplete="name"
                         minLength={2}
@@ -89,6 +90,7 @@ const Register = () => {
                 <label className="auth-mezo">
                     E-mail cím
                     <input
+                        data-teszt-regemail="email"
                         type="email"
                         autoComplete="email"
                         maxLength={200}
@@ -100,6 +102,7 @@ const Register = () => {
                 <label className="auth-mezo">
                     Jelszó
                     <input
+                        data-teszt-regjelszo="jelszo"
                         type="password"
                         autoComplete="new-password"
                         minLength={MIN_JELSZO_HOSSZ}
@@ -112,6 +115,7 @@ const Register = () => {
                 <label className="auth-mezo">
                     Jelszó megerősítése
                     <input
+                        data-teszt-regjelszomegerosites="jelszoMegerosites"
                         type="password"
                         autoComplete="new-password"
                         value={jelszoMegerosites}
@@ -124,6 +128,7 @@ const Register = () => {
 
                 <label className="auth-jelolo">
                     <input
+                        data-teszt-aszf="elfogadva"
                         type="checkbox"
                         checked={aszfElfogadva}
                         onChange={(event) =>
@@ -155,6 +160,7 @@ const Register = () => {
                 )}
 
                 <button
+                    data-teszt-reggomb="regisztracio"
                     type="submit"
                     className="auth-gomb"
                     disabled={kuldes}
