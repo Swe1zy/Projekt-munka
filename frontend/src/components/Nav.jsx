@@ -103,14 +103,16 @@ const Nav = () => {
     const kosarTetelSzam = tetelek.length;
     const { pathname } = useLocation();
     const [nyitva, setNyitva] = useState(false);
+    const [mobilNyitva, setMobilNyitva] = useState(false);
     const [elozoUtvonal, setElozoUtvonal] = useState(pathname);
     const fiokRef = useRef(null);
     const gombRef = useRef(null);
 
-    // Oldalváltáskor (pl. böngésző vissza gombja) a menü becsukódik.
+    // Oldalváltáskor (pl. böngésző vissza gombja) a menük becsukódnak.
     if (elozoUtvonal !== pathname) {
         setElozoUtvonal(pathname);
         setNyitva(false);
+        setMobilNyitva(false);
     }
 
     useEffect(() => {
@@ -136,6 +138,17 @@ const Nav = () => {
             document.removeEventListener('keydown', billentyu);
         };
     }, [nyitva]);
+
+    useEffect(() => {
+        if (!mobilNyitva) return;
+
+        const billentyu = (event) => {
+            if (event.key === 'Escape') setMobilNyitva(false);
+        };
+
+        document.addEventListener('keydown', billentyu);
+        return () => document.removeEventListener('keydown', billentyu);
+    }, [mobilNyitva]);
 
     const kezdobetu = (user?.nev || user?.email || '?')
         .trim()
@@ -261,6 +274,19 @@ const Nav = () => {
                 )}
             </div>
 
+            <div
+                className="nav-mobil-menu"
+                id="nav-mobil-menu"
+                hidden={!mobilNyitva}
+            >
+                <NavLink to="/" end onClick={() => setMobilNyitva(false)}>Főoldal</NavLink>
+                <NavLink to="/termekek" onClick={() => setMobilNyitva(false)}>Termékek</NavLink>
+                <NavLink to="/kalkulator" onClick={() => setMobilNyitva(false)}>Kalkulátor</NavLink>
+                {user?.role === 'admin' && (
+                    <NavLink to="/admin/dashboard" onClick={() => setMobilNyitva(false)}>Dashboard</NavLink>
+                )}
+            </div>
+
             <div className="nav-jobb">
                 {/* A kosár gomb csak bejelentkezett felhasználónak látszik */}
                 {user && (
@@ -307,6 +333,17 @@ const Nav = () => {
                 )}
 
                 {user && fiokElem}
+
+                <button
+                    type="button"
+                    className="nav-mobil-gomb"
+                    aria-label={mobilNyitva ? 'Menü bezárása' : 'Menü megnyitása'}
+                    aria-expanded={mobilNyitva}
+                    aria-controls="nav-mobil-menu"
+                    onClick={() => setMobilNyitva((elozo) => !elozo)}
+                >
+                    <span aria-hidden="true">{mobilNyitva ? '×' : '☰'}</span>
+                </button>
             </div>
         </nav>
     );
