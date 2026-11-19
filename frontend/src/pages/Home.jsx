@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import './Home.css';
 
 const ikonUtak = {
@@ -196,6 +197,11 @@ const elonyok = [
 ];
 
 const Home = () => {
+    const { user, authReady } = useAuth();
+    // Amíg a munkamenet ellenőrzése tart, a user még null: a gombokat csak utána
+    // mutatjuk, így bejelentkezett felhasználónál nem villannak fel.
+    const vendeg = authReady && !user;
+
     return (
         <div className="home-kontener">
             <section
@@ -224,12 +230,14 @@ const Home = () => {
                                 Termékek megtekintése
                                 <Ikon nev="nyil" />
                             </Link>
-                            <Link
-                                to="/register"
-                                className="home-gomb home-gomb-masodlagos"
-                            >
-                                Regisztráció
-                            </Link>
+                            {vendeg && (
+                                <Link
+                                    to="/register"
+                                    className="home-gomb home-gomb-masodlagos"
+                                >
+                                    Regisztráció
+                                </Link>
+                            )}
                         </div>
                         <ul className="home-hero-lista">
                             <li>
@@ -353,24 +361,27 @@ const Home = () => {
                         <div>
                             <h2 id="home-cta-cim">Kezdjük el az építkezést!</h2>
                             <p>
-                                Regisztrálj, böngéssz a termékeink között, és
-                                állítsd össze a következő projekted anyaglistáját.
+                                {user
+                                    ? 'Böngéssz a termékeink között, és állítsd össze a következő projekted anyaglistáját.'
+                                    : 'Regisztrálj, böngéssz a termékeink között, és állítsd össze a következő projekted anyaglistáját.'}
                             </p>
                         </div>
-                        <div className="home-gombok">
-                            <Link
-                                to="/register"
-                                className="home-gomb home-gomb-elsodleges"
-                            >
-                                Regisztráció
-                            </Link>
-                            <Link
-                                to="/login"
-                                className="home-gomb home-gomb-masodlagos"
-                            >
-                                Bejelentkezés
-                            </Link>
-                        </div>
+                        {vendeg && (
+                            <div className="home-gombok">
+                                <Link
+                                    to="/register"
+                                    className="home-gomb home-gomb-elsodleges"
+                                >
+                                    Regisztráció
+                                </Link>
+                                <Link
+                                    to="/login"
+                                    className="home-gomb home-gomb-masodlagos"
+                                >
+                                    Bejelentkezés
+                                </Link>
+                            </div>
+                        )}
                     </div>
                 </div>
             </section>

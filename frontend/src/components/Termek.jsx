@@ -2,11 +2,13 @@ import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { forint, termekKepek } from '../utils/termek';
+import { useBejelentkezesKell } from '../utils/useBejelentkezesKell';
 import './Termek.css';
 
 const Termek = ({ termek }) => {
     const { tetelek, hozzaad } = useCart();
     const toast = useToast();
+    const bejelentkezve = useBejelentkezesKell();
     const kepek = termekKepek(termek);
     const kosarban = tetelek.find((elem) => elem.id === termek._id)?.mennyiseg ?? 0;
     const egyseg = termek.egyseg || 'db';
@@ -19,6 +21,7 @@ const Termek = ({ termek }) => {
     const hozzaadando = Math.min(1, keszlet);
 
     const kosarba = () => {
+        if (!bejelentkezve()) return;
         hozzaad({ ...termek, kep: kepek[0] }, hozzaadando);
         toast.siker(`${hozzaadando} ${egyseg} „${termek.nev}” a kosárba került.`);
     };

@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { API_URL } from '../config';
 import { MAX_MENNYISEG, useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
+import { useBejelentkezesKell } from '../utils/useBejelentkezesKell';
 import { forint, szam } from '../utils/dashboardFormazas';
 import {
     TERMEK_SZEREPEK,
@@ -85,6 +86,7 @@ const Jelolo = ({ cimke, ertek, beallit, segitseg }) => (
 const Kalkulator = () => {
     const { hozzaad } = useCart();
     const toast = useToast();
+    const bejelentkezve = useBejelentkezesKell();
     const [searchParams, setSearchParams] = useSearchParams();
     const ful = FULEK.some((elem) => elem.kulcs === searchParams.get('tipus')) ? searchParams.get('tipus') : 'fal';
 
@@ -155,6 +157,7 @@ const Kalkulator = () => {
     };
 
     const kosarbaTesz = () => {
+        if (!bejelentkezve()) return;
         const korlatozott = [];
         for (const sor of kosarSorok) {
             const elerheto = Math.min(sor.termek.keszlet, MAX_MENNYISEG);

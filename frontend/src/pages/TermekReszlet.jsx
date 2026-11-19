@@ -6,6 +6,7 @@ import { MAX_MENNYISEG, useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { termekRaklapon, useBeallitasok } from '../utils/beallitasok';
 import { forint, termekKepek } from '../utils/termek';
+import { useBejelentkezesKell } from '../utils/useBejelentkezesKell';
 import './TermekReszlet.css';
 
 const VisszaLink = () => (
@@ -56,6 +57,7 @@ const Vasarlas = ({ termek, kep }) => {
     const raklapon = termekRaklapon(termek, beallitasok);
     const { tetelek, hozzaad, mennyisegBeallit } = useCart();
     const toast = useToast();
+    const bejelentkezve = useBejelentkezesKell();
     const kosarban = tetelek.find((elem) => elem.id === termek._id)?.mennyiseg ?? 0;
     const egyseg = termek.egyseg || 'db';
     const keszlet = Number.isFinite(termek.keszlet) ? termek.keszlet : MAX_MENNYISEG;
@@ -64,6 +66,7 @@ const Vasarlas = ({ termek, kep }) => {
     const valtozott = mennyiseg !== kosarban;
 
     const mentes = () => {
+        if (!bejelentkezve()) return;
         if (kosarban > 0) {
             mennyisegBeallit(termek._id, mennyiseg);
             toast.siker(`„${termek.nev}” mennyisége a kosárban: ${mennyiseg} ${egyseg}.`);
