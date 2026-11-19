@@ -1,7 +1,20 @@
 .app-kontener {
+    display: flex;
+    flex-direction: column;
     width: 100%;
     min-width: 0;
     min-height: 100vh;
+}
+
+/* Rövid tartalomnál (pl. betöltés közben) is a képernyő aljára kerül a lábléc,
+   és ha látszik, közvetlenül fölötte a süti sáv. */
+.app-kontener > .lablec,
+.app-kontener > .suti-sav {
+    margin-top: auto;
+}
+
+.app-kontener > .suti-sav + .lablec {
+    margin-top: 0;
 }
 /* A lusta betöltésű oldalak helyén, amíg a kódjuk megérkezik. */
 .oldal-betoltes {

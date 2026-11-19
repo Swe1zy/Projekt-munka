@@ -127,8 +127,9 @@ function App() {
                                     />
                                 </Routes>
                             </Suspense>
-                            <Lablec />
+                            {/* A süti sáv a lábléc előtt áll, így az oldal végén a lábléc fölött áll meg */}
                             <SutiSav />
+                            <Lablec />
                         </AuthProvider>
                     </CartProvider>
                 </ToastProvider>

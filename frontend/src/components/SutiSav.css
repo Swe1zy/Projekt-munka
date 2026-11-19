@@ -1,5 +1,5 @@
 /* Sticky, nem fixed: görgetés közben a képernyő alján marad, az oldal legalján
-   viszont a lábléc alatt a saját helyére kerül, így semmit sem takar ki végleg. */
+   viszont a lábléc fölött a saját helyére kerül, így semmit sem takar ki végleg. */
 .suti-sav {
     position: sticky;
     bottom: 1rem;
