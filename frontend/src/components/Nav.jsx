@@ -103,14 +103,17 @@ const Nav = () => {
     const kosarTetelSzam = tetelek.length;
     const { pathname } = useLocation();
     const [nyitva, setNyitva] = useState(false);
+    const [mobilNyitva, setMobilNyitva] = useState(false);
     const [elozoUtvonal, setElozoUtvonal] = useState(pathname);
     const fiokRef = useRef(null);
     const gombRef = useRef(null);
+    const mobilGombRef = useRef(null);
 
     // Oldalváltáskor (pl. böngésző vissza gombja) a menük becsukódnak.
     if (elozoUtvonal !== pathname) {
         setElozoUtvonal(pathname);
         setNyitva(false);
+        setMobilNyitva(false);
     }
 
     useEffect(() => {
@@ -136,6 +139,20 @@ const Nav = () => {
             document.removeEventListener('keydown', billentyu);
         };
     }, [nyitva]);
+
+    useEffect(() => {
+        if (!mobilNyitva) return;
+
+        const billentyu = (event) => {
+            if (event.key === 'Escape') {
+                setMobilNyitva(false);
+                mobilGombRef.current?.focus();
+            }
+        };
+
+        document.addEventListener('keydown', billentyu);
+        return () => document.removeEventListener('keydown', billentyu);
+    }, [mobilNyitva]);
 
     const kezdobetu = (user?.nev || user?.email || '?')
         .trim()
@@ -240,21 +257,47 @@ const Nav = () => {
         >
             {!user && <div className="nav-bal">{fiokElem}</div>}
 
-            <div className="nav-linkek">
+            <button
+                ref={mobilGombRef}
+                type="button"
+                className="nav-mobil-gomb"
+                aria-label={mobilNyitva ? 'Navigáció bezárása' : 'Navigáció megnyitása'}
+                aria-expanded={mobilNyitva}
+                aria-controls="nav-linkek"
+                onClick={() => setMobilNyitva((elozo) => !elozo)}
+            >
+                <span aria-hidden="true">{mobilNyitva ? '×' : '☰'}</span>
+            </button>
+
+            {mobilNyitva && (
+                <button
+                    type="button"
+                    className="nav-mobil-hatter"
+                    aria-label="Navigáció bezárása"
+                    onClick={() => setMobilNyitva(false)}
+                />
+            )}
+
+            <div
+                className={`nav-linkek${mobilNyitva ? ' nav-linkek--mobil-nyitva' : ''}`}
+                id="nav-linkek"
+            >
                 <NavLink
                     to="/"
                     end
+                    onClick={() => setMobilNyitva(false)}
                 >
                     Főoldal
                 </NavLink>
-                <NavLink to="/termekek">Termékek</NavLink>
-                <NavLink to="/kalkulator">Kalkulátor</NavLink>
+                <NavLink to="/termekek" onClick={() => setMobilNyitva(false)}>Termékek</NavLink>
+                <NavLink to="/kalkulator" onClick={() => setMobilNyitva(false)}>Kalkulátor</NavLink>
                 {/* A rendelések, árajánlatok és a termékkezelés a dashboardról érhető el,
                     ezért az admin aloldalakon is a Dashboard menüpont marad kiemelve. */}
                 {user?.role === 'admin' && (
                     <NavLink
                         to="/admin/dashboard"
                         className={({ isActive }) => (isActive || pathname.startsWith('/admin/') ? 'nav-link--aktiv' : undefined)}
+                        onClick={() => setMobilNyitva(false)}
                     >
                         Dashboard
                     </NavLink>

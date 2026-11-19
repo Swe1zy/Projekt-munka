@@ -552,11 +552,16 @@
     justify-content: flex-start;
 }
 
+.nav-mobil-gomb,
+.nav-mobil-hatter {
+    display: none;
+}
+
 /* Mobilon a navigáció mindig a képernyő tetején marad; a menüpontok
-   közvetlenül elérhetők, vízszintesen görgethető sorban. */
+   oldalsávként, gombnyomásra jelennek meg. */
 @media screen and (max-width: 700px) {
     .app-kontener {
-        padding-top: calc(6rem + env(safe-area-inset-top));
+        padding-top: calc(4.5rem + env(safe-area-inset-top));
     }
 
     .nav-kontener,
@@ -567,9 +572,9 @@
         left: 0;
         z-index: 1000;
         display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        gap: .3rem;
+        flex-direction: row;
+        align-items: center;
+        gap: .5rem;
         min-height: 0;
         padding: calc(.45rem + env(safe-area-inset-top)) .65rem .5rem;
     }
@@ -579,29 +584,69 @@
     }
 
     .nav-linkek {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1002;
         display: flex;
-        flex-wrap: nowrap;
-        gap: .3rem;
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+        gap: .45rem;
+        width: min(82vw, 19rem);
         min-width: 0;
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-        scrollbar-width: none;
+        overflow-y: auto;
+        padding: calc(5rem + env(safe-area-inset-top)) 1rem 1rem;
+        border-right: 1px solid rgba(255, 255, 255, .16);
+        background: #293a30;
+        box-shadow: 12px 0 32px rgba(15, 23, 15, .28);
+        transform: translateX(-105%);
+        visibility: hidden;
+        transition: transform .22s ease, visibility .22s ease;
     }
 
-    .nav-linkek::-webkit-scrollbar {
-        display: none;
+    .nav-linkek--mobil-nyitva {
+        transform: translateX(0);
+        visibility: visible;
     }
 
     .nav-linkek a {
         flex: 0 0 auto;
-        padding: .5rem .65rem;
-        font-size: .82rem;
+        padding: .8rem .9rem;
+        font-size: .95rem;
         white-space: nowrap;
     }
 
     .nav-jobb {
         justify-content: flex-end;
         gap: .35rem;
+        margin-left: auto;
+    }
+
+    .nav-mobil-gomb {
+        display: inline-flex;
+        flex: 0 0 auto;
+        align-items: center;
+        justify-content: center;
+        width: 2.75rem;
+        height: 2.75rem;
+        border: 1px solid rgba(255, 255, 255, .24);
+        border-radius: .65rem;
+        background: rgba(255, 255, 255, .12);
+        color: #fff;
+        font-size: 1.5rem;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .nav-mobil-hatter {
+        position: fixed;
+        inset: 0;
+        z-index: 1001;
+        display: block;
+        border: 0;
+        background: rgba(10, 16, 12, .48);
     }
 
     .nav-fiok-gomb,
