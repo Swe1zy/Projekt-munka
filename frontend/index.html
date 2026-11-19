@@ -5,6 +5,16 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Tüzép</title>
+    <script>
+      // A mentett témát már a festés előtt beállítja, hogy ne villanjon fel a világos oldal.
+      // A teljes logika: src/utils/tema.js
+      try {
+        var tema = localStorage.getItem('tema');
+        if (tema === 'sotet' || (tema === 'rendszer' && matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.dataset.tema = 'sotet';
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -1,0 +1,20 @@
+/*
+ * Sötét téma. A színek nagy része generált (Sotet.generalt.css, a meglévő CSS-ből
+ * számolva – lásd scripts/sotet-tema.mjs). Ide csak a kézi finomhangolás kerül.
+ * Minden szabály a :root[data-tema='sotet'] előtaggal kezdődjön, hogy erősebb
+ * legyen a generáltnál.
+ */
+@import './Sotet.generalt.css';
+
+:root[data-tema='sotet'] {
+    /* Űrlapelemek, görgetősávok, dátumválasztó a böngészőben is sötétek */
+    color-scheme: dark;
+
+    /* Az üveggombok fényes sávja sötét háttéren halványabb, különben „világít” */
+    --uveg-feny-erosseg: 0.45;
+}
+
+/* A képek egy árnyalattal visszafogottabbak, hogy ne vakítsanak a sötét oldalon */
+:root[data-tema='sotet'] img {
+    filter: brightness(0.92);
+}

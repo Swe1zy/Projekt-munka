@@ -4,6 +4,7 @@ import Arajanlataim from '../components/profil/Arajanlataim';
 import ErtesitesiBeallitasok from '../components/profil/ErtesitesiBeallitasok';
 import FiokKezeles from '../components/profil/FiokKezeles';
 import JelszoModositas from '../components/profil/JelszoModositas';
+import Megjelenes from '../components/profil/Megjelenes';
 import MentettAdatok from '../components/profil/MentettAdatok';
 import ProfilAdatok from '../components/profil/ProfilAdatok';
 import RaklapEgyenleg from '../components/profil/RaklapEgyenleg';
@@ -21,6 +22,7 @@ const FULEK = [
     { kulcs: 'arajanlataim', cimke: 'Árajánlataim' },
     { kulcs: 'adataim', cimke: 'Adataim' },
     { kulcs: 'fiok', cimke: 'Biztonság és fiók' },
+    { kulcs: 'megjelenes', cimke: 'Megjelenés' },
 ];
 
 const Rendeleseim = () => {
@@ -132,6 +134,7 @@ const TARTALOM = {
     arajanlataim: Arajanlataim,
     adataim: Adataim,
     fiok: Fiok,
+    megjelenes: Megjelenes,
 };
 
 const Profil = () => {

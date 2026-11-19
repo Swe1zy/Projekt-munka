@@ -90,6 +90,8 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.55),
         inset 0 -1px 0 rgba(0, 0, 0, 0.08);
     pointer-events: none;
+    /* Sötét módban halványabb (Sotet.css) */
+    opacity: var(--uveg-feny-erosseg, 1);
     transition: opacity 0.2s ease;
 }
 
@@ -146,5 +148,5 @@
     .admin-termek-akciok button,
     .admin-termek-urlap button
 ):disabled::before {
-    opacity: 0.4;
+    opacity: calc(var(--uveg-feny-erosseg, 1) * 0.4);
 }
