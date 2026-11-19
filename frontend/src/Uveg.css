@@ -1,0 +1,150 @@
+/*
+ * Üveghatás (glassy) az áruház összes gombjára.
+ *
+ * A gombok saját színe megmarad (az oldalankénti CSS-ből jön), erre kerül rá
+ * egy fényes üvegréteg ::before pszeudo-elemként. Azért pszeudo-elem és nem
+ * background-image, mert az oldalak hover szabályai a `background` rövidítéssel
+ * felülírnák a fényréteget. Az `isolation: isolate` miatt a réteg a gomb
+ * háttere fölé, de a felirata alá kerül (z-index: -1).
+ *
+ * Új gombtípusnál elég a kijelölőt hozzáadni az alábbi listához.
+ */
+:is(
+    .auth-gomb,
+    .profil-gomb,
+    .home-gomb,
+    .termek-kosarba-gomb,
+    .termek-reszlet-kosarba,
+    .termek-szuro-torles,
+    .suti-sav-gomb,
+    .kosar-gomb-elso,
+    .kosar-gomb-masodik,
+    .kosar-vasarlas,
+    .kosar-uritese,
+    .kosar-torles,
+    .kalk-gomb,
+    .kalk-fulek button,
+    .fizetes-eredmeny-gomb,
+    .vasarlas-fo-gomb,
+    .arajanlat-gomb,
+    .ar-gomb,
+    .ar-szurok button,
+    .ar-lapozo button,
+    .ar-szuro-chip,
+    .db-nezet-gomb,
+    .db-idoszak button,
+    .db-frissit,
+    .db-alkalmaz,
+    .admin-termek-akciok button,
+    .admin-termek-urlap button
+) {
+    position: relative;
+    isolation: isolate;
+    backdrop-filter: blur(10px) saturate(160%);
+    -webkit-backdrop-filter: blur(10px) saturate(160%);
+}
+
+:is(
+    .auth-gomb,
+    .profil-gomb,
+    .home-gomb,
+    .termek-kosarba-gomb,
+    .termek-reszlet-kosarba,
+    .termek-szuro-torles,
+    .suti-sav-gomb,
+    .kosar-gomb-elso,
+    .kosar-gomb-masodik,
+    .kosar-vasarlas,
+    .kosar-uritese,
+    .kosar-torles,
+    .kalk-gomb,
+    .kalk-fulek button,
+    .fizetes-eredmeny-gomb,
+    .vasarlas-fo-gomb,
+    .arajanlat-gomb,
+    .ar-gomb,
+    .ar-szurok button,
+    .ar-lapozo button,
+    .ar-szuro-chip,
+    .db-nezet-gomb,
+    .db-idoszak button,
+    .db-frissit,
+    .db-alkalmaz,
+    .admin-termek-akciok button,
+    .admin-termek-urlap button
+)::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    /* Felső fényes sáv + halvány alsó visszaverődés */
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.34) 0%,
+        rgba(255, 255, 255, 0.1) 48%,
+        rgba(255, 255, 255, 0) 52%,
+        rgba(255, 255, 255, 0.08) 100%
+    );
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.55),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.08);
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+/* Hoverre erősebb csillogás */
+:is(
+    .auth-gomb,
+    .profil-gomb,
+    .home-gomb,
+    .termek-kosarba-gomb,
+    .termek-reszlet-kosarba,
+    .termek-szuro-torles,
+    .suti-sav-gomb,
+    .kosar-gomb-elso,
+    .kosar-gomb-masodik,
+    .kosar-vasarlas,
+    .kosar-uritese,
+    .kosar-torles,
+    .kalk-gomb,
+    .kalk-fulek button,
+    .fizetes-eredmeny-gomb,
+    .vasarlas-fo-gomb,
+    .arajanlat-gomb,
+    .ar-gomb,
+    .ar-szurok button,
+    .ar-lapozo button,
+    .ar-szuro-chip,
+    .db-nezet-gomb,
+    .db-idoszak button,
+    .db-frissit,
+    .db-alkalmaz,
+    .admin-termek-akciok button,
+    .admin-termek-urlap button
+):hover:not(:disabled)::before {
+    background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.45) 0%,
+        rgba(255, 255, 255, 0.16) 48%,
+        rgba(255, 255, 255, 0.02) 52%,
+        rgba(255, 255, 255, 0.12) 100%
+    );
+}
+
+/* Letiltott gombon tompább az üveg */
+:is(
+    .auth-gomb,
+    .profil-gomb,
+    .termek-kosarba-gomb,
+    .termek-reszlet-kosarba,
+    .kalk-gomb,
+    .vasarlas-fo-gomb,
+    .arajanlat-gomb,
+    .ar-gomb,
+    .ar-lapozo button,
+    .admin-termek-akciok button,
+    .admin-termek-urlap button
+):disabled::before {
+    opacity: 0.4;
+}

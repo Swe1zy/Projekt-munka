@@ -1232,3 +1232,365 @@
     clip-path: inset(50%);
     white-space: nowrap;
 }
+
+/* =====================================================================
+   Glassy dashboard + oldalsó szekció-navigáció
+   ===================================================================== */
+
+.dashboard {
+    /* Üveg-tokenek: a felületek áttetszők, mögöttük a színes háttérréteg látszik */
+    --db-surface: rgba(255, 255, 255, 0.58);
+    --db-wash: rgba(255, 255, 255, 0.42);
+    --db-border: rgba(255, 255, 255, 0.78);
+    --db-uveg-blur: blur(18px) saturate(170%);
+    --db-uveg-arnyek:
+        inset 0 1px 0 rgba(255, 255, 255, 0.85),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.25),
+        0 10px 30px rgba(35, 52, 40, 0.1);
+    --db-uveg-arnyek-eros:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 16px 40px rgba(35, 52, 40, 0.14);
+    --db-nav-magassag: 6rem;
+
+    position: relative;
+    z-index: 0;
+    display: grid;
+    grid-template-columns: 14.5rem minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(1.25rem, 2.5vw, 2rem);
+    width: min(100%, 1560px);
+}
+
+/* Színes, elmosott foltok a dashboard mögött – ettől „üveg” az üveg.
+   Teljes képernyőszélességű, de csak a dashboard magasságáig ér (a lábléc alá nem). */
+.dashboard::before {
+    position: absolute;
+    z-index: -1;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 100vw;
+    background:
+        radial-gradient(42rem 32rem at 88% 4%, rgba(193, 106, 59, 0.3), transparent 70%),
+        radial-gradient(38rem 30rem at 6% 22%, rgba(53, 98, 71, 0.24), transparent 70%),
+        radial-gradient(46rem 34rem at 72% 48%, rgba(216, 154, 105, 0.24), transparent 70%),
+        radial-gradient(40rem 30rem at 12% 72%, rgba(53, 98, 71, 0.2), transparent 70%),
+        radial-gradient(44rem 32rem at 90% 92%, rgba(193, 106, 59, 0.22), transparent 70%),
+        linear-gradient(180deg, #eceee5 0%, #f3efe6 100%);
+    transform: translateX(-50%);
+    content: '';
+    pointer-events: none;
+}
+
+.db-fo {
+    min-width: 0;
+}
+
+/* Ugrásnál a ragadós főmenü ne takarja ki a szekció tetejét */
+.dashboard [id^='db-'] {
+    scroll-margin-top: var(--db-nav-magassag);
+}
+
+/* ---------- Üveg felületek ---------- */
+
+.db-fejlec,
+.db-kartya,
+.db-hero,
+.db-csempe,
+.db-oldalsav {
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.42) 100%);
+    backdrop-filter: var(--db-uveg-blur);
+    -webkit-backdrop-filter: var(--db-uveg-blur);
+    box-shadow: var(--db-uveg-arnyek);
+}
+
+.db-kartya,
+.db-hero,
+.db-csempe {
+    transition: box-shadow 200ms ease, transform 200ms ease;
+}
+
+.db-kartya:hover,
+.db-hero:hover,
+.db-csempe:hover {
+    box-shadow: var(--db-uveg-arnyek-eros);
+}
+
+/* A fejléc megtartja a márkaszínű derengést, üvegen át */
+.db-fejlec {
+    background:
+        radial-gradient(ellipse at 92% 0%, rgba(232, 117, 36, 0.18), transparent 45%),
+        radial-gradient(ellipse at 5% 100%, rgba(53, 99, 76, 0.12), transparent 40%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.4) 100%);
+}
+
+.db-hero {
+    background:
+        radial-gradient(ellipse at 100% 0%, rgba(193, 106, 59, 0.16), transparent 55%),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.46) 100%);
+}
+
+.db-csempe--figyelmeztetes {
+    border-color: rgba(245, 212, 138, 0.9);
+    background: linear-gradient(145deg, rgba(255, 251, 235, 0.85) 0%, rgba(255, 243, 205, 0.55) 100%);
+}
+
+.db-riasztas,
+.db-hiba {
+    background: rgba(254, 242, 242, 0.72);
+    backdrop-filter: var(--db-uveg-blur);
+    -webkit-backdrop-filter: var(--db-uveg-blur);
+}
+
+.db-ures {
+    border-color: rgba(39, 51, 45, 0.16);
+    background: rgba(255, 255, 255, 0.28);
+}
+
+/* Szűrők, pirulák, legördülők */
+.db-idoszak,
+.db-export summary,
+.db-osszevetes select,
+.db-chipek a {
+    border-color: rgba(255, 255, 255, 0.8);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.72) 0%, rgba(255, 255, 255, 0.4) 100%);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 4px 14px rgba(35, 52, 40, 0.08);
+}
+
+.db-egyedi--aktiv summary {
+    border-color: var(--db-ink);
+    background: linear-gradient(180deg, #334155 0%, var(--db-ink) 100%);
+}
+
+.db-export-menu {
+    border-color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 18px 40px rgba(35, 52, 40, 0.18);
+}
+
+.db-export-menu button:hover:not(:disabled),
+.db-export-menu button:focus-visible {
+    background: rgba(255, 255, 255, 0.75);
+}
+
+.db-egyedi-urlap input {
+    border-color: rgba(39, 51, 45, 0.18);
+    background: rgba(255, 255, 255, 0.7);
+}
+
+.db-fejlec-linkek a {
+    border-color: rgba(232, 117, 36, 0.35);
+    background: linear-gradient(180deg, rgba(255, 241, 228, 0.85) 0%, rgba(255, 237, 213, 0.5) 100%);
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 4px 14px rgba(168, 68, 23, 0.1);
+}
+
+.db-fejlec-linkek a:hover {
+    background: linear-gradient(180deg, rgba(255, 241, 228, 0.95) 0%, rgba(255, 228, 196, 0.7) 100%);
+}
+
+/* Táblázatok: a ragadós fejléc alatt ne olvadjon össze a görgetett szöveg */
+.db-tablazat thead th,
+.db-kozelgo-fej th {
+    background: rgba(255, 255, 255, 0.86);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.db-tablazat tbody tr:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.db-tooltip {
+    background: rgba(15, 23, 42, 0.86);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+/* ---------- Oldalsó navigáció ---------- */
+
+.db-oldalsav {
+    position: sticky;
+    top: var(--db-nav-magassag);
+    max-height: calc(100vh - var(--db-nav-magassag) - 1rem);
+    overflow-y: auto;
+    padding: 1rem 0.75rem;
+    border-radius: 1.25rem;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+
+.db-oldalsav nav {
+    display: grid;
+    gap: 1rem;
+}
+
+.db-oldalsav-cim {
+    padding: 0 0.6rem;
+    color: var(--db-accent-dark);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+
+.db-oldalsav-csoport {
+    display: grid;
+    gap: 0.3rem;
+}
+
+.db-oldalsav-csoportcim {
+    padding: 0 0.6rem;
+    color: var(--db-ink);
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.db-oldalsav ul {
+    display: grid;
+    gap: 0.15rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.db-oldalsav-link {
+    position: relative;
+    display: block;
+    padding: 0.42rem 0.6rem 0.42rem 0.9rem;
+    border: 1px solid transparent;
+    border-radius: 0.65rem;
+    color: var(--db-text);
+    font-size: 0.86rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-decoration: none;
+    transition:
+        background 160ms ease,
+        border-color 160ms ease,
+        color 160ms ease,
+        box-shadow 160ms ease;
+}
+
+/* Bal oldali jelzőcsík: halvány alapból, terrakotta az aktív szekciónál */
+.db-oldalsav-link::before {
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    left: 0.35rem;
+    width: 2px;
+    border-radius: 2px;
+    background: rgba(39, 51, 45, 0.12);
+    content: '';
+    transition: background 160ms ease;
+}
+
+.db-oldalsav-link:hover {
+    border-color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.55);
+    color: var(--db-ink);
+}
+
+.db-oldalsav-link--aktiv {
+    border-color: rgba(232, 117, 36, 0.3);
+    background: linear-gradient(180deg, rgba(255, 241, 228, 0.9) 0%, rgba(255, 228, 196, 0.6) 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 4px 12px rgba(168, 68, 23, 0.12);
+    color: var(--db-accent-dark);
+}
+
+.db-oldalsav-link--aktiv::before {
+    background: var(--db-accent);
+}
+
+.db-oldalsav-link[aria-disabled='true'] {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+.db-oldalsav-link:focus-visible {
+    outline: 3px solid rgba(232, 117, 36, 0.35);
+    outline-offset: 1px;
+}
+
+/* Keskenyebb kijelzőn az oldalsáv a tartalom fölé kerül, vízszintesen görgethető sávként */
+@media (max-width: 1000px) {
+    .dashboard {
+        --db-nav-magassag: 7.5rem;
+
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .db-oldalsav {
+        position: static;
+        max-height: none;
+        overflow: visible;
+        padding: 0.6rem;
+    }
+
+    .db-oldalsav nav {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+
+    .db-oldalsav-cim {
+        display: none;
+    }
+
+    .db-oldalsav-csoport {
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .db-oldalsav-csoportcim {
+        padding: 0 0.2rem 0 0.4rem;
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    .db-oldalsav ul {
+        display: flex;
+        gap: 0.3rem;
+    }
+
+    .db-oldalsav-link {
+        padding: 0.4rem 0.75rem;
+        border-color: rgba(255, 255, 255, 0.7);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.4);
+        white-space: nowrap;
+    }
+
+    .db-oldalsav-link::before {
+        display: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .db-kartya,
+    .db-hero,
+    .db-csempe,
+    .db-oldalsav-link,
+    .db-oldalsav-link::before {
+        transition: none;
+    }
+}

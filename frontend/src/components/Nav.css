@@ -365,3 +365,173 @@
 .nav-kosar-gomb { background: #bd6a3d; border-color: #bd6a3d; color: #fff; }
 .nav-kosar-gomb:hover { background: #a95731; border-color: #a95731; }
 .nav-kosar-darab { top: -.45rem; right: -.45rem; border: 2px solid #293a30; }
+
+/* Vendég elrendezés + glassy gombok 2026 */
+
+/* Vendégnél a bal oszlopot a fiók-ikon foglalja el az üres helykitöltő helyett */
+.nav-kontener--vendeg::before {
+    display: none;
+}
+
+.nav-bal {
+    display: flex;
+    align-items: center;
+    justify-self: start;
+}
+
+/* Bal oldali fióknál a menü balra igazodik, hogy ne lógjon ki a képernyőről */
+.nav-bal .nav-fiok-menu {
+    right: auto;
+    left: 0;
+    transform-origin: top left;
+}
+
+/* Közös üveghatás minden navigációs gombra */
+.nav-fiok-gomb,
+.nav-kosar-gomb,
+.nav-auth-gomb {
+    --uveg-szin: 255, 255, 255;
+
+    border: 1px solid rgba(var(--uveg-szin), 0.22);
+    background:
+        linear-gradient(180deg, rgba(var(--uveg-szin), 0.2) 0%, rgba(var(--uveg-szin), 0.06) 100%);
+    backdrop-filter: blur(10px) saturate(170%);
+    -webkit-backdrop-filter: blur(10px) saturate(170%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+        0 4px 14px rgba(15, 23, 15, 0.22);
+    color: #ffffff;
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.nav-fiok-gomb:hover,
+.nav-fiok-gomb[aria-expanded='true'],
+.nav-kosar-gomb:hover,
+.nav-kosar-gomb[aria-current='page'],
+.nav-auth-gomb:hover,
+.nav-auth-gomb[aria-current='page'] {
+    border-color: rgba(var(--uveg-szin), 0.4);
+    background:
+        linear-gradient(180deg, rgba(var(--uveg-szin), 0.3) 0%, rgba(var(--uveg-szin), 0.12) 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.45),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+        0 6px 18px rgba(15, 23, 15, 0.28);
+    color: #ffffff;
+}
+
+/* A kosár és a regisztráció a márkaszínű (terrakotta) üveget kapja */
+.nav-kosar-gomb,
+.nav-auth-gomb--kiemelt {
+    --uveg-szin: 216, 140, 95;
+}
+
+.nav-auth-gomb {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.8rem;
+    padding: 0 1.05rem;
+    border-radius: 0.65rem;
+    font-size: 0.92rem;
+    font-weight: 650;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.nav-auth-gomb:active {
+    transform: scale(0.96);
+}
+
+.nav-auth-gomb:focus-visible {
+    outline: 2px solid #e0a477;
+    outline-offset: 2px;
+}
+
+@media screen and (max-width: 900px) {
+    /* Szűkebb kijelzőn a belépés/regisztráció gombból csak az ikon marad */
+    .nav-auth-gomb {
+        width: 2.8rem;
+        padding: 0;
+        justify-content: center;
+    }
+
+    .nav-auth-szoveg {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 700px) {
+    .nav-kontener--vendeg {
+        grid-template-columns: auto minmax(0, 1fr) auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav-auth-gomb {
+        transition: none;
+    }
+
+    .nav-auth-gomb:active {
+        transform: none;
+    }
+}
+
+/* Üveges menüpontok */
+.nav-linkek a {
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
+    backdrop-filter: blur(10px) saturate(160%);
+    -webkit-backdrop-filter: blur(10px) saturate(160%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.18),
+        0 2px 8px rgba(15, 23, 15, 0.12);
+    transition:
+        color 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+.nav-linkek a:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.07) 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.32),
+        0 4px 12px rgba(15, 23, 15, 0.18);
+}
+
+/* Az aktív oldal menüpontja terrakotta üveget kap */
+.nav-linkek a[aria-current='page'],
+.nav-linkek a.nav-link--aktiv {
+    border-color: rgba(216, 140, 95, 0.5);
+    background: linear-gradient(180deg, rgba(216, 140, 95, 0.42) 0%, rgba(216, 140, 95, 0.16) 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.35),
+        0 4px 12px rgba(15, 23, 15, 0.2);
+}
+
+/* Balra igazított menü: a menüpontok a sáv elején kezdődnek (vendégnél a fiók-ikon után),
+   a jobb oldali gombok a sáv végére kerülnek */
+.nav-kontener {
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.nav-kontener::before {
+    display: none;
+}
+
+.nav-kontener--vendeg {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.nav-linkek {
+    justify-content: flex-start;
+}

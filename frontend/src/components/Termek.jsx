@@ -35,16 +35,14 @@ const Termek = ({ termek }) => {
                 </h2>
             </header>
             <div className="termek-belso-kontener">
+                {/* A listában csak a borítókép látszik; az összes kép a termékoldalon van. */}
                 {kepek.length > 0 && (
                     <div className="kepek-kontener">
-                        {kepek.map((kep, index) => (
-                            <img
-                                key={`${kep}-${index}`}
-                                src={kep}
-                                alt={`${termek.nev} – ${index + 1}. kép`}
-                                loading="lazy"
-                            />
-                        ))}
+                        <img
+                            src={kepek[0]}
+                            alt={termek.nev}
+                            loading="lazy"
+                        />
                     </div>
                 )}
                 <div className="tartalom-kontener">

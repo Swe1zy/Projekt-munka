@@ -10,6 +10,7 @@ import MegoszlasSav from '../components/dashboard/MegoszlasSav';
 import AllapotJelveny from '../components/rendeles/AllapotJelveny';
 import OszlopDiagram from '../components/dashboard/OszlopDiagram';
 import RangsorSavok from '../components/dashboard/RangsorSavok';
+import SzekcioNav from '../components/dashboard/SzekcioNav';
 import Valtozas from '../components/dashboard/Valtozas';
 import { rendelesKeresesLink, rendelesLink, rendelesSzuroLink, termekLink } from '../utils/adminLinkek';
 import { datum, forint, idopont, idotartam, ora, szam, szazalek, tomeg } from '../utils/dashboardFormazas';
@@ -60,6 +61,37 @@ const lekerdezesAllapot = (searchParams) => {
     }
     return { idoszak, osszevetes, tol: egyedi ? tol : null, ig: egyedi ? ig : null, parameterek: parameterek.toString() };
 };
+
+// Az oldalsó navigáció pontjai; az id-k a lenti szekciókon / kártyákon vannak.
+const SZEKCIOK = [
+    {
+        cim: 'Értékesítés',
+        elemek: [
+            { id: 'db-ertekesites', cimke: 'Összegzés' },
+            { id: 'db-bevetel-alakulasa', cimke: 'Bevétel alakulása' },
+            { id: 'db-top-termekek', cimke: 'Legnépszerűbb termékek' },
+            { id: 'db-kategoriak', cimke: 'Kategóriák' },
+            { id: 'db-megoszlas', cimke: 'Rendelések megoszlása' },
+            { id: 'db-legjobb-vasarlok', cimke: 'Legjobb vásárlók' },
+            { id: 'db-telepulesek', cimke: 'Top települések' },
+            { id: 'db-vasarlok', cimke: 'Vásárlók' },
+            { id: 'db-atfutas', cimke: 'Átfutási idő' },
+            { id: 'db-szallitas', cimke: 'Szállítás' },
+            { id: 'db-nem-fogyo', cimke: 'Nem fogyó termékek' },
+            { id: 'db-rendelesi-idok', cimke: 'Rendelési idők' },
+        ],
+    },
+    {
+        cim: 'Áruház most',
+        elemek: [
+            { id: 'db-aruhaz', cimke: 'Aktuális állapot' },
+            { id: 'db-fizetesre-var', cimke: 'Fizetésre várók' },
+            { id: 'db-raklapok', cimke: 'Kint lévő raklapok' },
+            { id: 'db-legutobbi', cimke: 'Legutóbbi rendelések' },
+            { id: 'db-fogyoban', cimke: 'Fogyóban lévő termékek' },
+        ],
+    },
+];
 
 const StatCsempe = ({ cimke, ertek, mutato, osszevetes, mellek, figyelmeztetes }) => (
     <article className={`db-csempe${figyelmeztetes ? ' db-csempe--figyelmeztetes' : ''}`}>
@@ -179,557 +211,564 @@ const AdminDashboard = () => {
 
     return (
         <main className="dashboard">
-            <header className="db-fejlec">
-                <div>
-                    <span>ADMINISZTRÁCIÓ</span>
-                    <h1>Dashboard</h1>
-                    <p>Bevétel, rendelések, vásárlók, szállítás és készlet egy helyen.</p>
-                </div>
-                <nav className="db-fejlec-linkek" aria-label="Admin oldalak">
-                    <Link to="/admin/rendelesek">Rendelések</Link>
-                    <Link to="/admin/arajanlatok">Árajánlatok</Link>
-                    <Link to="/admin/termekek">Termékkezelés</Link>
-                </nav>
-            </header>
+            <SzekcioNav
+                csoportok={SZEKCIOK}
+                kesz={Boolean(adat)}
+            />
 
-            <section className="db-szakasz" aria-labelledby="db-ertekesites-cim">
-                <div className="db-szakasz-fej">
-                    <h2 id="db-ertekesites-cim">Értékesítés</h2>
-                    <div className="db-szurosor">
-                        <IdoszakValaszto
-                            idoszak={lekerdezes.idoszak}
-                            tol={lekerdezes.tol}
-                            ig={lekerdezes.ig}
-                            osszevetes={lekerdezes.osszevetes}
-                            onValtas={idoszakValtas}
-                        />
-                        <button
-                            type="button"
-                            className="db-frissit"
-                            onClick={() => setFrissites((szamlalo) => szamlalo + 1)}
-                            disabled={betoltes}
-                        >
-                            {betoltes && adat ? 'Frissítés…' : 'Frissítés'}
-                        </button>
-                        <details className="db-export">
-                            <summary>CSV-export</summary>
-                            <div className="db-export-menu">
-                                {EXPORTOK.map((elem) => (
-                                    <button
-                                        key={elem.tipus}
-                                        type="button"
-                                        disabled={Boolean(exportAllapot.folyamatban)}
-                                        onClick={async (event) => {
-                                            const menu = event.currentTarget.closest('details');
-                                            setExportAllapot({ folyamatban: elem.tipus, hiba: '' });
-                                            try {
-                                                await csvLetoltes(elem.tipus, lekerdezes.parameterek);
-                                                setExportAllapot({ folyamatban: null, hiba: '' });
-                                                if (menu) menu.open = false;
-                                            } catch (error) {
-                                                setExportAllapot({ folyamatban: null, hiba: error.message });
-                                            }
-                                        }}
-                                    >
-                                        <strong>{exportAllapot.folyamatban === elem.tipus ? 'Készül…' : elem.cimke}</strong>
-                                        <small>{elem.idoszakFuggetlen ? 'aktuális állapot' : adat?.idoszak.cimke.toLowerCase()}</small>
-                                    </button>
-                                ))}
-                            </div>
-                        </details>
-                        {adat && <span className="db-frissitve">Frissítve {ora(adat.generalva)}</span>}
+            <div className="db-fo">
+                <header className="db-fejlec">
+                    <div>
+                        <span>ADMINISZTRÁCIÓ</span>
+                        <h1>Dashboard</h1>
+                        <p>Bevétel, rendelések, vásárlók, szállítás és készlet egy helyen.</p>
                     </div>
-                </div>
+                    <nav className="db-fejlec-linkek" aria-label="Admin oldalak">
+                        <Link to="/admin/rendelesek">Rendelések</Link>
+                        <Link to="/admin/arajanlatok">Árajánlatok</Link>
+                        <Link to="/admin/termekek">Termékkezelés</Link>
+                    </nav>
+                </header>
 
-                {hiba && <p className="db-hiba" role="alert">{hiba}</p>}
-                {exportAllapot.hiba && <p className="db-hiba" role="alert">{exportAllapot.hiba}</p>}
-                {!adat && betoltes && <p className="db-oldal-allapot">Adatok betöltése…</p>}
+                <section className="db-szakasz" id="db-ertekesites" aria-labelledby="db-ertekesites-cim">
+                    <div className="db-szakasz-fej">
+                        <h2 id="db-ertekesites-cim">Értékesítés</h2>
+                        <div className="db-szurosor">
+                            <IdoszakValaszto
+                                idoszak={lekerdezes.idoszak}
+                                tol={lekerdezes.tol}
+                                ig={lekerdezes.ig}
+                                osszevetes={lekerdezes.osszevetes}
+                                onValtas={idoszakValtas}
+                            />
+                            <button
+                                type="button"
+                                className="db-frissit"
+                                onClick={() => setFrissites((szamlalo) => szamlalo + 1)}
+                                disabled={betoltes}
+                            >
+                                {betoltes && adat ? 'Frissítés…' : 'Frissítés'}
+                            </button>
+                            <details className="db-export">
+                                <summary>CSV-export</summary>
+                                <div className="db-export-menu">
+                                    {EXPORTOK.map((elem) => (
+                                        <button
+                                            key={elem.tipus}
+                                            type="button"
+                                            disabled={Boolean(exportAllapot.folyamatban)}
+                                            onClick={async (event) => {
+                                                const menu = event.currentTarget.closest('details');
+                                                setExportAllapot({ folyamatban: elem.tipus, hiba: '' });
+                                                try {
+                                                    await csvLetoltes(elem.tipus, lekerdezes.parameterek);
+                                                    setExportAllapot({ folyamatban: null, hiba: '' });
+                                                    if (menu) menu.open = false;
+                                                } catch (error) {
+                                                    setExportAllapot({ folyamatban: null, hiba: error.message });
+                                                }
+                                            }}
+                                        >
+                                            <strong>{exportAllapot.folyamatban === elem.tipus ? 'Készül…' : elem.cimke}</strong>
+                                            <small>{elem.idoszakFuggetlen ? 'aktuális állapot' : adat?.idoszak.cimke.toLowerCase()}</small>
+                                        </button>
+                                    ))}
+                                </div>
+                            </details>
+                            {adat && <span className="db-frissitve">Frissítve {ora(adat.generalva)}</span>}
+                        </div>
+                    </div>
+
+                    {hiba && <p className="db-hiba" role="alert">{hiba}</p>}
+                    {exportAllapot.hiba && <p className="db-hiba" role="alert">{exportAllapot.hiba}</p>}
+                    {!adat && betoltes && <p className="db-oldal-allapot">Adatok betöltése…</p>}
+
+                    {adat && (
+                        <div className={`db-tartalom${betoltes ? ' db-tartalom--frissul' : ''}`} aria-busy={betoltes}>
+                            <div className="db-kpi">
+                                <article className="db-hero">
+                                    <span className="db-csempe-cimke">Bevétel · {adat.idoszak.cimke.toLowerCase()}</span>
+                                    <strong className="db-hero-ertek">{forint(adat.osszegzes.bevetel.ertek)}</strong>
+                                    <Valtozas ertek={adat.osszegzes.bevetel.valtozas} osszevetes={osszevetes} />
+                                    <span className="db-csempe-mellek">
+                                        {adat.idoszak.osszevetes === 'tavaly' ? 'Tavaly ugyanekkor' : 'Előző időszak'}: {forint(adat.osszegzes.bevetel.elozo)}
+                                    </span>
+                                    <span className="db-csempe-mellek">Lemondott rendelések és raklap-betétdíj nélkül</span>
+                                </article>
+                                <div className="db-csempek">
+                                    <StatCsempe cimke="Rendelések" ertek={szam(adat.osszegzes.rendelesek.ertek)} mutato={adat.osszegzes.rendelesek} osszevetes={osszevetes} />
+                                    <StatCsempe cimke="Átlagos kosárérték" ertek={forint(adat.osszegzes.atlagosKosar.ertek)} mutato={adat.osszegzes.atlagosKosar} osszevetes={osszevetes} />
+                                    <StatCsempe cimke="Vásárlók" ertek={szam(adat.osszegzes.vasarlok.ertek)} mutato={adat.osszegzes.vasarlok} osszevetes={osszevetes} />
+                                    <StatCsempe cimke="Új regisztrációk" ertek={szam(adat.osszegzes.ujFelhasznalok.ertek)} mutato={adat.osszegzes.ujFelhasznalok} osszevetes={osszevetes} />
+                                    <StatCsempe
+                                        cimke="Lemondási arány"
+                                        ertek={szazalek(adat.osszegzes.lemondott.arany)}
+                                        mellek={`${szam(adat.osszegzes.lemondott.rendelesek)} lemondva (${forint(adat.osszegzes.lemondott.ertek)}) · ${osszevetes}: ${szazalek(adat.osszegzes.lemondott.elozoArany)}`}
+                                    />
+                                    <StatCsempe
+                                        cimke="Adott kedvezmények"
+                                        ertek={forint(adat.osszegzes.kedvezmeny.ertek)}
+                                        mellek={`${szam(adat.osszegzes.kedvezmeny.rendelesek)} rendelésnél · ${osszevetes}: ${forint(adat.osszegzes.kedvezmeny.elozo)}`}
+                                    />
+                                </div>
+                            </div>
+
+                            <section className="db-kartya" id="db-bevetel-alakulasa">
+                                <KartyaFej cim="Bevétel alakulása" alcim={`${adat.idoszak.bontas === 'honap' ? 'Havi' : 'Napi'} bontás, forintban`}>
+                                    <button type="button" className="db-nezet-gomb" onClick={() => setTablazat((elozo) => !elozo)}>
+                                        {tablazat ? 'Diagram nézet' : 'Táblázat nézet'}
+                                    </button>
+                                </KartyaFej>
+                                <OszlopDiagram adatok={adat.idosor} bontas={adat.idoszak.bontas} tablazat={tablazat} />
+                            </section>
+
+                            <div className="db-racs db-racs--2">
+                                <section className="db-kartya" id="db-top-termekek">
+                                    <KartyaFej cim="Legnépszerűbb termékek" alcim="Bevétel szerint · a névre kattintva szerkeszthető" />
+                                    <RangsorSavok
+                                        sorok={adat.topTermekek.map((termek) => ({
+                                            kulcs: termek.termekId,
+                                            cimke: termek.nev,
+                                            link: termekLink(termek.termekId),
+                                            mellek: `${szam(termek.mennyiseg)} ${termek.egyseg} · ${szam(termek.rendelesek)} rendelésben`,
+                                            ertek: termek.bevetel,
+                                        }))}
+                                        formazo={forint}
+                                        ures="Ebben az időszakban még nem fogyott termék."
+                                    />
+                                </section>
+                                <section className="db-kartya" id="db-kategoriak">
+                                    <KartyaFej cim="Bevétel kategóriánként" alcim="A rendelt tételek értéke" />
+                                    <RangsorSavok
+                                        sorok={adat.kategoriak.map((sor) => ({
+                                            kulcs: sor.kategoria,
+                                            cimke: sor.kategoria,
+                                            mellek: `${szam(sor.tetelek)} tétel`,
+                                            ertek: sor.bevetel,
+                                        }))}
+                                        formazo={forint}
+                                        ures="Nincs kategóriaadat ebben az időszakban."
+                                    />
+                                </section>
+                            </div>
+
+                            <div className="db-racs db-racs--3">
+                                <section className="db-kartya" id="db-megoszlas">
+                                    <KartyaFej cim="Rendelések megoszlása" alcim="Rendelések száma szerint" />
+                                    <MegoszlasSav cim="Átvételi mód" reszek={adat.atvetelModok} />
+                                    <MegoszlasSav cim="Vevő típusa" reszek={adat.vevoTipusok} />
+                                    <MegoszlasSav cim="Fizetési mód" reszek={adat.fizetesiModok} />
+                                </section>
+                                <section className="db-kartya" id="db-legjobb-vasarlok">
+                                    <KartyaFej cim="Legjobb vásárlók" alcim="Elköltött összeg szerint" />
+                                    {adat.topVasarlok.length ? (
+                                        <ol className="db-lista">
+                                            {adat.topVasarlok.map((vasarlo) => (
+                                                <li key={vasarlo.email}>
+                                                    <div>
+                                                        <Link className="db-link" to={rendelesKeresesLink(vasarlo.email)}><strong>{vasarlo.nev}</strong></Link>
+                                                        <span>{vasarlo.email}</span>
+                                                    </div>
+                                                    <div className="db-lista-ertek">
+                                                        <strong>{forint(vasarlo.bevetel)}</strong>
+                                                        <span>{szam(vasarlo.rendelesek)} rendelés</span>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ol>
+                                    ) : <p className="db-ures">Ebben az időszakban nem volt vásárlás.</p>}
+                                </section>
+                                <section className="db-kartya" id="db-telepulesek">
+                                    <KartyaFej cim="Top települések" alcim="Házhozszállítások száma szerint" />
+                                    <RangsorSavok
+                                        sorok={adat.telepulesek.map((sor) => ({
+                                            kulcs: sor.telepules,
+                                            cimke: sor.telepules,
+                                            link: rendelesKeresesLink(sor.telepules),
+                                            mellek: forint(sor.bevetel),
+                                            ertek: sor.rendelesek,
+                                        }))}
+                                        formazo={(ertek) => `${szam(ertek)} rendelés`}
+                                        ures="Nem volt házhozszállítás ebben az időszakban."
+                                    />
+                                </section>
+                            </div>
+
+                            <div className="db-racs db-racs--3">
+                                <section className="db-kartya" id="db-vasarlok">
+                                    <KartyaFej cim="Vásárlók" alcim="Visszatérők és fiókhasználat" />
+                                    <MegoszlasSav cim="Új és visszatérő vásárlók" reszek={adat.vasarloTipusok} egyseg="vásárló" />
+                                    <MegoszlasSav cim="Fiókkal vagy vendégként" reszek={adat.fiokTipusok} />
+                                </section>
+                                <section className="db-kartya">
+                                    <KartyaFej
+                                        cim="Árajánlatok"
+                                        alcim={`Az időszakban érkezett kérések; rendelés = ${adat.arajanlatok.konverziosNapok} napon belül ugyanattól a vevőtől`}
+                                    >
+                                        <Link className="db-nezet-gomb" to="/admin/arajanlatok">Árajánlatok</Link>
+                                    </KartyaFej>
+                                    <KulcsSzamok
+                                        sorok={[
+                                            {
+                                                cimke: 'Rendelés lett belőle',
+                                                ertek: adat.arajanlatok.ajanlatok ? szazalek(adat.arajanlatok.konverzio) : '–',
+                                                mellek: `${szam(adat.arajanlatok.rendelesLett)} / ${szam(adat.arajanlatok.ajanlatok)} kérés`,
+                                                kiemelt: true,
+                                            },
+                                            {
+                                                cimke: 'Ebből bevétel',
+                                                ertek: forint(adat.arajanlatok.rendelesBevetel),
+                                                mellek: `kért listaérték: ${forint(adat.arajanlatok.listaOsszeg)}`,
+                                            },
+                                            {
+                                                cimke: 'Nyitott ajánlatok most',
+                                                ertek: forint(adat.arajanlatok.nyitott.listaOsszeg),
+                                                mellek: `${szam(adat.arajanlatok.nyitott.db)} db, listaáron`,
+                                            },
+                                        ]}
+                                    />
+                                    <ul className="db-chipek" aria-label="Az időszak ajánlatkérései állapot szerint">
+                                        {adat.arajanlatok.allapotok.map((allapot) => (
+                                            <li key={allapot.kulcs}>
+                                                <Link to={`/admin/arajanlatok?allapot=${allapot.kulcs}`}>
+                                                    {allapot.cimke} <strong>{szam(allapot.db)}</strong>
+                                                </Link>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </section>
+                                <section className="db-kartya" id="db-atfutas">
+                                    <KartyaFej cim="Átfutási idő" alcim="Az időszakban leadott rendelések, a leadástól számítva" />
+                                    <KulcsSzamok
+                                        sorok={[
+                                            {
+                                                cimke: 'Visszaigazolásig (medián)',
+                                                ertek: idotartam(adat.atfutas.visszaigazolas.medianMs),
+                                                mellek: adat.atfutas.visszaigazolas.db
+                                                    ? `átlag ${idotartam(adat.atfutas.visszaigazolas.atlagMs)} · ${szam(adat.atfutas.visszaigazolas.db)} rendelés`
+                                                    : 'még nincs visszaigazolt rendelés',
+                                                kiemelt: true,
+                                            },
+                                            {
+                                                cimke: 'Teljesítésig (medián)',
+                                                ertek: idotartam(adat.atfutas.teljesites.medianMs),
+                                                mellek: adat.atfutas.teljesites.db
+                                                    ? `átlag ${idotartam(adat.atfutas.teljesites.atlagMs)} · ${szam(adat.atfutas.teljesites.db)} rendelés`
+                                                    : 'még nincs teljesített rendelés',
+                                                kiemelt: true,
+                                            },
+                                        ]}
+                                    />
+                                    <p className="db-megjegyzes">
+                                        A medián a „tipikus” rendelés ideje, ezt egy-egy elhúzódó rendelés nem torzítja úgy, mint az átlagot.
+                                    </p>
+                                </section>
+                            </div>
+
+                            <div className="db-racs db-racs--2">
+                                <section className="db-kartya" id="db-szallitas">
+                                    <KartyaFej cim="Szállítás" alcim="Az időszak házhozszállításai" />
+                                    <KulcsSzamok
+                                        sorok={[
+                                            { cimke: 'Kiszállítások', ertek: szam(adat.szallitas.rendelesek), mellek: `${szam(adat.szallitas.fuvarok)} forduló` },
+                                            { cimke: 'Kiszállított tömeg', ertek: tomeg(adat.szallitas.sulyKg) },
+                                            { cimke: 'Szállítási díjbevétel', ertek: forint(adat.szallitas.szallitasiDij) },
+                                            {
+                                                cimke: 'Darus lerakodás',
+                                                ertek: szam(adat.szallitas.darus),
+                                                mellek: `a kiszállítások ${szazalek(adat.szallitas.darusArany)}-a`,
+                                            },
+                                        ]}
+                                    />
+                                    <h4 className="db-alcim">Zónák szerint</h4>
+                                    <RangsorSavok
+                                        sorok={adat.szallitas.zonak.map((zona) => ({
+                                            kulcs: zona.kulcs,
+                                            cimke: zona.nev,
+                                            mellek: `${forint(zona.szallitasiDij)} szállítási díj`,
+                                            ertek: zona.rendelesek,
+                                        }))}
+                                        formazo={(ertek) => `${szam(ertek)} kiszállítás`}
+                                        ures="Nem volt házhozszállítás ebben az időszakban."
+                                    />
+                                </section>
+                                <section className="db-kartya" id="db-nem-fogyo">
+                                    <KartyaFej cim="Nem fogyó termékek" alcim="Van készleten, de az időszakban egyszer sem kelt el (a közben felvettek nélkül)" />
+                                    <KulcsSzamok
+                                        sorok={[
+                                            { cimke: 'Termékek', ertek: szam(adat.nemFogyo.db), mellek: `a ${szam(adat.keszlet.termekek)} termékből` },
+                                            { cimke: 'Lekötött készletérték', ertek: forint(adat.nemFogyo.ertek), mellek: 'listaáron' },
+                                        ]}
+                                    />
+                                    {adat.nemFogyo.termekek.length ? (
+                                        <div className="db-tablazat-gorgeto">
+                                            <table className="db-tablazat">
+                                                <thead>
+                                                    <tr>
+                                                        <th scope="col">Termék</th>
+                                                        <th scope="col" className="db-szam">Készlet</th>
+                                                        <th scope="col" className="db-szam">Érték</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {adat.nemFogyo.termekek.map((termek) => (
+                                                        <tr key={termek.id}>
+                                                            <td>
+                                                                <Link className="db-cella-fo db-link" to={termekLink(termek.id)}>{termek.nev}</Link>
+                                                                <span className="db-cella-mellek">
+                                                                    {termek.kategoria} · {termek.utolsoEladas ? `utoljára eladva: ${datum(termek.utolsoEladas)}` : 'még sosem kelt el'}
+                                                                </span>
+                                                            </td>
+                                                            <td className="db-szam db-nowrap">{szam(termek.keszlet)} {termek.egyseg}</td>
+                                                            <td className="db-szam db-nowrap">{forint(termek.ertek)}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    ) : <p className="db-ures">Minden készleten lévő termékből fogyott ebben az időszakban.</p>}
+                                </section>
+                            </div>
+
+                            <section className="db-kartya" id="db-rendelesi-idok">
+                                <KartyaFej cim="Mikor érkeznek a rendelések" alcim="A hét napjai és a nap órái szerint, magyar idő" />
+                                <Hoterkep adat={adat.hoterkep} />
+                            </section>
+                        </div>
+                    )}
+                </section>
 
                 {adat && (
-                    <div className={`db-tartalom${betoltes ? ' db-tartalom--frissul' : ''}`} aria-busy={betoltes}>
-                        <div className="db-kpi">
-                            <article className="db-hero">
-                                <span className="db-csempe-cimke">Bevétel · {adat.idoszak.cimke.toLowerCase()}</span>
-                                <strong className="db-hero-ertek">{forint(adat.osszegzes.bevetel.ertek)}</strong>
-                                <Valtozas ertek={adat.osszegzes.bevetel.valtozas} osszevetes={osszevetes} />
-                                <span className="db-csempe-mellek">
-                                    {adat.idoszak.osszevetes === 'tavaly' ? 'Tavaly ugyanekkor' : 'Előző időszak'}: {forint(adat.osszegzes.bevetel.elozo)}
-                                </span>
-                                <span className="db-csempe-mellek">Lemondott rendelések és raklap-betétdíj nélkül</span>
-                            </article>
-                            <div className="db-csempek">
-                                <StatCsempe cimke="Rendelések" ertek={szam(adat.osszegzes.rendelesek.ertek)} mutato={adat.osszegzes.rendelesek} osszevetes={osszevetes} />
-                                <StatCsempe cimke="Átlagos kosárérték" ertek={forint(adat.osszegzes.atlagosKosar.ertek)} mutato={adat.osszegzes.atlagosKosar} osszevetes={osszevetes} />
-                                <StatCsempe cimke="Vásárlók" ertek={szam(adat.osszegzes.vasarlok.ertek)} mutato={adat.osszegzes.vasarlok} osszevetes={osszevetes} />
-                                <StatCsempe cimke="Új regisztrációk" ertek={szam(adat.osszegzes.ujFelhasznalok.ertek)} mutato={adat.osszegzes.ujFelhasznalok} osszevetes={osszevetes} />
-                                <StatCsempe
-                                    cimke="Lemondási arány"
-                                    ertek={szazalek(adat.osszegzes.lemondott.arany)}
-                                    mellek={`${szam(adat.osszegzes.lemondott.rendelesek)} lemondva (${forint(adat.osszegzes.lemondott.ertek)}) · ${osszevetes}: ${szazalek(adat.osszegzes.lemondott.elozoArany)}`}
-                                />
-                                <StatCsempe
-                                    cimke="Adott kedvezmények"
-                                    ertek={forint(adat.osszegzes.kedvezmeny.ertek)}
-                                    mellek={`${szam(adat.osszegzes.kedvezmeny.rendelesek)} rendelésnél · ${osszevetes}: ${forint(adat.osszegzes.kedvezmeny.elozo)}`}
-                                />
+                    <section className={`db-szakasz${betoltes ? ' db-tartalom--frissul' : ''}`} id="db-aruhaz" aria-labelledby="db-aruhaz-cim">
+                        <div className="db-szakasz-fej">
+                            <h2 id="db-aruhaz-cim">Áruház most</h2>
+                            <p>Aktuális állapot – az időszakválasztó erre a részre nem vonatkozik.</p>
+                        </div>
+
+                        {adat.emailHibak.db > 0 && (
+                            <div className="db-riasztas" role="alert">
+                                <strong>
+                                    {szam(adat.emailHibak.db)} rendelésnél a vevő nem kapta meg a visszaigazoló e-mailt
+                                    {' '}(utolsó {szam(adat.emailHibak.napok)} nap). Érdemes felvenni vele a kapcsolatot, és ellenőrizni az SMTP-beállításokat.
+                                </strong>
+                                <ul>
+                                    {adat.emailHibak.rendelesek.map((rendeles) => (
+                                        <li key={rendeles.id}>
+                                            <Link className="db-link" to={rendelesLink(rendeles)}>#{rendeles.rovidAzonosito} · {rendeles.nev}</Link>
+                                            {' '}<span>{rendeles.email} · {idopont(rendeles.datum)}</span>
+                                            {rendeles.hiba && <small title={rendeles.hiba}>{rendeles.hiba.split(' | ')[0]}</small>}
+                                        </li>
+                                    ))}
+                                </ul>
                             </div>
+                        )}
+
+                        <div className="db-csempek db-csempek--sor">
+                            <StatCsempe
+                                cimke="Feldolgozásra vár"
+                                ertek={`${szam(adat.rendelesAllapotok.feldolgozasra_var)} rendelés`}
+                                mellek={<Link className="db-csempe-link" to="/admin/rendelesek?allapot=feldolgozasra_var">Rendelések kezelése →</Link>}
+                            />
+                            <StatCsempe
+                                cimke="Új árajánlatkérés"
+                                ertek={`${szam(adat.ujArajanlatok ?? 0)} db`}
+                                mellek={<Link className="db-csempe-link" to="/admin/arajanlatok?allapot=uj">Árajánlatok →</Link>}
+                            />
+                            <StatCsempe
+                                cimke="Átutalásra vár"
+                                ertek={forint(adat.fizetesek.atutalas.osszeg)}
+                                figyelmeztetes={adat.fizetesek.atutalas.lejart > 0}
+                                mellek={(
+                                    <>
+                                        {szam(adat.fizetesek.atutalas.db)} rendelés
+                                        {adat.fizetesek.atutalas.lejart > 0 && `, ebből ${szam(adat.fizetesek.atutalas.lejart)} határidőn túl`}
+                                        {' · '}
+                                        <Link className="db-csempe-link" to={rendelesSzuroLink({ fizetes: 'atutalasra_var' })}>Megnézem →</Link>
+                                    </>
+                                )}
+                            />
+                            <StatCsempe
+                                cimke="Raklap a vevőknél"
+                                ertek={`${szam(adat.raklapok.kint)} db`}
+                                mellek={`${forint(adat.raklapok.betetdij)} betétdíj jár vissza értük`}
+                            />
+                            <StatCsempe cimke="Összes bevétel" ertek={forint(adat.mindenkori.bevetel)} mellek={`${szam(adat.mindenkori.rendelesek)} rendelésből, lemondottak és betétdíj nélkül`} />
+                            <StatCsempe cimke="Regisztrált vásárlók" ertek={szam(adat.mindenkori.felhasznalok)} mellek="admin fiókok nélkül" />
+                            <StatCsempe cimke="Termékek" ertek={szam(adat.keszlet.termekek)} mellek={`Készletérték: ${forint(adat.keszlet.keszletErtek)}`} />
+                            <StatCsempe
+                                cimke="Készlethiány"
+                                ertek={`${szam(adat.keszlet.elfogyott)} elfogyott`}
+                                mellek={`${szam(adat.keszlet.alacsony)} fogyóban (≤ ${szam(adat.keszlet.kuszob)}), ${szam(adat.keszlet.hamarosan)} ${szam(adat.keszlet.elorejelzesNapok)} napon belül fogyhat ki`}
+                            />
                         </div>
 
                         <section className="db-kartya">
-                            <KartyaFej cim="Bevétel alakulása" alcim={`${adat.idoszak.bontas === 'honap' ? 'Havi' : 'Napi'} bontás, forintban`}>
-                                <button type="button" className="db-nezet-gomb" onClick={() => setTablazat((elozo) => !elozo)}>
-                                    {tablazat ? 'Diagram nézet' : 'Táblázat nézet'}
-                                </button>
+                            <KartyaFej
+                                cim="Közelgő kiszállítások és átvételek"
+                                alcim={`Ma és a következő 6 nap, valamint a lejárt napú, még nyitott rendelések${adat.kozelgo.tobb ? ' – csak az első 60 látszik' : ''}`}
+                            >
+                                <Link className="db-nezet-gomb" to="/admin/rendelesek?allapot=visszaigazolva">Visszaigazolt rendelések</Link>
                             </KartyaFej>
-                            <OszlopDiagram adatok={adat.idosor} bontas={adat.idoszak.bontas} tablazat={tablazat} />
+                            <KozelgoAtvetelek adat={adat.kozelgo} />
                         </section>
 
                         <div className="db-racs db-racs--2">
-                            <section className="db-kartya">
-                                <KartyaFej cim="Legnépszerűbb termékek" alcim="Bevétel szerint · a névre kattintva szerkeszthető" />
-                                <RangsorSavok
-                                    sorok={adat.topTermekek.map((termek) => ({
-                                        kulcs: termek.termekId,
-                                        cimke: termek.nev,
-                                        link: termekLink(termek.termekId),
-                                        mellek: `${szam(termek.mennyiseg)} ${termek.egyseg} · ${szam(termek.rendelesek)} rendelésben`,
-                                        ertek: termek.bevetel,
-                                    }))}
-                                    formazo={forint}
-                                    ures="Ebben az időszakban még nem fogyott termék."
+                            <section className="db-kartya" id="db-fizetesre-var">
+                                <KartyaFej cim="Fizetésre váró rendelések" alcim={`Átutalás határideje: ${szam(adat.fizetesek.hataridoNap)} nap a rendeléstől`} />
+                                <KulcsSzamok
+                                    sorok={[
+                                        {
+                                            cimke: 'Átutalás nem érkezett meg',
+                                            ertek: forint(adat.fizetesek.atutalas.osszeg),
+                                            mellek: `${szam(adat.fizetesek.atutalas.db)} rendelés`,
+                                        },
+                                        {
+                                            cimke: 'Ebből határidőn túl',
+                                            ertek: forint(adat.fizetesek.atutalas.lejartOsszeg),
+                                            mellek: `${szam(adat.fizetesek.atutalas.lejart)} rendelés`,
+                                        },
+                                        {
+                                            cimke: 'Lejárt kártyás fizetés',
+                                            ertek: forint(adat.fizetesek.stripeLejart.osszeg),
+                                            mellek: `${szam(adat.fizetesek.stripeLejart.db)} rendelés, utolsó ${szam(adat.fizetesek.stripeLejart.napok)} nap (ezek lemondódtak)`,
+                                        },
+                                        {
+                                            cimke: 'Teljesítve, de nincs fizetve',
+                                            ertek: forint(adat.fizetesek.teljesitveFizetetlen.osszeg),
+                                            mellek: `${szam(adat.fizetesek.teljesitveFizetetlen.db)} rendelés`,
+                                        },
+                                    ]}
                                 />
+                                {adat.fizetesek.teljesitveFizetetlen.rendelesek.length > 0 && (
+                                    <>
+                                        <h4 className="db-alcim">Teljesített, ki nem fizetett rendelések</h4>
+                                        <ol className="db-lista">
+                                            {adat.fizetesek.teljesitveFizetetlen.rendelesek.map((rendeles) => (
+                                                <li key={rendeles.id}>
+                                                    <div>
+                                                        <Link className="db-link" to={rendelesLink(rendeles)}><strong>{rendeles.nev}</strong></Link>
+                                                        <span>#{rendeles.rovidAzonosito} · {rendeles.fizetesiMod} · {datum(rendeles.datum)}</span>
+                                                    </div>
+                                                    <div className="db-lista-ertek">
+                                                        <strong>{forint(rendeles.vegosszeg)}</strong>
+                                                    </div>
+                                                </li>
+                                            ))}
+                                        </ol>
+                                    </>
+                                )}
+                                <div className="db-kartya-linkek">
+                                    <Link className="db-nezet-gomb" to={rendelesSzuroLink({ fizetes: 'atutalasra_var' })}>Átutalásra várók</Link>
+                                    <Link className="db-nezet-gomb" to={rendelesSzuroLink({ allapot: 'teljesitve', fizetes: 'atutalasra_var' })}>Teljesített, fizetetlen</Link>
+                                </div>
                             </section>
-                            <section className="db-kartya">
-                                <KartyaFej cim="Bevétel kategóriánként" alcim="A rendelt tételek értéke" />
-                                <RangsorSavok
-                                    sorok={adat.kategoriak.map((sor) => ({
-                                        kulcs: sor.kategoria,
-                                        cimke: sor.kategoria,
-                                        mellek: `${szam(sor.tetelek)} tétel`,
-                                        ertek: sor.bevetel,
-                                    }))}
-                                    formazo={forint}
-                                    ures="Nincs kategóriaadat ebben az időszakban."
-                                />
-                            </section>
-                        </div>
 
-                        <div className="db-racs db-racs--3">
-                            <section className="db-kartya">
-                                <KartyaFej cim="Rendelések megoszlása" alcim="Rendelések száma szerint" />
-                                <MegoszlasSav cim="Átvételi mód" reszek={adat.atvetelModok} />
-                                <MegoszlasSav cim="Vevő típusa" reszek={adat.vevoTipusok} />
-                                <MegoszlasSav cim="Fizetési mód" reszek={adat.fizetesiModok} />
-                            </section>
-                            <section className="db-kartya">
-                                <KartyaFej cim="Legjobb vásárlók" alcim="Elköltött összeg szerint" />
-                                {adat.topVasarlok.length ? (
+                            <section className="db-kartya" id="db-raklapok">
+                                <KartyaFej cim="Kint lévő raklapok" alcim="Teljesített rendelésekből, még vissza nem hozott raklapok" />
+                                <KulcsSzamok
+                                    sorok={[
+                                        { cimke: 'Raklap a vevőknél', ertek: `${szam(adat.raklapok.kint)} db`, mellek: `${szam(adat.raklapok.vevokSzama)} vevőnél`, kiemelt: true },
+                                        { cimke: 'Visszajáró betétdíj', ertek: forint(adat.raklapok.betetdij), mellek: 'ha mindet visszahozzák', kiemelt: true },
+                                    ]}
+                                />
+                                {adat.raklapok.vevok.length ? (
                                     <ol className="db-lista">
-                                        {adat.topVasarlok.map((vasarlo) => (
-                                            <li key={vasarlo.email}>
+                                        {adat.raklapok.vevok.map((vevo) => (
+                                            <li key={vevo.email}>
                                                 <div>
-                                                    <Link className="db-link" to={rendelesKeresesLink(vasarlo.email)}><strong>{vasarlo.nev}</strong></Link>
-                                                    <span>{vasarlo.email}</span>
+                                                    <Link className="db-link" to={rendelesKeresesLink(vevo.email, { allapot: 'teljesitve' })}><strong>{vevo.nev}</strong></Link>
+                                                    <span>{vevo.email} · legrégebbi: {datum(vevo.legregebbi)}</span>
                                                 </div>
                                                 <div className="db-lista-ertek">
-                                                    <strong>{forint(vasarlo.bevetel)}</strong>
-                                                    <span>{szam(vasarlo.rendelesek)} rendelés</span>
+                                                    <strong>{szam(vevo.kint)} raklap</strong>
+                                                    <span>{forint(vevo.betetdij)}</span>
                                                 </div>
                                             </li>
                                         ))}
                                     </ol>
-                                ) : <p className="db-ures">Ebben az időszakban nem volt vásárlás.</p>}
-                            </section>
-                            <section className="db-kartya">
-                                <KartyaFej cim="Top települések" alcim="Házhozszállítások száma szerint" />
-                                <RangsorSavok
-                                    sorok={adat.telepulesek.map((sor) => ({
-                                        kulcs: sor.telepules,
-                                        cimke: sor.telepules,
-                                        link: rendelesKeresesLink(sor.telepules),
-                                        mellek: forint(sor.bevetel),
-                                        ertek: sor.rendelesek,
-                                    }))}
-                                    formazo={(ertek) => `${szam(ertek)} rendelés`}
-                                    ures="Nem volt házhozszállítás ebben az időszakban."
-                                />
-                            </section>
-                        </div>
-
-                        <div className="db-racs db-racs--3">
-                            <section className="db-kartya">
-                                <KartyaFej cim="Vásárlók" alcim="Visszatérők és fiókhasználat" />
-                                <MegoszlasSav cim="Új és visszatérő vásárlók" reszek={adat.vasarloTipusok} egyseg="vásárló" />
-                                <MegoszlasSav cim="Fiókkal vagy vendégként" reszek={adat.fiokTipusok} />
-                            </section>
-                            <section className="db-kartya">
-                                <KartyaFej
-                                    cim="Árajánlatok"
-                                    alcim={`Az időszakban érkezett kérések; rendelés = ${adat.arajanlatok.konverziosNapok} napon belül ugyanattól a vevőtől`}
-                                >
-                                    <Link className="db-nezet-gomb" to="/admin/arajanlatok">Árajánlatok</Link>
-                                </KartyaFej>
-                                <KulcsSzamok
-                                    sorok={[
-                                        {
-                                            cimke: 'Rendelés lett belőle',
-                                            ertek: adat.arajanlatok.ajanlatok ? szazalek(adat.arajanlatok.konverzio) : '–',
-                                            mellek: `${szam(adat.arajanlatok.rendelesLett)} / ${szam(adat.arajanlatok.ajanlatok)} kérés`,
-                                            kiemelt: true,
-                                        },
-                                        {
-                                            cimke: 'Ebből bevétel',
-                                            ertek: forint(adat.arajanlatok.rendelesBevetel),
-                                            mellek: `kért listaérték: ${forint(adat.arajanlatok.listaOsszeg)}`,
-                                        },
-                                        {
-                                            cimke: 'Nyitott ajánlatok most',
-                                            ertek: forint(adat.arajanlatok.nyitott.listaOsszeg),
-                                            mellek: `${szam(adat.arajanlatok.nyitott.db)} db, listaáron`,
-                                        },
-                                    ]}
-                                />
-                                <ul className="db-chipek" aria-label="Az időszak ajánlatkérései állapot szerint">
-                                    {adat.arajanlatok.allapotok.map((allapot) => (
-                                        <li key={allapot.kulcs}>
-                                            <Link to={`/admin/arajanlatok?allapot=${allapot.kulcs}`}>
-                                                {allapot.cimke} <strong>{szam(allapot.db)}</strong>
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </section>
-                            <section className="db-kartya">
-                                <KartyaFej cim="Átfutási idő" alcim="Az időszakban leadott rendelések, a leadástól számítva" />
-                                <KulcsSzamok
-                                    sorok={[
-                                        {
-                                            cimke: 'Visszaigazolásig (medián)',
-                                            ertek: idotartam(adat.atfutas.visszaigazolas.medianMs),
-                                            mellek: adat.atfutas.visszaigazolas.db
-                                                ? `átlag ${idotartam(adat.atfutas.visszaigazolas.atlagMs)} · ${szam(adat.atfutas.visszaigazolas.db)} rendelés`
-                                                : 'még nincs visszaigazolt rendelés',
-                                            kiemelt: true,
-                                        },
-                                        {
-                                            cimke: 'Teljesítésig (medián)',
-                                            ertek: idotartam(adat.atfutas.teljesites.medianMs),
-                                            mellek: adat.atfutas.teljesites.db
-                                                ? `átlag ${idotartam(adat.atfutas.teljesites.atlagMs)} · ${szam(adat.atfutas.teljesites.db)} rendelés`
-                                                : 'még nincs teljesített rendelés',
-                                            kiemelt: true,
-                                        },
-                                    ]}
-                                />
-                                <p className="db-megjegyzes">
-                                    A medián a „tipikus” rendelés ideje, ezt egy-egy elhúzódó rendelés nem torzítja úgy, mint az átlagot.
-                                </p>
+                                ) : <p className="db-ures">Minden raklap visszakerült.</p>}
                             </section>
                         </div>
 
                         <div className="db-racs db-racs--2">
-                            <section className="db-kartya">
-                                <KartyaFej cim="Szállítás" alcim="Az időszak házhozszállításai" />
-                                <KulcsSzamok
-                                    sorok={[
-                                        { cimke: 'Kiszállítások', ertek: szam(adat.szallitas.rendelesek), mellek: `${szam(adat.szallitas.fuvarok)} forduló` },
-                                        { cimke: 'Kiszállított tömeg', ertek: tomeg(adat.szallitas.sulyKg) },
-                                        { cimke: 'Szállítási díjbevétel', ertek: forint(adat.szallitas.szallitasiDij) },
-                                        {
-                                            cimke: 'Darus lerakodás',
-                                            ertek: szam(adat.szallitas.darus),
-                                            mellek: `a kiszállítások ${szazalek(adat.szallitas.darusArany)}-a`,
-                                        },
-                                    ]}
-                                />
-                                <h4 className="db-alcim">Zónák szerint</h4>
-                                <RangsorSavok
-                                    sorok={adat.szallitas.zonak.map((zona) => ({
-                                        kulcs: zona.kulcs,
-                                        cimke: zona.nev,
-                                        mellek: `${forint(zona.szallitasiDij)} szállítási díj`,
-                                        ertek: zona.rendelesek,
-                                    }))}
-                                    formazo={(ertek) => `${szam(ertek)} kiszállítás`}
-                                    ures="Nem volt házhozszállítás ebben az időszakban."
-                                />
+                            <section className="db-kartya" id="db-legutobbi">
+                                <KartyaFej cim="Legutóbbi rendelések" alcim="Legfrissebb elöl, lemondottakkal együtt">
+                                    <Link className="db-nezet-gomb" to="/admin/rendelesek">Összes rendelés</Link>
+                                </KartyaFej>
+                                {adat.legutobbiRendelesek.length ? (
+                                    <div className="db-tablazat-gorgeto">
+                                        <table className="db-tablazat">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Időpont</th>
+                                                    <th scope="col">Vevő</th>
+                                                    <th scope="col">Állapot</th>
+                                                    <th scope="col" className="db-szam">Végösszeg</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {adat.legutobbiRendelesek.map((rendeles) => (
+                                                    <tr key={rendeles.id}>
+                                                        <td className="db-nowrap">{idopont(rendeles.datum)}</td>
+                                                        <td>
+                                                            <Link className="db-cella-fo db-link" to={rendelesLink(rendeles)}>{rendeles.nev}</Link>
+                                                            <span className="db-cella-mellek">#{rendeles.rovidAzonosito} · {szam(rendeles.tetelSzam)} tétel · {rendeles.atvetelModja}</span>
+                                                        </td>
+                                                        <td><AllapotJelveny allapot={rendeles.allapot} cimke={rendeles.allapotCimke} /></td>
+                                                        <td className="db-szam db-nowrap">{forint(rendeles.vegosszeg)}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : <p className="db-ures">Még nem érkezett rendelés.</p>}
                             </section>
-                            <section className="db-kartya">
-                                <KartyaFej cim="Nem fogyó termékek" alcim="Van készleten, de az időszakban egyszer sem kelt el (a közben felvettek nélkül)" />
-                                <KulcsSzamok
-                                    sorok={[
-                                        { cimke: 'Termékek', ertek: szam(adat.nemFogyo.db), mellek: `a ${szam(adat.keszlet.termekek)} termékből` },
-                                        { cimke: 'Lekötött készletérték', ertek: forint(adat.nemFogyo.ertek), mellek: 'listaáron' },
-                                    ]}
-                                />
-                                {adat.nemFogyo.termekek.length ? (
+
+                            <section className="db-kartya" id="db-fogyoban">
+                                <KartyaFej
+                                    cim="Fogyóban lévő termékek"
+                                    alcim={`Legfeljebb ${szam(adat.keszlet.kuszob)} egység, vagy az utolsó ${szam(adat.keszlet.utemNapok)} nap üteme szerint ${szam(adat.keszlet.elorejelzesNapok)} napon belül elfogy`}
+                                >
+                                    <Link className="db-nezet-gomb" to="/admin/termekek">Készlet kezelése</Link>
+                                </KartyaFej>
+                                {adat.keszlet.alacsonyTermekek.length ? (
                                     <div className="db-tablazat-gorgeto">
                                         <table className="db-tablazat">
                                             <thead>
                                                 <tr>
                                                     <th scope="col">Termék</th>
                                                     <th scope="col" className="db-szam">Készlet</th>
-                                                    <th scope="col" className="db-szam">Érték</th>
+                                                    <th scope="col">Elég még</th>
+                                                    <th scope="col">Állapot</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                {adat.nemFogyo.termekek.map((termek) => (
-                                                    <tr key={termek.id}>
-                                                        <td>
-                                                            <Link className="db-cella-fo db-link" to={termekLink(termek.id)}>{termek.nev}</Link>
-                                                            <span className="db-cella-mellek">
-                                                                {termek.kategoria} · {termek.utolsoEladas ? `utoljára eladva: ${datum(termek.utolsoEladas)}` : 'még sosem kelt el'}
-                                                            </span>
-                                                        </td>
-                                                        <td className="db-szam db-nowrap">{szam(termek.keszlet)} {termek.egyseg}</td>
-                                                        <td className="db-szam db-nowrap">{forint(termek.ertek)}</td>
-                                                    </tr>
-                                                ))}
+                                                {adat.keszlet.alacsonyTermekek.map((termek) => {
+                                                    const eleg = elegMeg(termek);
+                                                    return (
+                                                        <tr key={termek.id}>
+                                                            <td>
+                                                                <Link className="db-cella-fo db-link" to={termekLink(termek.id)}>{termek.nev}</Link>
+                                                                <span className="db-cella-mellek">{termek.kategoria} · {forint(termek.ar)}/{termek.egyseg}</span>
+                                                            </td>
+                                                            <td className="db-szam db-nowrap">{szam(termek.keszlet)} {termek.egyseg}</td>
+                                                            <td className="db-nowrap">
+                                                                <span className={eleg.mellek ? 'db-cella-fo' : 'db-cella-mellek'}>{eleg.fo}</span>
+                                                                {eleg.mellek && <span className="db-cella-mellek">{eleg.mellek}</span>}
+                                                            </td>
+                                                            <td><KeszletAllapot allapot={termek.allapot} /></td>
+                                                        </tr>
+                                                    );
+                                                })}
                                             </tbody>
                                         </table>
                                     </div>
-                                ) : <p className="db-ures">Minden készleten lévő termékből fogyott ebben az időszakban.</p>}
+                                ) : <p className="db-ures">Minden termékből van elegendő készlet.</p>}
                             </section>
                         </div>
-
-                        <section className="db-kartya">
-                            <KartyaFej cim="Mikor érkeznek a rendelések" alcim="A hét napjai és a nap órái szerint, magyar idő" />
-                            <Hoterkep adat={adat.hoterkep} />
-                        </section>
-                    </div>
-                )}
-            </section>
-
-            {adat && (
-                <section className={`db-szakasz${betoltes ? ' db-tartalom--frissul' : ''}`} aria-labelledby="db-aruhaz-cim">
-                    <div className="db-szakasz-fej">
-                        <h2 id="db-aruhaz-cim">Áruház most</h2>
-                        <p>Aktuális állapot – az időszakválasztó erre a részre nem vonatkozik.</p>
-                    </div>
-
-                    {adat.emailHibak.db > 0 && (
-                        <div className="db-riasztas" role="alert">
-                            <strong>
-                                {szam(adat.emailHibak.db)} rendelésnél a vevő nem kapta meg a visszaigazoló e-mailt
-                                {' '}(utolsó {szam(adat.emailHibak.napok)} nap). Érdemes felvenni vele a kapcsolatot, és ellenőrizni az SMTP-beállításokat.
-                            </strong>
-                            <ul>
-                                {adat.emailHibak.rendelesek.map((rendeles) => (
-                                    <li key={rendeles.id}>
-                                        <Link className="db-link" to={rendelesLink(rendeles)}>#{rendeles.rovidAzonosito} · {rendeles.nev}</Link>
-                                        {' '}<span>{rendeles.email} · {idopont(rendeles.datum)}</span>
-                                        {rendeles.hiba && <small title={rendeles.hiba}>{rendeles.hiba.split(' | ')[0]}</small>}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-
-                    <div className="db-csempek db-csempek--sor">
-                        <StatCsempe
-                            cimke="Feldolgozásra vár"
-                            ertek={`${szam(adat.rendelesAllapotok.feldolgozasra_var)} rendelés`}
-                            mellek={<Link className="db-csempe-link" to="/admin/rendelesek?allapot=feldolgozasra_var">Rendelések kezelése →</Link>}
-                        />
-                        <StatCsempe
-                            cimke="Új árajánlatkérés"
-                            ertek={`${szam(adat.ujArajanlatok ?? 0)} db`}
-                            mellek={<Link className="db-csempe-link" to="/admin/arajanlatok?allapot=uj">Árajánlatok →</Link>}
-                        />
-                        <StatCsempe
-                            cimke="Átutalásra vár"
-                            ertek={forint(adat.fizetesek.atutalas.osszeg)}
-                            figyelmeztetes={adat.fizetesek.atutalas.lejart > 0}
-                            mellek={(
-                                <>
-                                    {szam(adat.fizetesek.atutalas.db)} rendelés
-                                    {adat.fizetesek.atutalas.lejart > 0 && `, ebből ${szam(adat.fizetesek.atutalas.lejart)} határidőn túl`}
-                                    {' · '}
-                                    <Link className="db-csempe-link" to={rendelesSzuroLink({ fizetes: 'atutalasra_var' })}>Megnézem →</Link>
-                                </>
-                            )}
-                        />
-                        <StatCsempe
-                            cimke="Raklap a vevőknél"
-                            ertek={`${szam(adat.raklapok.kint)} db`}
-                            mellek={`${forint(adat.raklapok.betetdij)} betétdíj jár vissza értük`}
-                        />
-                        <StatCsempe cimke="Összes bevétel" ertek={forint(adat.mindenkori.bevetel)} mellek={`${szam(adat.mindenkori.rendelesek)} rendelésből, lemondottak és betétdíj nélkül`} />
-                        <StatCsempe cimke="Regisztrált vásárlók" ertek={szam(adat.mindenkori.felhasznalok)} mellek="admin fiókok nélkül" />
-                        <StatCsempe cimke="Termékek" ertek={szam(adat.keszlet.termekek)} mellek={`Készletérték: ${forint(adat.keszlet.keszletErtek)}`} />
-                        <StatCsempe
-                            cimke="Készlethiány"
-                            ertek={`${szam(adat.keszlet.elfogyott)} elfogyott`}
-                            mellek={`${szam(adat.keszlet.alacsony)} fogyóban (≤ ${szam(adat.keszlet.kuszob)}), ${szam(adat.keszlet.hamarosan)} ${szam(adat.keszlet.elorejelzesNapok)} napon belül fogyhat ki`}
-                        />
-                    </div>
-
-                    <section className="db-kartya">
-                        <KartyaFej
-                            cim="Közelgő kiszállítások és átvételek"
-                            alcim={`Ma és a következő 6 nap, valamint a lejárt napú, még nyitott rendelések${adat.kozelgo.tobb ? ' – csak az első 60 látszik' : ''}`}
-                        >
-                            <Link className="db-nezet-gomb" to="/admin/rendelesek?allapot=visszaigazolva">Visszaigazolt rendelések</Link>
-                        </KartyaFej>
-                        <KozelgoAtvetelek adat={adat.kozelgo} />
                     </section>
-
-                    <div className="db-racs db-racs--2">
-                        <section className="db-kartya">
-                            <KartyaFej cim="Fizetésre váró rendelések" alcim={`Átutalás határideje: ${szam(adat.fizetesek.hataridoNap)} nap a rendeléstől`} />
-                            <KulcsSzamok
-                                sorok={[
-                                    {
-                                        cimke: 'Átutalás nem érkezett meg',
-                                        ertek: forint(adat.fizetesek.atutalas.osszeg),
-                                        mellek: `${szam(adat.fizetesek.atutalas.db)} rendelés`,
-                                    },
-                                    {
-                                        cimke: 'Ebből határidőn túl',
-                                        ertek: forint(adat.fizetesek.atutalas.lejartOsszeg),
-                                        mellek: `${szam(adat.fizetesek.atutalas.lejart)} rendelés`,
-                                    },
-                                    {
-                                        cimke: 'Lejárt kártyás fizetés',
-                                        ertek: forint(adat.fizetesek.stripeLejart.osszeg),
-                                        mellek: `${szam(adat.fizetesek.stripeLejart.db)} rendelés, utolsó ${szam(adat.fizetesek.stripeLejart.napok)} nap (ezek lemondódtak)`,
-                                    },
-                                    {
-                                        cimke: 'Teljesítve, de nincs fizetve',
-                                        ertek: forint(adat.fizetesek.teljesitveFizetetlen.osszeg),
-                                        mellek: `${szam(adat.fizetesek.teljesitveFizetetlen.db)} rendelés`,
-                                    },
-                                ]}
-                            />
-                            {adat.fizetesek.teljesitveFizetetlen.rendelesek.length > 0 && (
-                                <>
-                                    <h4 className="db-alcim">Teljesített, ki nem fizetett rendelések</h4>
-                                    <ol className="db-lista">
-                                        {adat.fizetesek.teljesitveFizetetlen.rendelesek.map((rendeles) => (
-                                            <li key={rendeles.id}>
-                                                <div>
-                                                    <Link className="db-link" to={rendelesLink(rendeles)}><strong>{rendeles.nev}</strong></Link>
-                                                    <span>#{rendeles.rovidAzonosito} · {rendeles.fizetesiMod} · {datum(rendeles.datum)}</span>
-                                                </div>
-                                                <div className="db-lista-ertek">
-                                                    <strong>{forint(rendeles.vegosszeg)}</strong>
-                                                </div>
-                                            </li>
-                                        ))}
-                                    </ol>
-                                </>
-                            )}
-                            <div className="db-kartya-linkek">
-                                <Link className="db-nezet-gomb" to={rendelesSzuroLink({ fizetes: 'atutalasra_var' })}>Átutalásra várók</Link>
-                                <Link className="db-nezet-gomb" to={rendelesSzuroLink({ allapot: 'teljesitve', fizetes: 'atutalasra_var' })}>Teljesített, fizetetlen</Link>
-                            </div>
-                        </section>
-
-                        <section className="db-kartya">
-                            <KartyaFej cim="Kint lévő raklapok" alcim="Teljesített rendelésekből, még vissza nem hozott raklapok" />
-                            <KulcsSzamok
-                                sorok={[
-                                    { cimke: 'Raklap a vevőknél', ertek: `${szam(adat.raklapok.kint)} db`, mellek: `${szam(adat.raklapok.vevokSzama)} vevőnél`, kiemelt: true },
-                                    { cimke: 'Visszajáró betétdíj', ertek: forint(adat.raklapok.betetdij), mellek: 'ha mindet visszahozzák', kiemelt: true },
-                                ]}
-                            />
-                            {adat.raklapok.vevok.length ? (
-                                <ol className="db-lista">
-                                    {adat.raklapok.vevok.map((vevo) => (
-                                        <li key={vevo.email}>
-                                            <div>
-                                                <Link className="db-link" to={rendelesKeresesLink(vevo.email, { allapot: 'teljesitve' })}><strong>{vevo.nev}</strong></Link>
-                                                <span>{vevo.email} · legrégebbi: {datum(vevo.legregebbi)}</span>
-                                            </div>
-                                            <div className="db-lista-ertek">
-                                                <strong>{szam(vevo.kint)} raklap</strong>
-                                                <span>{forint(vevo.betetdij)}</span>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ol>
-                            ) : <p className="db-ures">Minden raklap visszakerült.</p>}
-                        </section>
-                    </div>
-
-                    <div className="db-racs db-racs--2">
-                        <section className="db-kartya">
-                            <KartyaFej cim="Legutóbbi rendelések" alcim="Legfrissebb elöl, lemondottakkal együtt">
-                                <Link className="db-nezet-gomb" to="/admin/rendelesek">Összes rendelés</Link>
-                            </KartyaFej>
-                            {adat.legutobbiRendelesek.length ? (
-                                <div className="db-tablazat-gorgeto">
-                                    <table className="db-tablazat">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Időpont</th>
-                                                <th scope="col">Vevő</th>
-                                                <th scope="col">Állapot</th>
-                                                <th scope="col" className="db-szam">Végösszeg</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {adat.legutobbiRendelesek.map((rendeles) => (
-                                                <tr key={rendeles.id}>
-                                                    <td className="db-nowrap">{idopont(rendeles.datum)}</td>
-                                                    <td>
-                                                        <Link className="db-cella-fo db-link" to={rendelesLink(rendeles)}>{rendeles.nev}</Link>
-                                                        <span className="db-cella-mellek">#{rendeles.rovidAzonosito} · {szam(rendeles.tetelSzam)} tétel · {rendeles.atvetelModja}</span>
-                                                    </td>
-                                                    <td><AllapotJelveny allapot={rendeles.allapot} cimke={rendeles.allapotCimke} /></td>
-                                                    <td className="db-szam db-nowrap">{forint(rendeles.vegosszeg)}</td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            ) : <p className="db-ures">Még nem érkezett rendelés.</p>}
-                        </section>
-
-                        <section className="db-kartya">
-                            <KartyaFej
-                                cim="Fogyóban lévő termékek"
-                                alcim={`Legfeljebb ${szam(adat.keszlet.kuszob)} egység, vagy az utolsó ${szam(adat.keszlet.utemNapok)} nap üteme szerint ${szam(adat.keszlet.elorejelzesNapok)} napon belül elfogy`}
-                            >
-                                <Link className="db-nezet-gomb" to="/admin/termekek">Készlet kezelése</Link>
-                            </KartyaFej>
-                            {adat.keszlet.alacsonyTermekek.length ? (
-                                <div className="db-tablazat-gorgeto">
-                                    <table className="db-tablazat">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Termék</th>
-                                                <th scope="col" className="db-szam">Készlet</th>
-                                                <th scope="col">Elég még</th>
-                                                <th scope="col">Állapot</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {adat.keszlet.alacsonyTermekek.map((termek) => {
-                                                const eleg = elegMeg(termek);
-                                                return (
-                                                    <tr key={termek.id}>
-                                                        <td>
-                                                            <Link className="db-cella-fo db-link" to={termekLink(termek.id)}>{termek.nev}</Link>
-                                                            <span className="db-cella-mellek">{termek.kategoria} · {forint(termek.ar)}/{termek.egyseg}</span>
-                                                        </td>
-                                                        <td className="db-szam db-nowrap">{szam(termek.keszlet)} {termek.egyseg}</td>
-                                                        <td className="db-nowrap">
-                                                            <span className={eleg.mellek ? 'db-cella-fo' : 'db-cella-mellek'}>{eleg.fo}</span>
-                                                            {eleg.mellek && <span className="db-cella-mellek">{eleg.mellek}</span>}
-                                                        </td>
-                                                        <td><KeszletAllapot allapot={termek.allapot} /></td>
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            ) : <p className="db-ures">Minden termékből van elegendő készlet.</p>}
-                        </section>
-                    </div>
-                </section>
-            )}
+                )}
+            </div>
         </main>
     );
 };

@@ -142,11 +142,100 @@ const Nav = () => {
         .charAt(0)
         .toUpperCase();
 
+    // Bejelentkezett felhasználónál a fiók jobbra kerül, vendégnél a bal oldalra,
+    // mert jobbra a regisztráció és a bejelentkezés gomb kerül.
+    const fiokElem = (
+        <div
+            className="nav-fiok"
+            ref={fiokRef}
+        >
+            <button
+                type="button"
+                className="nav-fiok-gomb"
+                ref={gombRef}
+                aria-label={user ? `Fiók: ${user.nev}` : 'Fiók'}
+                aria-expanded={nyitva}
+                aria-controls="nav-fiok-menu"
+                onClick={() => setNyitva((elozo) => !elozo)}
+            >
+                {user ? (
+                    <span className="nav-avatar">{kezdobetu}</span>
+                ) : (
+                    <Ikon nev="felhasznalo" />
+                )}
+            </button>
+
+            {nyitva && (
+                <div
+                    id="nav-fiok-menu"
+                    className="nav-fiok-menu"
+                    onClick={() => setNyitva(false)}
+                >
+                    {user ? (
+                        <>
+                            <div className="nav-fiok-fej">
+                                <span className="nav-avatar">
+                                    {kezdobetu}
+                                </span>
+                                <div className="nav-fiok-adatok">
+                                    <strong>{user.nev}</strong>
+                                    <small>{user.email}</small>
+                                </div>
+                            </div>
+                            <NavLink
+                                to="/profil"
+                                className="nav-fiok-elem"
+                            >
+                                <Ikon nev="profil" />
+                                Profilom
+                            </NavLink>
+                            <NavLink
+                                to="/profil#rendeleseim"
+                                className="nav-fiok-elem"
+                                end
+                            >
+                                <Ikon nev="rendelesek" />
+                                Rendeléseim
+                            </NavLink>
+                            <hr className="nav-fiok-elv" />
+                            <NavLink
+                                to="/logout"
+                                className="nav-fiok-elem nav-fiok-kilep"
+                            >
+                                <Ikon nev="kilepes" />
+                                Kilépés
+                            </NavLink>
+                        </>
+                    ) : (
+                        <>
+                            <NavLink
+                                to="/login"
+                                className="nav-fiok-elem"
+                            >
+                                <Ikon nev="belepes" />
+                                Bejelentkezés
+                            </NavLink>
+                            <NavLink
+                                to="/register"
+                                className="nav-fiok-elem"
+                            >
+                                <Ikon nev="regisztracio" />
+                                Regisztráció
+                            </NavLink>
+                        </>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+
     return (
         <nav
-            className="nav-kontener"
+            className={`nav-kontener${user ? '' : ' nav-kontener--vendeg'}`}
             aria-label="Főmenü"
         >
+            {!user && <div className="nav-bal">{fiokElem}</div>}
+
             <div className="nav-linkek">
                 <NavLink
                     to="/"
@@ -169,106 +258,49 @@ const Nav = () => {
             </div>
 
             <div className="nav-jobb">
-                <NavLink
-                    to="/kosar"
-                    className="nav-kosar-gomb"
-                    aria-label={
-                        kosarTetelSzam > 0 ? `Kosár, ${kosarTetelSzam} féle termék` : 'Kosár'
-                    }
-                >
-                    <Ikon nev="kosar" />
-                    {kosarTetelSzam > 0 && (
-                        <span
-                            className="nav-kosar-darab"
-                            aria-hidden="true"
-                        >
-                            {kosarTetelSzam > 99 ? '99+' : kosarTetelSzam}
-                        </span>
-                    )}
-                </NavLink>
-
-                <div
-                    className="nav-fiok"
-                    ref={fiokRef}
-                >
-                    <button
-                        type="button"
-                        className="nav-fiok-gomb"
-                        ref={gombRef}
-                        aria-label={user ? `Fiók: ${user.nev}` : 'Fiók'}
-                        aria-expanded={nyitva}
-                        aria-controls="nav-fiok-menu"
-                        onClick={() => setNyitva((elozo) => !elozo)}
+                {/* A kosár gomb csak bejelentkezett felhasználónak látszik */}
+                {user && (
+                    <NavLink
+                        to="/kosar"
+                        className="nav-kosar-gomb"
+                        aria-label={
+                            kosarTetelSzam > 0 ? `Kosár, ${kosarTetelSzam} féle termék` : 'Kosár'
+                        }
                     >
-                        {user ? (
-                            <span className="nav-avatar">{kezdobetu}</span>
-                        ) : (
-                            <Ikon nev="felhasznalo" />
+                        <Ikon nev="kosar" />
+                        {kosarTetelSzam > 0 && (
+                            <span
+                                className="nav-kosar-darab"
+                                aria-hidden="true"
+                            >
+                                {kosarTetelSzam > 99 ? '99+' : kosarTetelSzam}
+                            </span>
                         )}
-                    </button>
+                    </NavLink>
+                )}
 
-                    {nyitva && (
-                        <div
-                            id="nav-fiok-menu"
-                            className="nav-fiok-menu"
-                            onClick={() => setNyitva(false)}
+                {!user && (
+                    <>
+                        <NavLink
+                            to="/register"
+                            className="nav-auth-gomb nav-auth-gomb--kiemelt"
+                            aria-label="Regisztráció"
                         >
-                            {user ? (
-                                <>
-                                    <div className="nav-fiok-fej">
-                                        <span className="nav-avatar">
-                                            {kezdobetu}
-                                        </span>
-                                        <div className="nav-fiok-adatok">
-                                            <strong>{user.nev}</strong>
-                                            <small>{user.email}</small>
-                                        </div>
-                                    </div>
-                                    <NavLink
-                                        to="/profil"
-                                        className="nav-fiok-elem"
-                                    >
-                                        <Ikon nev="profil" />
-                                        Profilom
-                                    </NavLink>
-                                    <NavLink
-                                        to="/profil#rendeleseim"
-                                        className="nav-fiok-elem"
-                                        end
-                                    >
-                                        <Ikon nev="rendelesek" />
-                                        Rendeléseim
-                                    </NavLink>
-                                    <hr className="nav-fiok-elv" />
-                                    <NavLink
-                                        to="/logout"
-                                        className="nav-fiok-elem nav-fiok-kilep"
-                                    >
-                                        <Ikon nev="kilepes" />
-                                        Kilépés
-                                    </NavLink>
-                                </>
-                            ) : (
-                                <>
-                                    <NavLink
-                                        to="/login"
-                                        className="nav-fiok-elem"
-                                    >
-                                        <Ikon nev="belepes" />
-                                        Bejelentkezés
-                                    </NavLink>
-                                    <NavLink
-                                        to="/register"
-                                        className="nav-fiok-elem"
-                                    >
-                                        <Ikon nev="regisztracio" />
-                                        Regisztráció
-                                    </NavLink>
-                                </>
-                            )}
-                        </div>
-                    )}
-                </div>
+                            <Ikon nev="regisztracio" />
+                            <span className="nav-auth-szoveg">Regisztráció</span>
+                        </NavLink>
+                        <NavLink
+                            to="/login"
+                            className="nav-auth-gomb"
+                            aria-label="Bejelentkezés"
+                        >
+                            <Ikon nev="belepes" />
+                            <span className="nav-auth-szoveg">Bejelentkezés</span>
+                        </NavLink>
+                    </>
+                )}
+
+                {user && fiokElem}
             </div>
         </nav>
     );
