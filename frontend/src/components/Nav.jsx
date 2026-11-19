@@ -1,10 +1,17 @@
 import { useEffect, useRef, useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import './Nav.css';
 
 const ikonUtak = {
+    marka: (
+        <>
+            <path d="M3 10.5 12 4l9 6.5" />
+            <path d="M5.5 9v11h13V9" />
+            <path d="M5.5 14.5h13M9.5 14.5V20M14.5 9v5.5" />
+        </>
+    ),
     felhasznalo: (
         <>
             <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
@@ -159,8 +166,6 @@ const Nav = () => {
         .charAt(0)
         .toUpperCase();
 
-    // Bejelentkezett felhasználónál a fiók jobbra kerül, vendégnél a bal oldalra,
-    // mert jobbra a regisztráció és a bejelentkezés gomb kerül.
     const fiokElem = (
         <div
             className="nav-fiok"
@@ -169,7 +174,7 @@ const Nav = () => {
             <button
                 data-teszt-profil="profil"
                 type="button"
-                className="nav-fiok-gomb"
+                className={`nav-fiok-gomb${user ? '' : ' nav-ikon-gomb'}`}
                 ref={gombRef}
                 aria-label={user ? `Fiók: ${user.nev}` : 'Fiók'}
                 aria-expanded={nyitva}
@@ -250,31 +255,50 @@ const Nav = () => {
         </div>
     );
 
+    const menuBezar = () => setMobilNyitva(false);
+
     return (
         <nav
-            className={`nav-kontener${user ? '' : ' nav-kontener--vendeg'}`}
+            className="nav-kontener"
             aria-label="Főmenü"
         >
-            {!user && <div className="nav-bal">{fiokElem}</div>}
+            <div className="nav-bal">
+                <button
+                    ref={mobilGombRef}
+                    type="button"
+                    className={`nav-mobil-gomb${mobilNyitva ? ' nav-mobil-gomb--nyitva' : ''}`}
+                    aria-label={mobilNyitva ? 'Navigáció bezárása' : 'Navigáció megnyitása'}
+                    aria-expanded={mobilNyitva}
+                    aria-controls="nav-linkek"
+                    onClick={() => setMobilNyitva((elozo) => !elozo)}
+                >
+                    <span aria-hidden="true" />
+                    <span aria-hidden="true" />
+                    <span aria-hidden="true" />
+                </button>
 
-            <button
-                ref={mobilGombRef}
-                type="button"
-                className="nav-mobil-gomb"
-                aria-label={mobilNyitva ? 'Navigáció bezárása' : 'Navigáció megnyitása'}
-                aria-expanded={mobilNyitva}
-                aria-controls="nav-linkek"
-                onClick={() => setMobilNyitva((elozo) => !elozo)}
-            >
-                <span aria-hidden="true">{mobilNyitva ? '×' : '☰'}</span>
-            </button>
+                <Link
+                    to="/"
+                    className="nav-marka"
+                    aria-label="Tüzép – főoldal"
+                    onClick={menuBezar}
+                >
+                    <span className="nav-marka-jel">
+                        <Ikon nev="marka" />
+                    </span>
+                    <span className="nav-marka-szoveg">
+                        <strong>Tüzép</strong>
+                        <small>Építőanyag-kereskedés</small>
+                    </span>
+                </Link>
+            </div>
 
             {mobilNyitva && (
                 <button
                     type="button"
                     className="nav-mobil-hatter"
                     aria-label="Navigáció bezárása"
-                    onClick={() => setMobilNyitva(false)}
+                    onClick={menuBezar}
                 />
             )}
 
@@ -285,19 +309,19 @@ const Nav = () => {
                 <NavLink
                     to="/"
                     end
-                    onClick={() => setMobilNyitva(false)}
+                    onClick={menuBezar}
                 >
                     Főoldal
                 </NavLink>
-                <NavLink to="/termekek" onClick={() => setMobilNyitva(false)}>Termékek</NavLink>
-                <NavLink to="/kalkulator" onClick={() => setMobilNyitva(false)}>Kalkulátor</NavLink>
+                <NavLink to="/termekek" onClick={menuBezar}>Termékek</NavLink>
+                <NavLink to="/kalkulator" onClick={menuBezar}>Kalkulátor</NavLink>
                 {/* A rendelések, árajánlatok és a termékkezelés a dashboardról érhető el,
                     ezért az admin aloldalakon is a Dashboard menüpont marad kiemelve. */}
                 {user?.role === 'admin' && (
                     <NavLink
                         to="/admin/dashboard"
                         className={({ isActive }) => (isActive || pathname.startsWith('/admin/') ? 'nav-link--aktiv' : undefined)}
-                        onClick={() => setMobilNyitva(false)}
+                        onClick={menuBezar}
                     >
                         Dashboard
                     </NavLink>
@@ -309,7 +333,7 @@ const Nav = () => {
                 {user && (
                     <NavLink
                         to="/kosar"
-                        className="nav-kosar-gomb"
+                        className="nav-ikon-gomb nav-kosar-gomb"
                         aria-label={
                             kosarTetelSzam > 0 ? `Kosár, ${kosarTetelSzam} féle termék` : 'Kosár'
                         }
@@ -327,29 +351,25 @@ const Nav = () => {
                 )}
 
                 {!user && (
-                    <>
-                        <NavLink
-                            data-teszt-noprofilreg="regisztracio"
-                            to="/register"
-                            className="nav-auth-gomb nav-auth-gomb--kiemelt"
-                            aria-label="Regisztráció"
-                        >
-                            <Ikon nev="regisztracio" />
-                            <span className="nav-auth-szoveg">Regisztráció</span>
-                        </NavLink>
+                    <div className="nav-auth">
                         <NavLink
                             data-teszt-noprofilbelepes="bejelentkezes"
                             to="/login"
                             className="nav-auth-gomb"
-                            aria-label="Bejelentkezés"
                         >
-                            <Ikon nev="belepes" />
-                            <span className="nav-auth-szoveg">Bejelentkezés</span>
+                            Bejelentkezés
                         </NavLink>
-                    </>
+                        <NavLink
+                            data-teszt-noprofilreg="regisztracio"
+                            to="/register"
+                            className="nav-auth-gomb nav-auth-gomb--kiemelt"
+                        >
+                            Regisztráció
+                        </NavLink>
+                    </div>
                 )}
 
-                {user && fiokElem}
+                {fiokElem}
             </div>
         </nav>
     );

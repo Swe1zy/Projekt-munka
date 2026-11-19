@@ -149,19 +149,9 @@ button {
         gap: 1rem;
     }
 
-    .termek-szuro-kategoriak {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
     .lablec {
         align-items: flex-start;
         flex-direction: column;
         padding-bottom: calc(.9rem + env(safe-area-inset-bottom));
-    }
-}
-
-@media screen and (max-width: 420px) {
-    .termek-szuro-kategoriak {
-        grid-template-columns: 1fr;
     }
 }

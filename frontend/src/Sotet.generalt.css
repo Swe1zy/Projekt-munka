@@ -92,6 +92,77 @@
     color: #ee7751
 }
 
+/*  components/KategoriaValaszto.css  */
+
+:root[data-tema='sotet'] .kv-gomb {
+    border: 1px solid #454a50;
+    background: #252525;
+    color: #ccd0d8
+}
+
+:root[data-tema='sotet'] .kv-gomb:hover,
+:root[data-tema='sotet'] .kv-gomb[aria-expanded='true'] {
+    border-color: #8fa596
+}
+
+:root[data-tema='sotet'] .kv-gomb:focus-visible {
+    border-color: #356247;
+    outline: 3px solid rgb(53 99 76 / 0.15)
+}
+
+:root[data-tema='sotet'] .kv-gomb-ikon {
+    background: #221d19;
+    color: #d79273
+}
+
+:root[data-tema='sotet'] .kv-nyil {
+    color: #9a9d9a
+}
+
+:root[data-tema='sotet'] .kv-panel {
+    border: 1px solid #474641;
+    background: #262523;
+    box-shadow: 0 16px 36px rgb(39 51 45 / 0.288), 0 2px 6px rgb(39 51 45 / 0.108)
+}
+
+:root[data-tema='sotet'] .kv-csempe {
+    border: 1px solid transparent;
+    background: transparent;
+    color: #bac0bc
+}
+
+:root[data-tema='sotet'] .kv-csempe:hover {
+    border-color: #474641;
+    background: #1c1b18
+}
+
+:root[data-tema='sotet'] .kv-csempe:focus-visible {
+    border-color: #356247;
+    outline: 3px solid rgb(53 99 76 / 0.15)
+}
+
+:root[data-tema='sotet'] .kv-csempe--aktiv,
+:root[data-tema='sotet'] .kv-csempe--aktiv:hover {
+    border-color: #356247;
+    background: #1c1f1c
+}
+
+:root[data-tema='sotet'] .kv-csempe-kep {
+    background: #221d19;
+    color: #d79273
+}
+
+:root[data-tema='sotet'] .kv-csempe--aktiv .kv-csempe-kep {
+    background: #356247;
+    color: #ffffff
+}
+
+:root[data-tema='sotet'] .kv-csempe-pipa {
+    border: 2px solid #3e3d3b;
+    background: #bd6a3d;
+    color: #ffffff
+}
+
 /*  components/Lablec.css  */
 
 :root[data-tema='sotet'] .lablec {
@@ -148,226 +219,184 @@
 /*  components/Nav.css  */
 
 :root[data-tema='sotet'] .nav-kontener {
-    --nav-bg: rgb(15 23 42 / 0.85);
-    --nav-border: rgb(255 255 255 / 0.08);
-    --nav-text: #cbd5e1;
-    --nav-text-hover: #ffffff;
-    --nav-hover-bg: rgb(255 255 255 / 0.08);
-    --nav-accent: #6366f1;
-    --nav-accent-2: #22d3ee;
-    --nav-danger: #f87171;
-    background: var(--nav-bg);
-    border-bottom: 1px solid var(--nav-border);
-    box-shadow: 0 4px 24px rgb(15 23 42 / 0.18)
+    --nav-hatter: #293a30;
+    --nav-panel: #233229;
+    --nav-vonal: rgb(255 255 255 / 0.1);
+    --nav-szoveg: rgb(255 255 255 / 0.72);
+    --nav-szoveg-eros: #ffffff;
+    --nav-halvany: rgb(255 255 255 / 0.08);
+    --nav-kiemeles: #bd6a3d;
+    --nav-kiemeles-sotet: #a95731;
+    --nav-kiemeles-vilagos: #e0a477;
+    --nav-veszely: #f2a49a;
+    background: var(--nav-hatter);
+    border-bottom: 1px solid rgb(0 0 0 / 0.18);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset, 0 4px 14px rgb(27 39 30 / 0.14)
 }
 
-:root[data-tema='sotet'] .nav-linkek a {
-    color: var(--nav-text)
+:root[data-tema='sotet'] .nav-kontener a:focus-visible,
+:root[data-tema='sotet'] .nav-kontener button:focus-visible {
+    outline: 2px solid var(--nav-kiemeles-vilagos)
 }
 
-:root[data-tema='sotet'] .nav-linkek a::after {
-    background: linear-gradient(90deg, var(--nav-accent), var(--nav-accent-2))
+:root[data-tema='sotet'] .nav-marka {
+    color: var(--nav-szoveg-eros)
 }
 
-:root[data-tema='sotet'] .nav-kosar-darab {
-    background: linear-gradient(135deg, var(--nav-accent), var(--nav-accent-2));
-    box-shadow: 0 0 0 2px #0f172a;
+:root[data-tema='sotet'] .nav-marka-jel {
+    background: var(--nav-kiemeles);
+    box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.15);
     color: #ffffff
 }
 
+:root[data-tema='sotet'] .nav-marka-szoveg small {
+    color: var(--nav-szoveg)
+}
+
+:root[data-tema='sotet'] .nav-linkek a {
+    color: var(--nav-szoveg)
+}
+
+:root[data-tema='sotet'] .nav-linkek a::after {
+    background: rgb(255 255 255 / 0.35)
+}
+
 :root[data-tema='sotet'] .nav-linkek a:hover {
-    color: var(--nav-text-hover);
-    background-color: var(--nav-hover-bg)
+    color: var(--nav-szoveg-eros)
 }
 
 :root[data-tema='sotet'] .nav-linkek a[aria-current='page'],
 :root[data-tema='sotet'] .nav-linkek a.nav-link--aktiv {
-    color: var(--nav-text-hover);
-    background-color: var(--nav-hover-bg)
+    color: var(--nav-szoveg-eros)
 }
 
-:root[data-tema='sotet'] .nav-linkek a:focus-visible,
-:root[data-tema='sotet'] .nav-fiok-gomb:focus-visible,
-:root[data-tema='sotet'] .nav-kosar-gomb:focus-visible,
-:root[data-tema='sotet'] .nav-fiok-elem:focus-visible {
-    outline: 2px solid var(--nav-accent-2)
+:root[data-tema='sotet'] .nav-linkek a[aria-current='page']::after,
+:root[data-tema='sotet'] .nav-linkek a.nav-link--aktiv::after {
+    background: var(--nav-kiemeles)
 }
 
-:root[data-tema='sotet'] .nav-fiok-gomb,
-:root[data-tema='sotet'] .nav-kosar-gomb {
-    border: 1px solid var(--nav-border);
-    background: rgb(255 255 255 / 0.06);
-    color: var(--nav-text)
+:root[data-tema='sotet'] .nav-auth-gomb {
+    color: var(--nav-szoveg-eros)
 }
 
-:root[data-tema='sotet'] .nav-fiok-gomb:hover,
-:root[data-tema='sotet'] .nav-fiok-gomb[aria-expanded='true'],
-:root[data-tema='sotet'] .nav-kosar-gomb:hover,
-:root[data-tema='sotet'] .nav-kosar-gomb[aria-current='page'] {
-    border-color: rgb(255 255 255 / 0.25);
-    background: var(--nav-hover-bg);
-    color: var(--nav-text-hover)
+:root[data-tema='sotet'] .nav-auth-gomb:hover,
+:root[data-tema='sotet'] .nav-auth-gomb[aria-current='page'] {
+    background: var(--nav-halvany)
+}
+
+:root[data-tema='sotet'] .nav-auth-gomb--kiemelt {
+    background: var(--nav-kiemeles);
+    box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.15)
+}
+
+:root[data-tema='sotet'] .nav-auth-gomb--kiemelt:hover,
+:root[data-tema='sotet'] .nav-auth-gomb--kiemelt[aria-current='page'] {
+    background: var(--nav-kiemeles-sotet)
+}
+
+:root[data-tema='sotet'] .nav-ikon-gomb {
+    border: 0;
+    background: transparent;
+    color: var(--nav-szoveg-eros)
+}
+
+:root[data-tema='sotet'] .nav-ikon-gomb:hover,
+:root[data-tema='sotet'] .nav-ikon-gomb[aria-current='page'],
+:root[data-tema='sotet'] .nav-ikon-gomb[aria-expanded='true'] {
+    background: var(--nav-halvany)
+}
+
+:root[data-tema='sotet'] .nav-kosar-darab {
+    border: 2px solid var(--nav-hatter);
+    background: var(--nav-kiemeles);
+    color: #ffffff
+}
+
+:root[data-tema='sotet'] .nav-fiok-gomb:not(.nav-ikon-gomb) {
+    border: 0;
+    background: none
+}
+
+:root[data-tema='sotet'] .nav-fiok-gomb:not(.nav-ikon-gomb):hover .nav-avatar,
+:root[data-tema='sotet'] .nav-fiok-gomb[aria-expanded='true'] .nav-avatar {
+    box-shadow: 0 0 0 3px rgb(255 255 255 / 0.18)
 }
 
 :root[data-tema='sotet'] .nav-avatar {
-    background: linear-gradient(135deg, var(--nav-accent), var(--nav-accent-2));
+    background: var(--nav-kiemeles);
     color: #ffffff
 }
 
 :root[data-tema='sotet'] .nav-fiok-menu {
-    border: 1px solid var(--nav-border);
-    background: rgb(15 23 42 / 0.97);
-    box-shadow: 0 20px 40px rgb(0 0 0 / 0.35)
+    border: 1px solid var(--nav-vonal);
+    background: var(--nav-panel);
+    box-shadow: 0 18px 40px rgb(10 16 12 / 0.35)
 }
 
 :root[data-tema='sotet'] .nav-fiok-fej {
-    border-bottom: 1px solid var(--nav-border)
+    border-bottom: 1px solid var(--nav-vonal)
 }
 
 :root[data-tema='sotet'] .nav-fiok-adatok strong {
-    color: #ffffff
+    color: var(--nav-szoveg-eros)
 }
 
 :root[data-tema='sotet'] .nav-fiok-adatok small {
-    color: #94a3b8
+    color: var(--nav-szoveg)
 }
 
 :root[data-tema='sotet'] .nav-fiok-elem {
-    color: var(--nav-text)
+    color: var(--nav-szoveg)
 }
 
 :root[data-tema='sotet'] .nav-fiok-elem:hover,
 :root[data-tema='sotet'] .nav-fiok-elem[aria-current='page'] {
-    background-color: var(--nav-hover-bg);
-    color: var(--nav-text-hover)
+    background: var(--nav-halvany);
+    color: var(--nav-szoveg-eros)
 }
 
 :root[data-tema='sotet'] .nav-fiok-elv {
     border: 0;
-    background: var(--nav-border)
+    background: var(--nav-vonal)
 }
 
 :root[data-tema='sotet'] .nav-fiok-kilep:hover {
-    background-color: rgb(248 113 113 / 0.12);
-    color: var(--nav-danger)
+    background: rgb(242 164 154 / 0.12);
+    color: var(--nav-veszely)
 }
 
-:root[data-tema='sotet'] .nav-kontener {
-    --nav-bg: #293a30;
-    --nav-border: rgb(255 255 255 / 0.11);
-    --nav-text: #e0e5df;
-    --nav-text-hover: #ffffff;
-    --nav-hover-bg: rgb(255 255 255 / 0.1);
-    --nav-accent: #c16a3b;
-    --nav-accent-2: #d89a69;
-    background: #293a30;
-    box-shadow: 0 2px 10px rgb(27 39 30 / 0.16)
+@media screen and (max-width: 860px) {
+
+    :root[data-tema='sotet'] .nav-mobil-gomb {
+    border: 0;
+    background: transparent
 }
 
-:root[data-tema='sotet'] .nav-linkek a::after {
-    background: #d89a69
+    :root[data-tema='sotet'] .nav-mobil-gomb:hover,
+:root[data-tema='sotet'] .nav-mobil-gomb--nyitva {
+    background: var(--nav-halvany)
 }
 
-:root[data-tema='sotet'] .nav-avatar {
-    background: #bd6a3d
+    :root[data-tema='sotet'] .nav-mobil-gomb span {
+    background: var(--nav-szoveg-eros)
 }
 
-:root[data-tema='sotet'] .nav-kosar-darab {
-    background: #bd6a3d;
-    box-shadow: 0 0 0 2px #293a30
+    :root[data-tema='sotet'] .nav-mobil-hatter {
+    border: 0;
+    background: rgb(10 16 12 / 0.45)
 }
 
-:root[data-tema='sotet'] .nav-fiok-menu {
-    background: #293a30
+    :root[data-tema='sotet'] .nav-linkek {
+    border-top: 1px solid var(--nav-vonal);
+    background: var(--nav-panel);
+    box-shadow: 12px 0 32px rgb(10 16 12 / 0.3)
 }
 
-:root[data-tema='sotet'] .nav-linkek a:focus-visible,
-:root[data-tema='sotet'] .nav-fiok-gomb:focus-visible,
-:root[data-tema='sotet'] .nav-kosar-gomb:focus-visible,
-:root[data-tema='sotet'] .nav-fiok-elem:focus-visible {
-    outline-color: #e0a477
-}
-
-:root[data-tema='sotet'] .nav-kontener {
-    border-bottom: 3px solid #bd6a3d;
-    box-shadow: 0 5px 16px rgb(27 39 30 / 0.15)
-}
-
+    :root[data-tema='sotet'] .nav-linkek a:hover,
 :root[data-tema='sotet'] .nav-linkek a[aria-current='page'],
 :root[data-tema='sotet'] .nav-linkek a.nav-link--aktiv {
-    background: rgb(255 255 255 / 0.12)
+    background: var(--nav-halvany)
 }
-
-:root[data-tema='sotet'] .nav-fiok-gomb,
-:root[data-tema='sotet'] .nav-kosar-gomb {
-    border-color: rgb(255 255 255 / 0.2);
-    background: rgb(255 255 255 / 0.07)
-}
-
-:root[data-tema='sotet'] .nav-kosar-gomb {
-    background: #bd6a3d;
-    border-color: #bd6a3d;
-    color: #ffffff
-}
-
-:root[data-tema='sotet'] .nav-kosar-gomb:hover {
-    background: #a95731;
-    border-color: #a95731
-}
-
-:root[data-tema='sotet'] .nav-kosar-darab {
-    border: 2px solid #293a30
-}
-
-:root[data-tema='sotet'] .nav-fiok-gomb,
-:root[data-tema='sotet'] .nav-kosar-gomb,
-:root[data-tema='sotet'] .nav-auth-gomb {
-    border: 1px solid rgba(var(--uveg-szin), 0.22);
-    background: linear-gradient(180deg, rgba(var(--uveg-szin), 0.2) 0%, rgba(var(--uveg-szin), 0.06) 100%);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35),
-        inset 0 -1px 0 rgb(0 0 0 / 0.12),
-        0 4px 14px rgb(15 23 15 / 0.22);
-    color: #ffffff
-}
-
-:root[data-tema='sotet'] .nav-fiok-gomb:hover,
-:root[data-tema='sotet'] .nav-fiok-gomb[aria-expanded='true'],
-:root[data-tema='sotet'] .nav-kosar-gomb:hover,
-:root[data-tema='sotet'] .nav-kosar-gomb[aria-current='page'],
-:root[data-tema='sotet'] .nav-auth-gomb:hover,
-:root[data-tema='sotet'] .nav-auth-gomb[aria-current='page'] {
-    border-color: rgba(var(--uveg-szin), 0.4);
-    background: linear-gradient(180deg, rgba(var(--uveg-szin), 0.3) 0%, rgba(var(--uveg-szin), 0.12) 100%);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.45),
-        inset 0 -1px 0 rgb(0 0 0 / 0.12),
-        0 6px 18px rgb(15 23 15 / 0.28);
-    color: #ffffff
-}
-
-:root[data-tema='sotet'] .nav-auth-gomb:focus-visible {
-    outline: 2px solid #e0a477
-}
-
-:root[data-tema='sotet'] .nav-linkek a {
-    border: 1px solid rgb(255 255 255 / 0.12);
-    background: linear-gradient(180deg, rgb(255 255 255 / 0.12) 0%, rgb(255 255 255 / 0.03) 100%);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18),
-        0 2px 8px rgb(15 23 15 / 0.12)
-}
-
-:root[data-tema='sotet'] .nav-linkek a:hover {
-    border-color: rgb(255 255 255 / 0.3);
-    background: linear-gradient(180deg, rgb(255 255 255 / 0.22) 0%, rgb(255 255 255 / 0.07) 100%);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.32),
-        0 4px 12px rgb(15 23 15 / 0.18)
-}
-
-:root[data-tema='sotet'] .nav-linkek a[aria-current='page'],
-:root[data-tema='sotet'] .nav-linkek a.nav-link--aktiv {
-    border-color: rgb(216 140 95 / 0.5);
-    background: linear-gradient(180deg, rgb(216 140 95 / 0.42) 0%, rgb(216 140 95 / 0.16) 100%);
-    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35),
-        0 4px 12px rgb(15 23 15 / 0.2)
 }
 
 /*  components/rendeles/Rendeles.css  */
@@ -3579,16 +3608,8 @@
     background: var(--termek-green-soft)
 }
 
-:root[data-tema='sotet'] .termek-szuro-kategoriak,
 :root[data-tema='sotet'] .termek-ar-szuro {
     border: 0
-}
-
-:root[data-tema='sotet'] .termek-szuro-kategoria {
-    color: #b4b9c0;
-    input {
-    accent-color: var(--termek-green)
-}
 }
 
 :root[data-tema='sotet'] .termek-ar-szuro label {

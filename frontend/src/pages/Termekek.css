@@ -79,6 +79,9 @@
 .termek-szuro-oldalsav {
     position: sticky;
     top: 1.25rem;
+    /* A sticky oldalsáv saját réteget alkot: a kártyák fölé kell emelni, különben
+       a kategóriaválasztó lenyíló panelje a termékkártyák alá kerül. */
+    z-index: 10;
     display: grid;
     gap: 1.25rem;
     padding: 1.25rem;
@@ -110,7 +113,6 @@
     font-weight: 750;
 }
 
-.termek-szuro-kategoriak,
 .termek-ar-szuro {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -125,24 +127,6 @@
         margin-bottom: 0.6rem;
         font-size: 0.95rem;
         font-weight: 800;
-    }
-}
-
-.termek-szuro-kategoria {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.65rem;
-    color: #334155;
-    font-size: 0.92rem;
-    line-height: 1.4;
-    cursor: pointer;
-
-    input {
-        flex: 0 0 auto;
-        width: 1rem;
-        height: 1rem;
-        margin: 0.1rem 0 0;
-        accent-color: var(--termek-green);
     }
 }
 
@@ -172,6 +156,18 @@
         border-color: var(--termek-green);
         outline: 3px solid rgba(53, 99, 76, 0.15);
     }
+}
+
+/* Képes kategóriaválasztó a szűrők tetején */
+.termek-szuro-kategoria-blokk {
+    display: grid;
+    gap: 0.6rem;
+    min-width: 0;
+}
+
+.termek-szuro-cim {
+    font-size: 0.95rem;
+    font-weight: 800;
 }
 
 .termek-szuro-torles {
@@ -289,16 +285,6 @@
 
     .termek-szuro-oldalsav {
         position: static;
-    }
-
-    .termek-szuro-kategoriak {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media screen and (max-width: 480px) {
-    .termek-szuro-kategoriak {
-        grid-template-columns: 1fr;
     }
 }
 

@@ -1,0 +1,211 @@
+/* Képes kategóriaválasztó (a termékszűrő oldalsávjában) */
+.kv {
+    position: relative;
+    min-width: 0;
+}
+
+.kv-ikon {
+    width: 1.35rem;
+    height: 1.35rem;
+}
+
+/* ---------- Gomb ---------- */
+
+.kv-gomb {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    min-height: 48px;
+    padding: 0.35rem 0.7rem 0.35rem 0.35rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #0f172a;
+    font: inherit;
+    font-size: 0.92rem;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+
+.kv-gomb:hover,
+.kv-gomb[aria-expanded='true'] {
+    border-color: #8fa596;
+}
+
+.kv-gomb:focus-visible {
+    border-color: #356247;
+    outline: 3px solid rgba(53, 99, 76, 0.15);
+}
+
+.kv-gomb-ikon {
+    display: grid;
+    flex-shrink: 0;
+    place-items: center;
+    width: 2.3rem;
+    height: 2.3rem;
+    border-radius: 7px;
+    background: #f5e9df;
+    color: #96502e;
+}
+
+.kv-gomb-felirat {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.kv-nyil {
+    flex-shrink: 0;
+    width: 1.1rem;
+    height: 1.1rem;
+    color: #737b72;
+    transition: transform 0.2s ease;
+}
+
+.kv-gomb[aria-expanded='true'] .kv-nyil {
+    transform: rotate(180deg);
+}
+
+/* ---------- Lenyíló csemperács ---------- */
+
+.kv-panel {
+    position: absolute;
+    top: calc(100% + 0.4rem);
+    left: 0;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.3rem;
+    width: max(100%, 21.5rem);
+    max-width: calc(100vw - 2rem);
+    padding: 0.5rem;
+    border: 1px solid #e3e0d6;
+    border-radius: 0.75rem;
+    background: #fffefa;
+    box-shadow: 0 16px 36px rgba(39, 51, 45, 0.16), 0 2px 6px rgba(39, 51, 45, 0.06);
+    animation: kv-be 0.15s ease both;
+    /* A képernyőre görgetéskor ne kerüljön a fix menüsáv alá */
+    scroll-margin: 5.5rem 0 1rem;
+}
+
+/* Ha lent nincs hely, a gomb fölé nyílik */
+.kv-panel--felfele {
+    top: auto;
+    bottom: calc(100% + 0.4rem);
+    animation-name: kv-be-fel;
+}
+
+.kv-csempe {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    min-width: 0;
+    padding: 0.45rem 0.3rem 0.4rem;
+    border: 1px solid transparent;
+    border-radius: 0.6rem;
+    background: transparent;
+    color: #293a30;
+    font: inherit;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.kv-csempe:hover {
+    border-color: #e3e0d6;
+    background: #f6f4ee;
+}
+
+.kv-csempe:focus-visible {
+    border-color: #356247;
+    outline: 3px solid rgba(53, 99, 76, 0.15);
+}
+
+.kv-csempe--aktiv,
+.kv-csempe--aktiv:hover {
+    border-color: #356247;
+    background: #e8eee7;
+}
+
+.kv-csempe-kep {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 2.9rem;
+    height: 2.9rem;
+    border-radius: 0.6rem;
+    background: #f5e9df;
+    color: #96502e;
+}
+
+.kv-csempe-kep .kv-ikon {
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+.kv-csempe--aktiv .kv-csempe-kep {
+    background: #356247;
+    color: #ffffff;
+}
+
+.kv-csempe-pipa {
+    position: absolute;
+    top: -0.35rem;
+    right: -0.35rem;
+    display: grid;
+    place-items: center;
+    width: 1.15rem;
+    height: 1.15rem;
+    border: 2px solid #fffefa;
+    border-radius: 50%;
+    background: #bd6a3d;
+    color: #ffffff;
+}
+
+.kv-pipa-ikon {
+    width: 0.7rem;
+    height: 0.7rem;
+    stroke-width: 3;
+}
+
+.kv-csempe-nev {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 0.74rem;
+    font-weight: 600;
+    line-height: 1.25;
+    text-align: center;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow-wrap: anywhere;
+}
+
+@keyframes kv-be {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes kv-be-fel {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

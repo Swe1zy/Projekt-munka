@@ -1,12 +1,21 @@
+/*
+ * Főmenü. Egyszínű zöld sáv, terrakotta kiemelésekkel: balra a márka,
+ * középen a menüpontok, jobbra a kosár és a fiók.
+ * A sötét téma ezt a fájlt változatlanul veszi át (scripts/sotet-tema.mjs),
+ * ezért a menü és a lenyíló panel eleve sötét színekkel készül.
+ */
 .nav-kontener {
-    --nav-bg: rgba(15, 23, 42, 0.85);
-    --nav-border: rgba(255, 255, 255, 0.08);
-    --nav-text: #cbd5e1;
-    --nav-text-hover: #ffffff;
-    --nav-hover-bg: rgba(255, 255, 255, 0.08);
-    --nav-accent: #6366f1;
-    --nav-accent-2: #22d3ee;
-    --nav-danger: #f87171;
+    --nav-magassag: 4.5rem;
+    --nav-hatter: #293a30;
+    --nav-panel: #233229;
+    --nav-vonal: rgba(255, 255, 255, 0.1);
+    --nav-szoveg: rgba(255, 255, 255, 0.72);
+    --nav-szoveg-eros: #ffffff;
+    --nav-halvany: rgba(255, 255, 255, 0.08);
+    --nav-kiemeles: #bd6a3d;
+    --nav-kiemeles-sotet: #a95731;
+    --nav-kiemeles-vilagos: #e0a477;
+    --nav-veszely: #f2a49a;
 
     position: sticky;
     top: 0;
@@ -14,148 +23,12 @@
     display: grid;
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    background: var(--nav-bg);
-    backdrop-filter: blur(12px) saturate(160%);
-    -webkit-backdrop-filter: blur(12px) saturate(160%);
-    border-bottom: 1px solid var(--nav-border);
-    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.18);
-}
-
-/* Üres bal oszlop, hogy a linkek középen maradjanak, a fiók pedig jobbra kerüljön */
-.nav-kontener::before {
-    content: '';
-}
-
-.nav-linkek {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.nav-linkek a {
-    position: relative;
-    padding: 0.55rem 1rem;
-    border-radius: 999px;
-    color: var(--nav-text);
-    font-size: 0.95rem;
-    font-weight: 500;
-    letter-spacing: 0.01em;
-    text-decoration: none;
-    white-space: nowrap;
-    transition:
-        color 0.2s ease,
-        background-color 0.2s ease,
-        transform 0.2s ease;
-}
-
-/* Alsó, színátmenetes csík hover / aktív állapotban */
-.nav-linkek a::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 0.25rem;
-    width: 0;
-    height: 2px;
-    border-radius: 2px;
-    background: linear-gradient(90deg, var(--nav-accent), var(--nav-accent-2));
-    transform: translateX(-50%);
-    transition: width 0.25s ease;
-}
-
-.nav-kosar-darab {
-    position: absolute;
-    top: -0.3rem;
-    right: -0.3rem;
-    min-width: 1.15rem;
-    padding: 0.1rem 0.3rem;
-    border-radius: 999px;
-    background: linear-gradient(135deg, var(--nav-accent), var(--nav-accent-2));
-    box-shadow: 0 0 0 2px #0f172a;
-    color: #ffffff;
-    font-size: 0.68rem;
-    font-weight: 700;
-    line-height: 1.2;
-    text-align: center;
-}
-
-.nav-linkek a:hover {
-    color: var(--nav-text-hover);
-    background-color: var(--nav-hover-bg);
-    transform: translateY(-1px);
-}
-
-.nav-linkek a:hover::after,
-.nav-linkek a[aria-current='page']::after,
-.nav-linkek a.nav-link--aktiv::after {
-    width: 40%;
-}
-
-.nav-linkek a[aria-current='page'],
-.nav-linkek a.nav-link--aktiv {
-    color: var(--nav-text-hover);
-    background-color: var(--nav-hover-bg);
-}
-
-.nav-linkek a:active {
-    transform: translateY(0) scale(0.97);
-}
-
-.nav-linkek a:focus-visible,
-.nav-fiok-gomb:focus-visible,
-.nav-kosar-gomb:focus-visible,
-.nav-fiok-elem:focus-visible {
-    outline: 2px solid var(--nav-accent-2);
-    outline-offset: 2px;
-}
-
-/* Jobb oldal: kosár és fiók egymás mellett */
-.nav-jobb {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    justify-self: end;
-}
-
-/* Fiók */
-.nav-fiok {
-    position: relative;
-}
-
-.nav-fiok-gomb,
-.nav-kosar-gomb {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.6rem;
-    height: 2.6rem;
-    padding: 0;
-    border: 1px solid var(--nav-border);
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--nav-text);
-    cursor: pointer;
-    transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease,
-        transform 0.2s ease;
-}
-
-.nav-fiok-gomb:hover,
-.nav-fiok-gomb[aria-expanded='true'],
-.nav-kosar-gomb:hover,
-.nav-kosar-gomb[aria-current='page'] {
-    border-color: rgba(255, 255, 255, 0.25);
-    background: var(--nav-hover-bg);
-    color: var(--nav-text-hover);
-}
-
-.nav-fiok-gomb:active,
-.nav-kosar-gomb:active {
-    transform: scale(0.94);
+    gap: 1rem;
+    height: var(--nav-magassag);
+    padding-inline: clamp(1rem, 4vw, 3rem);
+    background: var(--nav-hatter);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.18);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 4px 14px rgba(27, 39, 30, 0.14);
 }
 
 .nav-ikon {
@@ -164,14 +37,248 @@
     height: 1.25rem;
 }
 
+.nav-kontener a:focus-visible,
+.nav-kontener button:focus-visible {
+    outline: 2px solid var(--nav-kiemeles-vilagos);
+    outline-offset: 2px;
+}
+
+/* ---------- Bal oldal: márka ---------- */
+
+.nav-bal {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-self: start;
+    min-width: 0;
+}
+
+.nav-marka {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 0;
+    color: var(--nav-szoveg-eros);
+    text-decoration: none;
+}
+
+.nav-marka-jel {
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 0.65rem;
+    background: var(--nav-kiemeles);
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+    color: #ffffff;
+    transition: transform 0.25s ease;
+}
+
+/* Egy kis billenés rámutatáskor: ettől lesz „élő” a logó */
+.nav-marka:hover .nav-marka-jel {
+    transform: rotate(-8deg);
+}
+
+.nav-marka-szoveg {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.15;
+}
+
+.nav-marka-szoveg strong {
+    font-size: 1.15rem;
+    font-weight: 750;
+    letter-spacing: -0.01em;
+}
+
+.nav-marka-szoveg small {
+    color: var(--nav-szoveg);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* ---------- Közép: menüpontok ---------- */
+
+.nav-linkek {
+    display: flex;
+    align-self: stretch;
+    gap: 0.25rem;
+}
+
+.nav-linkek a {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 0.95rem;
+    color: var(--nav-szoveg);
+    font-size: 0.94rem;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.2s ease;
+}
+
+/* Alsó jelzőcsík a sáv aljához simulva: rámutatáskor halványan kinyílik,
+   az aktív oldalnál teljes színnel látszik. */
+.nav-linkek a::after {
+    content: '';
+    position: absolute;
+    right: 0.95rem;
+    bottom: 0;
+    left: 0.95rem;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    background: rgba(255, 255, 255, 0.35);
+    transform: scaleX(0);
+    transition: transform 0.25s ease, background-color 0.25s ease;
+}
+
+.nav-linkek a:hover {
+    color: var(--nav-szoveg-eros);
+}
+
+.nav-linkek a:hover::after {
+    transform: scaleX(1);
+}
+
+.nav-linkek a[aria-current='page'],
+.nav-linkek a.nav-link--aktiv {
+    color: var(--nav-szoveg-eros);
+}
+
+.nav-linkek a[aria-current='page']::after,
+.nav-linkek a.nav-link--aktiv::after {
+    background: var(--nav-kiemeles);
+    transform: scaleX(1);
+}
+
+/* ---------- Jobb oldal: kosár, belépés, fiók ---------- */
+
+.nav-jobb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    justify-self: end;
+}
+
+.nav-auth {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.nav-auth-gomb {
+    display: inline-flex;
+    align-items: center;
+    height: 2.5rem;
+    padding: 0 1rem;
+    border-radius: 0.6rem;
+    color: var(--nav-szoveg-eros);
+    font-size: 0.92rem;
+    font-weight: 650;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.nav-auth-gomb:hover,
+.nav-auth-gomb[aria-current='page'] {
+    background: var(--nav-halvany);
+}
+
+.nav-auth-gomb--kiemelt {
+    background: var(--nav-kiemeles);
+    box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+}
+
+.nav-auth-gomb--kiemelt:hover,
+.nav-auth-gomb--kiemelt[aria-current='page'] {
+    background: var(--nav-kiemeles-sotet);
+}
+
+.nav-auth-gomb:active,
+.nav-ikon-gomb:active {
+    transform: scale(0.96);
+}
+
+/* Kosár és vendég fiók ikon: visszafogott, keret nélküli gomb */
+.nav-ikon-gomb {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.6rem;
+    background: transparent;
+    color: var(--nav-szoveg-eros);
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.15s ease;
+}
+
+.nav-ikon-gomb:hover,
+.nav-ikon-gomb[aria-current='page'],
+.nav-ikon-gomb[aria-expanded='true'] {
+    background: var(--nav-halvany);
+}
+
+.nav-kosar-darab {
+    position: absolute;
+    top: 0.1rem;
+    right: 0.05rem;
+    min-width: 1.15rem;
+    padding: 0.1rem 0.3rem;
+    border: 2px solid var(--nav-hatter);
+    border-radius: 999px;
+    background: var(--nav-kiemeles);
+    color: #ffffff;
+    font-size: 0.66rem;
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: center;
+}
+
+/* ---------- Fiók és lenyíló menü ---------- */
+
+.nav-fiok {
+    position: relative;
+}
+
+/* Bejelentkezett felhasználónál a monogramos kör maga a gomb */
+.nav-fiok-gomb:not(.nav-ikon-gomb) {
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+}
+
+.nav-fiok-gomb:not(.nav-ikon-gomb) .nav-avatar {
+    transition: box-shadow 0.2s ease;
+}
+
+.nav-fiok-gomb:not(.nav-ikon-gomb):hover .nav-avatar,
+.nav-fiok-gomb[aria-expanded='true'] .nav-avatar {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.18);
+}
+
 .nav-avatar {
     display: grid;
     place-items: center;
     flex-shrink: 0;
-    width: 2rem;
-    height: 2rem;
+    width: 2.3rem;
+    height: 2.3rem;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--nav-accent), var(--nav-accent-2));
+    background: var(--nav-kiemeles);
     color: #ffffff;
     font-size: 0.95rem;
     font-weight: 700;
@@ -180,34 +287,27 @@
 
 .nav-fiok-menu {
     position: absolute;
-    top: calc(100% + 0.6rem);
+    top: calc(100% + 0.65rem);
     right: 0;
     z-index: 110;
     width: 16rem;
     max-width: calc(100vw - 1.5rem);
-    box-sizing: border-box;
-    padding: 0.5rem;
-    border: 1px solid var(--nav-border);
-    border-radius: 1rem;
-    background: rgba(15, 23, 42, 0.97);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    padding: 0.4rem;
+    border: 1px solid var(--nav-vonal);
+    border-radius: 0.8rem;
+    background: var(--nav-panel);
+    box-shadow: 0 18px 40px rgba(10, 16, 12, 0.35);
     transform-origin: top right;
-    animation: nav-menu-be 0.15s ease both;
+    animation: nav-menu-be 0.16s ease both;
 }
 
 .nav-fiok-fej {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    margin-bottom: 0.4rem;
-    padding: 0.6rem 0.6rem 0.8rem;
-    border-bottom: 1px solid var(--nav-border);
-}
-
-.nav-fiok-fej .nav-avatar {
-    width: 2.5rem;
-    height: 2.5rem;
-    font-size: 1.1rem;
+    margin-bottom: 0.35rem;
+    padding: 0.6rem 0.6rem 0.75rem;
+    border-bottom: 1px solid var(--nav-vonal);
 }
 
 .nav-fiok-adatok {
@@ -223,12 +323,12 @@
 }
 
 .nav-fiok-adatok strong {
-    color: #ffffff;
+    color: var(--nav-szoveg-eros);
     font-size: 0.95rem;
 }
 
 .nav-fiok-adatok small {
-    color: #94a3b8;
+    color: var(--nav-szoveg);
     font-size: 0.8rem;
 }
 
@@ -236,39 +336,37 @@
     display: flex;
     align-items: center;
     gap: 0.7rem;
-    padding: 0.65rem 0.75rem;
-    border-radius: 0.65rem;
-    color: var(--nav-text);
-    font-size: 0.95rem;
-    font-weight: 500;
+    padding: 0.6rem 0.7rem;
+    border-radius: 0.55rem;
+    color: var(--nav-szoveg);
+    font-size: 0.94rem;
+    font-weight: 550;
     text-decoration: none;
-    transition:
-        background-color 0.2s ease,
-        color 0.2s ease;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .nav-fiok-elem:hover,
 .nav-fiok-elem[aria-current='page'] {
-    background-color: var(--nav-hover-bg);
-    color: var(--nav-text-hover);
+    background: var(--nav-halvany);
+    color: var(--nav-szoveg-eros);
 }
 
 .nav-fiok-elv {
     height: 1px;
-    margin: 0.4rem 0;
+    margin: 0.35rem 0;
     border: 0;
-    background: var(--nav-border);
+    background: var(--nav-vonal);
 }
 
 .nav-fiok-kilep:hover {
-    background-color: rgba(248, 113, 113, 0.12);
-    color: var(--nav-danger);
+    background: rgba(242, 164, 154, 0.12);
+    color: var(--nav-veszely);
 }
 
 @keyframes nav-menu-be {
     from {
         opacity: 0;
-        transform: translateY(-6px) scale(0.97);
+        transform: translateY(-6px) scale(0.98);
     }
 
     to {
@@ -277,333 +375,133 @@
     }
 }
 
-@media (prefers-reduced-motion: reduce) {
-
-    .nav-linkek a,
-    .nav-linkek a::after,
-    .nav-fiok-gomb,
-    .nav-kosar-gomb,
-    .nav-fiok-elem {
-        transition: none;
-    }
-
-    .nav-fiok-menu {
-        animation: none;
-    }
-
-    .nav-linkek a:hover,
-    .nav-linkek a:active,
-    .nav-fiok-gomb:active {
-        transform: none;
-    }
-
-    .nav-auth-gomb {
-        transition: none;
-    }
-
-    .nav-auth-gomb:active {
-        transform: none;
-    }
-}
-
-/* Áruház megjelenésfrissítés 2026 */
-
-.nav-kontener {
-    --nav-bg: #293a30;
-    --nav-border: rgba(255, 255, 255, .11);
-    --nav-text: #e0e5df;
-    --nav-text-hover: #fff;
-    --nav-hover-bg: rgba(255, 255, 255, .1);
-    --nav-accent: #c16a3b;
-    --nav-accent-2: #d89a69;
-    background: #293a30;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    box-shadow: 0 2px 10px rgba(27, 39, 30, .16);
-}
-
-.nav-linkek a {
-    border-radius: .45rem;
-}
-
-.nav-linkek a::after {
-    background: #d89a69;
-    bottom: .18rem;
-}
-
-.nav-fiok-gomb,
-.nav-kosar-gomb {
-    border-radius: .65rem;
-}
-
-.nav-avatar {
-    background: #bd6a3d;
-}
-
-.nav-kosar-darab {
-    background: #bd6a3d;
-    box-shadow: 0 0 0 2px #293a30;
-}
-
-.nav-fiok-menu {
-    background: #293a30;
-    border-radius: .8rem;
-}
-
-.nav-linkek a:focus-visible,
-.nav-fiok-gomb:focus-visible,
-.nav-kosar-gomb:focus-visible,
-.nav-fiok-elem:focus-visible {
-    outline-color: #e0a477;
-}
-
-/* Márkás kirakatfrissítés 2026 */
-
-/* Erősebb, jól felismerhető márkasáv */
-.nav-kontener {
-    min-height: 4.5rem;
-    padding-inline: clamp(1rem, 4vw, 3rem);
-    border-bottom: 3px solid #bd6a3d;
-    box-shadow: 0 5px 16px rgba(27, 39, 30, .15);
-}
-
-.nav-linkek {
-    gap: .35rem;
-}
-
-.nav-linkek a {
-    padding: .65rem .9rem;
-    font-size: .92rem;
-    font-weight: 650;
-}
-
-.nav-linkek a[aria-current='page'],
-.nav-linkek a.nav-link--aktiv {
-    background: rgba(255, 255, 255, .12);
-}
-
-.nav-linkek a::after {
-    display: none;
-}
-
-.nav-fiok-gomb,
-.nav-kosar-gomb {
-    width: 2.8rem;
-    height: 2.8rem;
-    border-color: rgba(255, 255, 255, .2);
-    background: rgba(255, 255, 255, .07);
-}
-
-.nav-kosar-gomb {
-    background: #bd6a3d;
-    border-color: #bd6a3d;
-    color: #fff;
-}
-
-.nav-kosar-gomb:hover {
-    background: #a95731;
-    border-color: #a95731;
-}
-
-.nav-kosar-darab {
-    top: -.45rem;
-    right: -.45rem;
-    border: 2px solid #293a30;
-}
-
-/* Vendég elrendezés + glassy gombok 2026 */
-
-/* Vendégnél a bal oszlopot a fiók-ikon foglalja el az üres helykitöltő helyett */
-.nav-kontener--vendeg::before {
-    display: none;
-}
-
-.nav-bal {
-    display: flex;
-    align-items: center;
-    justify-self: start;
-}
-
-/* Bal oldali fióknál a menü balra igazodik, hogy ne lógjon ki a képernyőről */
-.nav-bal .nav-fiok-menu {
-    right: auto;
-    left: 0;
-    transform-origin: top left;
-}
-
-/* Közös üveghatás minden navigációs gombra */
-.nav-fiok-gomb,
-.nav-kosar-gomb,
-.nav-auth-gomb {
-    --uveg-szin: 255, 255, 255;
-
-    border: 1px solid rgba(var(--uveg-szin), 0.22);
-    background:
-        linear-gradient(180deg, rgba(var(--uveg-szin), 0.2) 0%, rgba(var(--uveg-szin), 0.06) 100%);
-    backdrop-filter: blur(10px) saturate(170%);
-    -webkit-backdrop-filter: blur(10px) saturate(170%);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.35),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.12),
-        0 4px 14px rgba(15, 23, 15, 0.22);
-    color: #ffffff;
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        transform 0.2s ease;
-}
-
-.nav-fiok-gomb:hover,
-.nav-fiok-gomb[aria-expanded='true'],
-.nav-kosar-gomb:hover,
-.nav-kosar-gomb[aria-current='page'],
-.nav-auth-gomb:hover,
-.nav-auth-gomb[aria-current='page'] {
-    border-color: rgba(var(--uveg-szin), 0.4);
-    background:
-        linear-gradient(180deg, rgba(var(--uveg-szin), 0.3) 0%, rgba(var(--uveg-szin), 0.12) 100%);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.45),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.12),
-        0 6px 18px rgba(15, 23, 15, 0.28);
-    color: #ffffff;
-}
-
-/* A kosár és a regisztráció a márkaszínű (terrakotta) üveget kapja */
-.nav-kosar-gomb,
-.nav-auth-gomb--kiemelt {
-    --uveg-szin: 216, 140, 95;
-}
-
-.nav-auth-gomb {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    height: 2.8rem;
-    padding: 0 1.05rem;
-    border-radius: 0.65rem;
-    font-size: 0.92rem;
-    font-weight: 650;
-    text-decoration: none;
-    white-space: nowrap;
-    cursor: pointer;
-}
-
-.nav-auth-gomb:active {
-    transform: scale(0.96);
-}
-
-.nav-auth-gomb:focus-visible {
-    outline: 2px solid #e0a477;
-    outline-offset: 2px;
-}
-
-/* Üveges menüpontok */
-.nav-linkek a {
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.03) 100%);
-    backdrop-filter: blur(10px) saturate(160%);
-    -webkit-backdrop-filter: blur(10px) saturate(160%);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.18),
-        0 2px 8px rgba(15, 23, 15, 0.12);
-    transition:
-        color 0.2s ease,
-        background 0.2s ease,
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        transform 0.2s ease;
-}
-
-.nav-linkek a:hover {
-    border-color: rgba(255, 255, 255, 0.3);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.07) 100%);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.32),
-        0 4px 12px rgba(15, 23, 15, 0.18);
-}
-
-/* Az aktív oldal menüpontja terrakotta üveget kap */
-.nav-linkek a[aria-current='page'],
-.nav-linkek a.nav-link--aktiv {
-    border-color: rgba(216, 140, 95, 0.5);
-    background: linear-gradient(180deg, rgba(216, 140, 95, 0.42) 0%, rgba(216, 140, 95, 0.16) 100%);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.35),
-        0 4px 12px rgba(15, 23, 15, 0.2);
-}
-
-/* Balra igazított menü: a menüpontok a sáv elején kezdődnek (vendégnél a fiók-ikon után),
-   a jobb oldali gombok a sáv végére kerülnek */
-.nav-kontener {
-    grid-template-columns: minmax(0, 1fr) auto;
-}
-
-.nav-kontener::before {
-    display: none;
-}
-
-.nav-kontener--vendeg {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-}
-
-.nav-linkek {
-    justify-content: flex-start;
-}
+/* ---------- Mobil ---------- */
 
 .nav-mobil-gomb,
 .nav-mobil-hatter {
     display: none;
 }
 
-/* Mobilon a navigáció mindig a képernyő tetején marad; a menüpontok
-   oldalsávként, gombnyomásra jelennek meg. */
-@media screen and (max-width: 700px) {
-    .app-kontener {
-        padding-top: calc(4.5rem + env(safe-area-inset-top));
+/* Szűkebb asztali nézetben a márka alcíme helyet ad a menüpontoknak */
+@media screen and (max-width: 1080px) {
+    .nav-marka-szoveg small {
+        display: none;
+    }
+}
+
+/* Mobilon a sáv fixen a képernyő tetején marad; a menüpontok bal oldali
+   fiókként, a hamburger gombbal nyílnak. A vendég belépés és regisztráció
+   ilyenkor a fiók ikon menüjéből érhető el. */
+@media screen and (max-width: 860px) {
+    .nav-kontener {
+        --nav-magassag: 3.75rem;
     }
 
-    .nav-kontener,
-    .nav-kontener--vendeg {
+    .app-kontener {
+        padding-top: calc(var(--nav-magassag, 3.75rem) + env(safe-area-inset-top));
+    }
+
+    .nav-kontener {
         position: fixed;
         top: 0;
         right: 0;
         left: 0;
         z-index: 1000;
         display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: .5rem;
-        min-height: 0;
-        padding: calc(.45rem + env(safe-area-inset-top)) .65rem .5rem;
+        gap: 0.5rem;
+        height: calc(var(--nav-magassag) + env(safe-area-inset-top));
+        padding: env(safe-area-inset-top) 0.65rem 0;
     }
 
-    .nav-bal {
+    .nav-jobb {
+        gap: 0.25rem;
+        margin-left: auto;
+    }
+
+    .nav-auth {
         display: none;
+    }
+
+    .nav-marka-jel {
+        width: 2.15rem;
+        height: 2.15rem;
+    }
+
+    .nav-mobil-gomb {
+        display: inline-flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        gap: 0.28rem;
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0;
+        border: 0;
+        border-radius: 0.6rem;
+        background: transparent;
+        cursor: pointer;
+    }
+
+    .nav-mobil-gomb:hover,
+    .nav-mobil-gomb--nyitva {
+        background: var(--nav-halvany);
+    }
+
+    /* Három vonal, nyitáskor X-szé fordul */
+    .nav-mobil-gomb span {
+        display: block;
+        width: 1.2rem;
+        height: 2px;
+        border-radius: 2px;
+        background: var(--nav-szoveg-eros);
+        transition: transform 0.22s ease, opacity 0.22s ease;
+    }
+
+    .nav-mobil-gomb--nyitva span:nth-child(1) {
+        transform: translateY(calc(0.28rem + 2px)) rotate(45deg);
+    }
+
+    .nav-mobil-gomb--nyitva span:nth-child(2) {
+        opacity: 0;
+    }
+
+    .nav-mobil-gomb--nyitva span:nth-child(3) {
+        transform: translateY(calc(-0.28rem - 2px)) rotate(-45deg);
+    }
+
+    /* A háttér és a menü a sáv alatt kezdődik, így a bezáró gomb látható marad */
+    .nav-mobil-hatter {
+        position: fixed;
+        top: calc(var(--nav-magassag) + env(safe-area-inset-top));
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 1001;
+        display: block;
+        padding: 0;
+        border: 0;
+        background: rgba(10, 16, 12, 0.45);
+        animation: nav-hatter-be 0.2s ease both;
     }
 
     .nav-linkek {
         position: fixed;
-        top: 0;
+        top: calc(var(--nav-magassag) + env(safe-area-inset-top));
         bottom: 0;
         left: 0;
         z-index: 1002;
-        display: flex;
         flex-direction: column;
-        align-items: stretch;
-        justify-content: flex-start;
-        gap: .45rem;
-        width: min(82vw, 19rem);
-        min-width: 0;
+        gap: 0.15rem;
+        width: min(80vw, 18rem);
         overflow-y: auto;
-        padding: calc(5rem + env(safe-area-inset-top)) 1rem 1rem;
-        border-right: 1px solid rgba(255, 255, 255, .16);
-        background: #293a30;
-        box-shadow: 12px 0 32px rgba(15, 23, 15, .28);
+        padding: 0.75rem 0.6rem calc(1rem + env(safe-area-inset-bottom));
+        border-top: 1px solid var(--nav-vonal);
+        background: var(--nav-panel);
+        box-shadow: 12px 0 32px rgba(10, 16, 12, 0.3);
         transform: translateX(-105%);
         visibility: hidden;
-        transition: transform .22s ease, visibility .22s ease;
+        transition: transform 0.24s ease, visibility 0.24s ease;
     }
 
     .nav-linkek--mobil-nyitva {
@@ -612,51 +510,45 @@
     }
 
     .nav-linkek a {
-        flex: 0 0 auto;
-        padding: .8rem .9rem;
-        font-size: .95rem;
-        white-space: nowrap;
+        padding: 0.85rem 1rem;
+        border-radius: 0.55rem;
+        font-size: 1rem;
     }
 
-    .nav-jobb {
-        justify-content: flex-end;
-        gap: .35rem;
-        margin-left: auto;
+    .nav-linkek a:hover,
+    .nav-linkek a[aria-current='page'],
+    .nav-linkek a.nav-link--aktiv {
+        background: var(--nav-halvany);
     }
 
-    .nav-mobil-gomb {
-        display: inline-flex;
-        flex: 0 0 auto;
-        align-items: center;
-        justify-content: center;
-        width: 2.75rem;
-        height: 2.75rem;
-        border: 1px solid rgba(255, 255, 255, .24);
-        border-radius: .65rem;
-        background: rgba(255, 255, 255, .12);
-        color: #fff;
-        font-size: 1.5rem;
-        line-height: 1;
-        cursor: pointer;
+    /* Mobilon a jelzőcsík függőleges, a menüpont bal szélén */
+    .nav-linkek a::after {
+        top: 0.65rem;
+        right: auto;
+        bottom: 0.65rem;
+        left: 0;
+        width: 3px;
+        height: auto;
+        border-radius: 0 3px 3px 0;
+        transform: scaleY(0);
     }
 
-    .nav-mobil-hatter {
-        position: fixed;
-        inset: 0;
-        z-index: 1001;
-        display: block;
-        border: 0;
-        background: rgba(10, 16, 12, .48);
+    .nav-linkek a:hover::after {
+        transform: scaleY(1);
     }
 
-    .nav-fiok-gomb,
-    .nav-kosar-gomb,
-    .nav-auth-gomb {
-        width: 2.75rem;
-        height: 2.75rem;
+    .nav-linkek a[aria-current='page']::after,
+    .nav-linkek a.nav-link--aktiv::after {
+        transform: scaleY(1);
+    }
+}
+
+@keyframes nav-hatter-be {
+    from {
+        opacity: 0;
     }
 
-    .nav-auth-szoveg {
-        display: none;
+    to {
+        opacity: 1;
     }
 }

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import './Termekek.css';
+import KategoriaValaszto from '../components/KategoriaValaszto';
 import Termek from '../components/Termek';
 import { API_URL } from '../config';
 
@@ -66,13 +67,11 @@ const Termekek = () => {
         };
     }, [kereses, kivalasztottKategoriak, minAr, maxAr]);
 
-    const kategoriaValtas = (kategoria) => {
-        const ujKategoriak = kivalasztottKategoriak.includes(kategoria)
-            ? kivalasztottKategoriak.filter((elem) => elem !== kategoria)
-            : [...kivalasztottKategoriak, kategoria];
+    // A képes választó egyetlen kategóriát választ, az „Összes” törli a kategóriaszűrést.
+    const egyKategoriaValasztas = (kategoria) => {
         const ujParameterek = new URLSearchParams(searchParams);
         ujParameterek.delete('kategoria');
-        ujKategoriak.forEach((elem) => ujParameterek.append('kategoria', elem));
+        if (kategoria) ujParameterek.append('kategoria', kategoria);
         setSearchParams(ujParameterek);
     };
 
@@ -99,19 +98,14 @@ const Termekek = () => {
                             <span className="termek-szuro-aktiv">Aktív</span>
                         )}
                     </div>
-                    <fieldset className="termek-szuro-kategoriak">
-                        <legend>Kategóriák</legend>
-                        {KATEGORIAK.map((kategoria) => (
-                            <label className="termek-szuro-kategoria" key={kategoria}>
-                                <input
-                                    type="checkbox"
-                                    checked={kivalasztottKategoriak.includes(kategoria)}
-                                    onChange={() => kategoriaValtas(kategoria)}
-                                />
-                                <span>{kategoria}</span>
-                            </label>
-                        ))}
-                    </fieldset>
+                    <div className="termek-szuro-kategoria-blokk">
+                        <span className="termek-szuro-cim">Kategória</span>
+                        <KategoriaValaszto
+                            kategoriak={KATEGORIAK}
+                            kivalasztott={kivalasztottKategoriak}
+                            valaszt={egyKategoriaValasztas}
+                        />
+                    </div>
                     <fieldset className="termek-ar-szuro">
                         <legend>Ártartomány (Ft)</legend>
                         <label>
