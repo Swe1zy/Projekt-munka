@@ -53,7 +53,10 @@ body {
     line-height: 1.55;
 }
 
-button, input, select, textarea {
+button,
+input,
+select,
+textarea {
     font: inherit;
 }
 
@@ -67,10 +70,98 @@ button {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
+
+    *,
+    *::before,
+    *::after {
         scroll-behavior: auto !important;
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
+    }
+}
+
+/* Mobil alapoptimalizáció – kompakt és azonos viselkedés minden oldalon */
+img,
+svg,
+video,
+canvas {
+    max-width: 100%;
+}
+
+input,
+select,
+textarea,
+button {
+    max-width: 100%;
+}
+
+@media screen and (max-width: 700px) {
+    html {
+        font-size: 16px;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        min-width: 0;
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    main,
+    [class$="-kontener"] {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 16px;
+    }
+
+    button,
+    a {
+        touch-action: manipulation;
+    }
+
+    .home-belso,
+    .termekek-kontener {
+        padding-inline: 1rem;
+    }
+
+    .home-kategoria-racs,
+    .home-elony-racs,
+    #termekek-kontener {
+        grid-template-columns: 1fr !important;
+    }
+
+    .home-szekcio-fej {
+        text-align: left;
+    }
+
+    .termekek-fejlec,
+    .termekek-elrendezes,
+    .termekek-tartalom {
+        min-width: 0;
+    }
+
+    .termek-szuro-oldalsav {
+        gap: 1rem;
+    }
+
+    .termek-szuro-kategoriak {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .lablec {
+        align-items: flex-start;
+        flex-direction: column;
+        padding-bottom: calc(.9rem + env(safe-area-inset-bottom));
+    }
+}
+
+@media screen and (max-width: 420px) {
+    .termek-szuro-kategoriak {
+        grid-template-columns: 1fr;
     }
 }
