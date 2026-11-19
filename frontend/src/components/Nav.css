@@ -277,116 +277,6 @@
     }
 }
 
-@media screen and (max-width: 700px) {
-    .nav-kontener {
-        grid-template-columns: minmax(0, 1fr) auto;
-        padding: 0.5rem 0.75rem;
-    }
-
-    .nav-kontener::before {
-        display: none;
-    }
-
-    .nav-linkek {
-        min-width: 0;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-    }
-
-    /* A linkek kitöltik a fiók-ikon melletti sávot */
-    .nav-linkek a {
-        flex: 1 1 auto;
-        padding: 0.6rem 0.9rem;
-        border-radius: 0.75rem;
-        font-size: 0.9rem;
-        text-align: center;
-        white-space: normal;
-    }
-
-    .nav-mobil-gomb,
-    .nav-mobil-menu {
-        display: none;
-    }
-}
-
-@media screen and (max-width: 700px) {
-
-    .nav-kontener,
-    .nav-kontener--vendeg {
-        grid-template-columns: minmax(0, 1fr) auto;
-        min-height: 3.75rem;
-        padding: max(.45rem, env(safe-area-inset-top)) .65rem .45rem;
-    }
-
-    .nav-bal,
-    .nav-linkek {
-        display: none;
-    }
-
-    .nav-jobb {
-        grid-column: 2;
-        gap: .35rem;
-    }
-
-    .nav-mobil-gomb {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 2.75rem;
-        height: 2.75rem;
-        border: 1px solid rgba(255, 255, 255, .22);
-        border-radius: .65rem;
-        background: rgba(255, 255, 255, .1);
-        color: #fff;
-        font-size: 1.35rem;
-        line-height: 1;
-        cursor: pointer;
-    }
-
-    .nav-mobil-menu {
-        position: absolute;
-        z-index: 120;
-        top: calc(100% + .35rem);
-        right: .65rem;
-        left: .65rem;
-        display: grid;
-        gap: .35rem;
-        padding: .55rem;
-        border: 1px solid rgba(255, 255, 255, .14);
-        border-radius: .75rem;
-        background: #293a30;
-        box-shadow: 0 14px 32px rgba(15, 23, 15, .32);
-    }
-
-    .nav-mobil-menu a {
-        min-height: 48px;
-        display: flex;
-        align-items: center;
-        padding: .7rem .85rem;
-        border-radius: .55rem;
-        color: #e0e5df;
-        font-weight: 700;
-        text-decoration: none;
-    }
-
-    .nav-mobil-menu a[aria-current='page'] {
-        background: rgba(216, 140, 95, .24);
-        color: #fff;
-    }
-
-    .nav-fiok-gomb,
-    .nav-kosar-gomb,
-    .nav-auth-gomb,
-    .nav-mobil-gomb {
-        width: 2.75rem;
-        height: 2.75rem;
-    }
-
-    .nav-auth-szoveg {
-        display: none;
-    }
-}
-
 @media (prefers-reduced-motion: reduce) {
 
     .nav-linkek a,
@@ -660,4 +550,68 @@
 
 .nav-linkek {
     justify-content: flex-start;
+}
+
+/* Mobilon a navigáció mindig a képernyő tetején marad; a menüpontok
+   közvetlenül elérhetők, vízszintesen görgethető sorban. */
+@media screen and (max-width: 700px) {
+    .app-kontener {
+        padding-top: calc(6rem + env(safe-area-inset-top));
+    }
+
+    .nav-kontener,
+    .nav-kontener--vendeg {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 1000;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: .3rem;
+        min-height: 0;
+        padding: calc(.45rem + env(safe-area-inset-top)) .65rem .5rem;
+    }
+
+    .nav-bal {
+        display: none;
+    }
+
+    .nav-linkek {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: .3rem;
+        min-width: 0;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        scrollbar-width: none;
+    }
+
+    .nav-linkek::-webkit-scrollbar {
+        display: none;
+    }
+
+    .nav-linkek a {
+        flex: 0 0 auto;
+        padding: .5rem .65rem;
+        font-size: .82rem;
+        white-space: nowrap;
+    }
+
+    .nav-jobb {
+        justify-content: flex-end;
+        gap: .35rem;
+    }
+
+    .nav-fiok-gomb,
+    .nav-kosar-gomb,
+    .nav-auth-gomb {
+        width: 2.75rem;
+        height: 2.75rem;
+    }
+
+    .nav-auth-szoveg {
+        display: none;
+    }
 }
