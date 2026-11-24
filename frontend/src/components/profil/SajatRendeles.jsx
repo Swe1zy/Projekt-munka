@@ -12,6 +12,8 @@ import AllapotIdovonal from '../rendeles/AllapotIdovonal';
 import AllapotJelveny from '../rendeles/AllapotJelveny';
 import RendelesCimek from '../rendeles/RendelesCimek';
 import TetelLista from '../rendeles/TetelLista';
+import { atvetelModCimke, fizetesiAllapotCimke, rendelesAllapotCimke } from '../../utils/rendelesCimkek';
+import { t } from '../../utils/nyelv';
 
 const felsorolas = (nevek) => nevek.map((nev) => `„${nev}”`).join(', ');
 
@@ -37,12 +39,13 @@ const SajatRendeles = ({ rendeles, frissult, ujratolt }) => {
             const { kosarba, kimaradt, kevesebb, arValtozott } = await ujrarendelesElokeszites(rendeles);
             for (const { termek, mennyiseg } of kosarba) hozzaad(termek, mennyiseg);
 
-            if (kimaradt.length) hiba(`Már nem rendelhető, ezért kimaradt: ${felsorolas(kimaradt)}.`);
-            if (kevesebb.length) hiba(`A készlet miatt kevesebb került a kosárba: ${felsorolas(kevesebb)}.`);
+            if (kimaradt.length) hiba(t('Már nem rendelhető, ezért kimaradt: {nevek}.', { nevek: felsorolas(kimaradt) }));
+            if (kevesebb.length) hiba(t('A készlet miatt kevesebb került a kosárba: {nevek}.', { nevek: felsorolas(kevesebb) }));
             if (kosarba.length === 0) return;
 
             siker(
-                `${kosarba.length} tétel a kosárba került.${arValtozott ? ` ${arValtozott} tétel ára változott a rendelés óta, a kosár a mai árakat mutatja.` : ''}`,
+                t('{db} tétel a kosárba került.', { db: kosarba.length })
+                + (arValtozott ? ` ${t('{db} tétel ára változott a rendelés óta, a kosár a mai árakat mutatja.', { db: arValtozott })}` : ''),
             );
             navigate('/kosar');
         } catch (error) {
@@ -94,7 +97,7 @@ const SajatRendeles = ({ rendeles, frissult, ujratolt }) => {
                 </div>
                 <AllapotJelveny
                     allapot={rendeles.allapot}
-                    cimke={rendeles.cimke}
+                    cimke={rendelesAllapotCimke(rendeles.allapot, rendeles.cimke)}
                 />
             </header>
 
@@ -102,25 +105,24 @@ const SajatRendeles = ({ rendeles, frissult, ujratolt }) => {
 
             <div className="sajat-rendeles-osszeg">
                 <span>
-                    {szam(rendeles.tetelek.length)} tétel · {rendeles.atvetelCimke}
+                    {t('{db} tétel', { db: szam(rendeles.tetelek.length) })} · {atvetelModCimke(rendeles.atvetelModja, rendeles.atvetelCimke)}
                     {rendeles.atvetelNapja ? ` · ${napCimke(rendeles.atvetelNapja)}` : ''}
-                    {rendeles.raklapok > 0 ? ` · ${szam(rendeles.raklapok)} raklap` : ''}
+                    {rendeles.raklapok > 0 ? ` · ${t('{db} raklap', { db: szam(rendeles.raklapok) })}` : ''}
                 </span>
                 <strong>{forint(rendeles.vegosszeg)}</strong>
             </div>
 
             {fizetesJelzes && (
                 <p className={`sajat-rendeles-fizetes sajat-rendeles-fizetes--${fizetesJelzes}`}>
-                    <strong>{rendeles.fizetesiAllapotCimke}</strong>
+                    <strong>{fizetesiAllapotCimke(rendeles.fizetesiAllapot, rendeles.fizetesiAllapotCimke)}</strong>
                     {rendeles.fizetheto && rendeles.fizetesiHatarido && (
                         <span>
                             {' '}
-                            – {ora(rendeles.fizetesiHatarido)}-ig fizetheted ki, utána a rendelés törlődik, és a
-                            tételek felszabadulnak.
+                            – {t('{ido}-ig fizetheted ki, utána a rendelés törlődik, és a tételek felszabadulnak.', { ido: ora(rendeles.fizetesiHatarido) })}
                         </span>
                     )}
                     {fizetesJelzes === 'fizetes_lejart' && (
-                        <span> – a rendelést töröltük. Az „Újrarendelem” gombbal újra kosárba teheted a tételeket.</span>
+                        <span> – {t('a rendelést töröltük. Az „Újrarendelem” gombbal újra kosárba teheted a tételeket.')}</span>
                     )}
                 </p>
             )}
@@ -129,9 +131,9 @@ const SajatRendeles = ({ rendeles, frissult, ujratolt }) => {
                 <div
                     className="sajat-rendeles-megerosites"
                     role="group"
-                    aria-label="Lemondás megerősítése"
+                    aria-label={t('Lemondás megerősítése')}
                 >
-                    <p>Biztosan lemondod a(z) #{rendeles.rovidAzonosito} rendelést? A lefoglalt tételek felszabadulnak.</p>
+                    <p>{t('Biztosan lemondod a(z) #{azonosito} rendelést? A lefoglalt tételek felszabadulnak.', { azonosito: rendeles.rovidAzonosito })}</p>
                     <div className="profil-gombok">
                         <button
                             type="button"
@@ -139,7 +141,7 @@ const SajatRendeles = ({ rendeles, frissult, ujratolt }) => {
                             disabled={folyamat !== null}
                             onClick={lemondas}
                         >
-                            {folyamat === 'lemondas' ? 'Lemondás…' : 'Igen, lemondom'}
+                            {folyamat === 'lemondas' ? t('Lemondás…') : t('Igen, lemondom')}
                         </button>
                         <button
                             type="button"
@@ -147,7 +149,7 @@ const SajatRendeles = ({ rendeles, frissult, ujratolt }) => {
                             disabled={folyamat !== null}
                             onClick={() => setLemondasMegerosites(false)}
                         >
-                            Mégsem
+                            {t('Mégsem')}
                         </button>
                     </div>
                 </div>
@@ -160,7 +162,7 @@ const SajatRendeles = ({ rendeles, frissult, ujratolt }) => {
                             disabled={folyamat !== null}
                             onClick={fizetes}
                         >
-                            {folyamat === 'fizetes' ? 'Megnyitás…' : 'Fizetés most'}
+                            {folyamat === 'fizetes' ? t('Megnyitás…') : t('Fizetés most')}
                         </button>
                     )}
                     <button
@@ -169,7 +171,7 @@ const SajatRendeles = ({ rendeles, frissult, ujratolt }) => {
                         disabled={folyamat !== null}
                         onClick={ujrarendeles}
                     >
-                        {folyamat === 'ujrarendeles' ? 'Kosárba tesszük…' : 'Újrarendelem'}
+                        {folyamat === 'ujrarendeles' ? t('Kosárba tesszük…') : t('Újrarendelem')}
                     </button>
                     {rendeles.lemondhato && (
                         <button
@@ -178,18 +180,18 @@ const SajatRendeles = ({ rendeles, frissult, ujratolt }) => {
                             disabled={folyamat !== null}
                             onClick={() => setLemondasMegerosites(true)}
                         >
-                            Rendelés lemondása
+                            {t('Rendelés lemondása')}
                         </button>
                     )}
                 </div>
             )}
 
             <details className="sajat-rendeles-reszletek">
-                <summary>Tételek és szállítási adatok</summary>
+                <summary>{t('Tételek és szállítási adatok')}</summary>
                 <TetelLista
                     tetelek={rendeles.tetelek}
                     vegosszeg={rendeles.osszesites?.termekOsszeg ?? rendeles.vegosszeg}
-                    osszegCimke={rendeles.osszesites ? 'Termékek összesen' : 'Végösszeg'}
+                    osszegCimke={rendeles.osszesites ? t('Termékek összesen') : t('Végösszeg')}
                 />
                 {rendeles.osszesites && (
                     <div className="rendeles-osszesites sajat-rendeles-osszesites">
@@ -205,7 +207,7 @@ const SajatRendeles = ({ rendeles, frissult, ujratolt }) => {
                 </div>
                 {rendeles.allapot === 'feldolgozasra_var' && rendeles.fizetesiAllapot === 'fizetve' && (
                     <p className="profil-megjegyzes">
-                        A már kifizetett rendelést a telephellyel egyeztetve tudod lemondani.
+                        {t('A már kifizetett rendelést a telephellyel egyeztetve tudod lemondani.')}
                     </p>
                 )}
                 <a
@@ -214,7 +216,7 @@ const SajatRendeles = ({ rendeles, frissult, ujratolt }) => {
                     target="_blank"
                     rel="noreferrer"
                 >
-                    Díjbekérő letöltése (PDF) ↗
+                    {t('Díjbekérő letöltése (PDF)')} ↗
                 </a>
             </details>
         </article>

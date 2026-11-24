@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import './Lablec.css';
+import { t } from '../utils/nyelv';
 
 const Lablec = () => {
     return (
@@ -7,10 +8,10 @@ const Lablec = () => {
             <p>© {new Date().getFullYear()} Tüzép</p>
             <nav
                 className="lablec-linkek"
-                aria-label="Jogi információk"
+                aria-label={t('Jogi információk')}
             >
-                <Link to="/aszf">Általános Szerződési Feltételek</Link>
-                <Link to="/sutik">Sütitájékoztató</Link>
+                <Link to="/aszf">{t('Általános Szerződési Feltételek')}</Link>
+                <Link to="/sutik">{t('Sütitájékoztató')}</Link>
             </nav>
         </footer>
     );

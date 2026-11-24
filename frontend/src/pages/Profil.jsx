@@ -14,15 +14,16 @@ import SzallitasiCimek from '../components/profil/SzallitasiCimek';
 import { useLekeres } from '../utils/api';
 import './Auth.css';
 import './Profil.css';
+import { t } from '../utils/nyelv';
 
 // A fülek az URL hash-éből nyílnak (#rendeleseim, #adataim…), így a menüből és
 // az e-mailekből közvetlenül hivatkozhatók, és a böngésző vissza gombja is működik.
 const FULEK = [
-    { kulcs: 'rendeleseim', cimke: 'Rendeléseim' },
-    { kulcs: 'arajanlataim', cimke: 'Árajánlataim' },
-    { kulcs: 'adataim', cimke: 'Adataim' },
-    { kulcs: 'fiok', cimke: 'Biztonság és fiók' },
-    { kulcs: 'megjelenes', cimke: 'Megjelenés' },
+    { kulcs: 'rendeleseim', cimke: () => t('Rendeléseim') },
+    { kulcs: 'arajanlataim', cimke: () => t('Árajánlataim') },
+    { kulcs: 'adataim', cimke: () => t('Adataim') },
+    { kulcs: 'fiok', cimke: () => t('Biztonság és fiók') },
+    { kulcs: 'megjelenes', cimke: () => t('Megjelenés és nyelv') },
 ];
 
 const Rendeleseim = () => {
@@ -40,8 +41,8 @@ const Rendeleseim = () => {
             aria-busy={betoltes}
         >
             <div className="profil-rendelesek-fej">
-                <h2 id="rendeleseim-cim">Rendeléseim</h2>
-                <p>A bejelentkezve leadott rendeléseid és azok állapota.</p>
+                <h2 id="rendeleseim-cim">{t('Rendeléseim')}</h2>
+                <p>{t('A bejelentkezve leadott rendeléseid és azok állapota.')}</p>
             </div>
 
             {hiba && (
@@ -53,11 +54,11 @@ const Rendeleseim = () => {
                 </p>
             )}
             {!adat ? (
-                !hiba && <p className="profil-rendelesek-uzenet">Rendelések betöltése…</p>
+                !hiba && <p className="profil-rendelesek-uzenet">{t('Rendelések betöltése…')}</p>
             ) : adat.rendelesek.length === 0 ? (
                 <div className="profil-rendelesek-uzenet">
-                    <p>Még nincs rendelésed.</p>
-                    <Link to="/termekek">Nézz körül a termékek között</Link>
+                    <p>{t('Még nincs rendelésed.')}</p>
+                    <Link to="/termekek">{t('Nézz körül a termékek között')}</Link>
                 </div>
             ) : (
                 <>
@@ -93,7 +94,7 @@ const Adataim = () => {
             </p>
         );
     }
-    if (!adat) return <p className="profil-rendelesek-uzenet">Adatok betöltése…</p>;
+    if (!adat) return <p className="profil-rendelesek-uzenet">{t('Adatok betöltése…')}</p>;
 
     return (
         <div className="profil-panelek">
@@ -143,7 +144,7 @@ const Profil = () => {
 
     // Oldalfrissítéskor a munkamenet ellenőrzéséig nem irányítunk át a belépéshez.
     if (!authReady) {
-        return <div className="auth-kontener"><p>Munkamenet ellenőrzése…</p></div>;
+        return <div className="auth-kontener"><p>{t('Munkamenet ellenőrzése…')}</p></div>;
     }
 
     if (!user) {
@@ -182,7 +183,7 @@ const Profil = () => {
 
                     <nav
                         className="profil-fulek"
-                        aria-label="Profil részei"
+                        aria-label={t('Profil részei')}
                     >
                         {FULEK.map((ful) => (
                             <Link
@@ -190,7 +191,7 @@ const Profil = () => {
                                 to={{ hash: `#${ful.kulcs}` }}
                                 aria-current={ful.kulcs === aktiv ? 'page' : undefined}
                             >
-                                {ful.cimke}
+                                {ful.cimke()}
                             </Link>
                         ))}
                     </nav>

@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { kategoriaNev } from '../utils/termek';
 import './Home.css';
+import { t } from '../utils/nyelv';
 
 const ikonUtak = {
     nyil: (
@@ -140,59 +142,59 @@ const Ikon = ({ nev }) => {
     );
 };
 
-const kategoriak = [
+const kategoriak = () => [
     {
         ikon: 'teglafal',
         nev: 'Falazóanyagok',
-        leiras: 'Tégla, falazóblokk és áthidalók a tartós szerkezetekhez.',
+        leiras: t('Tégla, falazóblokk és áthidalók a tartós szerkezetekhez.'),
     },
     {
         ikon: 'cement',
         nev: 'Cement és kötőanyagok',
-        leiras: 'Cement, habarcs, ragasztók és vakolatok minden munkához.',
+        leiras: t('Cement, habarcs, ragasztók és vakolatok minden munkához.'),
     },
     {
         ikon: 'faanyag',
         nev: 'Faanyagok',
-        leiras: 'Gerendák, deszkák és lemezek szerkezetekhez és belső munkákhoz.',
+        leiras: t('Gerendák, deszkák és lemezek szerkezetekhez és belső munkákhoz.'),
     },
     {
         ikon: 'teto',
         nev: 'Tetőfedés',
-        leiras: 'Cserép, lemez és tetőtartozékok a biztos fedélért.',
+        leiras: t('Cserép, lemez és tetőtartozékok a biztos fedélért.'),
     },
     {
         ikon: 'szigeteles',
         nev: 'Hőszigetelés',
-        leiras: 'Szigetelőanyagok, hogy a ház télen is meleg, nyáron hűvös legyen.',
+        leiras: t('Szigetelőanyagok, hogy a ház télen is meleg, nyáron hűvös legyen.'),
     },
     {
         ikon: 'szerszam',
         nev: 'Szerszámok és kellékek',
-        leiras: 'Kéziszerszámok, rögzítők és munkavédelmi eszközök.',
+        leiras: t('Kéziszerszámok, rögzítők és munkavédelmi eszközök.'),
     },
 ];
 
-const elonyok = [
+const elonyok = () => [
     {
         ikon: 'szallitas',
-        nev: 'Kiszállítás',
-        leiras: 'Az anyagot az építkezés helyszínére szállítjuk.',
+        nev: t('Kiszállítás'),
+        leiras: t('Az anyagot az építkezés helyszínére szállítjuk.'),
     },
     {
         ikon: 'csomag',
-        nev: 'Széles választék',
-        leiras: 'Az alapozástól a tetőig mindent egy helyen megtalálsz.',
+        nev: t('Széles választék'),
+        leiras: t('Az alapozástól a tetőig mindent egy helyen megtalálsz.'),
     },
     {
         ikon: 'ar',
-        nev: 'Kedvező árak',
-        leiras: 'Versenyképes árak, nagyobb tételnél is.',
+        nev: t('Kedvező árak'),
+        leiras: t('Versenyképes árak, nagyobb tételnél is.'),
     },
     {
         ikon: 'tanacs',
-        nev: 'Szakmai tanácsadás',
-        leiras: 'Segítünk kiválasztani a munkához illő anyagot.',
+        nev: t('Szakmai tanácsadás'),
+        leiras: t('Segítünk kiválasztani a munkához illő anyagot.'),
     },
 ];
 
@@ -211,23 +213,22 @@ const Home = () => {
                 <div className="home-belso home-hero-belso">
                     <div className="home-hero-szoveg">
                         <span className="home-jelveny">
-                            Tüzép és építőanyag-kereskedés
+                            {t('Tüzép és építőanyag-kereskedés')}
                         </span>
                         <h1 id="home-cim">
-                            Minden, ami az építkezéshez kell –{' '}
-                            <span className="home-kiemeles">egy helyen</span>
+                            {t('Minden, ami az építkezéshez kell – {kiemelt}', {
+                                kiemelt: <span className="home-kiemeles">{t('egy helyen')}</span>,
+                            })}
                         </h1>
                         <p className="home-bevezeto">
-                            Minőségi építőanyagok, kedvező árak és gyors
-                            kiszállítás házépítőknek, felújítóknak és
-                            szakembereknek egyaránt.
+                            {t('Minőségi építőanyagok, kedvező árak és gyors kiszállítás házépítőknek, felújítóknak és szakembereknek egyaránt.')}
                         </p>
                         <div className="home-gombok">
                             <Link
                                 to="/termekek"
                                 className="home-gomb home-gomb-elsodleges"
                             >
-                                Termékek megtekintése
+                                {t('Termékek megtekintése')}
                                 <Ikon nev="nyil" />
                             </Link>
                             {vendeg && (
@@ -235,22 +236,22 @@ const Home = () => {
                                     to="/register"
                                     className="home-gomb home-gomb-masodlagos"
                                 >
-                                    Regisztráció
+                                    {t('Regisztráció')}
                                 </Link>
                             )}
                         </div>
                         <ul className="home-hero-lista">
                             <li>
                                 <Ikon nev="minoseg" />
-                                Minőségi anyagok
+                                {t('Minőségi anyagok')}
                             </li>
                             <li>
                                 <Ikon nev="szallitas" />
-                                Gyors kiszállítás
+                                {t('Gyors kiszállítás')}
                             </li>
                             <li>
                                 <Ikon nev="tanacs" />
-                                Szaktanácsadás
+                                {t('Szaktanácsadás')}
                             </li>
                         </ul>
                     </div>
@@ -264,8 +265,8 @@ const Home = () => {
                                 <Ikon nev="szallitas" />
                             </span>
                             <div>
-                                <strong>Kiszállítás</strong>
-                                <small>Az építkezés helyszínére</small>
+                                <strong>{t('Kiszállítás')}</strong>
+                                <small>{t('Az építkezés helyszínére')}</small>
                             </div>
                         </div>
                         <div className="home-hero-kartya home-hero-kartya-2">
@@ -273,8 +274,8 @@ const Home = () => {
                                 <Ikon nev="csomag" />
                             </span>
                             <div>
-                                <strong>Raktárról</strong>
-                                <small>Széles termékválaszték</small>
+                                <strong>{t('Raktárról')}</strong>
+                                <small>{t('Széles termékválaszték')}</small>
                             </div>
                         </div>
                     </div>
@@ -287,15 +288,14 @@ const Home = () => {
             >
                 <div className="home-belso">
                     <header className="home-szekcio-fej">
-                        <span className="home-felirat">Kínálatunk</span>
-                        <h2 id="home-kategoriak-cim">Termékkategóriák</h2>
+                        <span className="home-felirat">{t('Kínálatunk')}</span>
+                        <h2 id="home-kategoriak-cim">{t('Termékkategóriák')}</h2>
                         <p>
-                            Válassz a legfontosabb építőanyag-csoportjaink
-                            közül.
+                            {t('Válassz a legfontosabb építőanyag-csoportjaink közül.')}
                         </p>
                     </header>
                     <div className="home-kategoriak">
-                        {kategoriak.map((kategoria) => {
+                        {kategoriak().map((kategoria) => {
                             return (
                                 <Link
                                     key={kategoria.nev}
@@ -305,10 +305,10 @@ const Home = () => {
                                     <span className="home-kategoria-ikon">
                                         <Ikon nev={kategoria.ikon} />
                                     </span>
-                                    <h3>{kategoria.nev}</h3>
+                                    <h3>{kategoriaNev(kategoria.nev)}</h3>
                                     <p>{kategoria.leiras}</p>
                                     <span className="home-kategoria-tovabb">
-                                        Megnézem
+                                        {t('Megnézem')}
                                         <Ikon nev="nyil" />
                                     </span>
                                 </Link>
@@ -324,17 +324,16 @@ const Home = () => {
             >
                 <div className="home-belso">
                     <header className="home-szekcio-fej">
-                        <span className="home-felirat">Miért mi?</span>
+                        <span className="home-felirat">{t('Miért mi?')}</span>
                         <h2 id="home-elonyok-cim">
-                            Megbízható partner az építkezésen
+                            {t('Megbízható partner az építkezésen')}
                         </h2>
                         <p>
-                            Azért dolgozunk, hogy a munkád ne az anyagbeszerzésen
-                            akadjon el.
+                            {t('Azért dolgozunk, hogy a munkád ne az anyagbeszerzésen akadjon el.')}
                         </p>
                     </header>
                     <ul className="home-elonyok">
-                        {elonyok.map((elony) => {
+                        {elonyok().map((elony) => {
                             return (
                                 <li
                                     key={elony.nev}
@@ -359,11 +358,11 @@ const Home = () => {
                 <div className="home-belso">
                     <div className="home-cta">
                         <div>
-                            <h2 id="home-cta-cim">Kezdjük el az építkezést!</h2>
+                            <h2 id="home-cta-cim">{t('Kezdjük el az építkezést!')}</h2>
                             <p>
                                 {user
-                                    ? 'Böngéssz a termékeink között, és állítsd össze a következő projekted anyaglistáját.'
-                                    : 'Regisztrálj, böngéssz a termékeink között, és állítsd össze a következő projekted anyaglistáját.'}
+                                    ? t('Böngéssz a termékeink között, és állítsd össze a következő projekted anyaglistáját.')
+                                    : t('Regisztrálj, böngéssz a termékeink között, és állítsd össze a következő projekted anyaglistáját.')}
                             </p>
                         </div>
                         {vendeg && (
@@ -372,13 +371,13 @@ const Home = () => {
                                     to="/register"
                                     className="home-gomb home-gomb-elsodleges"
                                 >
-                                    Regisztráció
+                                    {t('Regisztráció')}
                                 </Link>
                                 <Link
                                     to="/login"
                                     className="home-gomb home-gomb-masodlagos"
                                 >
-                                    Bejelentkezés
+                                    {t('Bejelentkezés')}
                                 </Link>
                             </div>
                         )}

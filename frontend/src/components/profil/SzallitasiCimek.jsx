@@ -3,6 +3,7 @@ import { apiKeres } from '../../utils/api';
 import { cimSor, szallitasiCimMezok, uresSzallitasiCim } from '../../utils/fiok';
 import CimMezok from './CimMezok';
 import Uzenet from './Uzenet';
+import { t } from '../../utils/nyelv';
 
 const MAX_CIM = 10;
 
@@ -22,18 +23,18 @@ const CimUrlap = ({ kezdo, alapLehet, mentes, megse, kuldes }) => {
         >
             <div className="profil-mezo-par">
                 <label className="auth-mezo">
-                    Megnevezés
+                    {t('Megnevezés')}
                     <input
                         type="text"
                         maxLength="60"
                         value={cim.megnevezes}
                         onChange={(event) => frissit('megnevezes', event.target.value)}
-                        placeholder="pl. Családi ház – Göd"
+                        placeholder={t('pl. Családi ház – Göd')}
                     />
-                    <small>Üresen hagyva a cím lesz a neve.</small>
+                    <small>{t('Üresen hagyva a cím lesz a neve.')}</small>
                 </label>
                 <label className="auth-mezo">
-                    Átvevő neve
+                    {t('Átvevő neve')}
                     <input
                         type="text"
                         autoComplete="shipping name"
@@ -51,24 +52,24 @@ const CimUrlap = ({ kezdo, alapLehet, mentes, megse, kuldes }) => {
                 frissit={frissit}
             />
             <label className="auth-mezo">
-                Behajtás, lerakodás
+                {t('Behajtás, lerakodás')}
                 <textarea
                     rows="2"
                     maxLength="300"
                     value={cim.behajtas}
                     onChange={(event) => frissit('behajtas', event.target.value)}
-                    placeholder="pl. 7,5 t-s súlykorlátozás, 3 m széles kapu, a raklapokat az udvarra kérjük"
+                    placeholder={t('pl. 7,5 t-s súlykorlátozás, 3 m széles kapu, a raklapokat az udvarra kérjük')}
                 />
-                <small>A teherautó és a darus kiszállítás tervezéséhez (nem kötelező).</small>
+                <small>{t('A teherautó és a darus kiszállítás tervezéséhez (nem kötelező).')}</small>
             </label>
             <label className="auth-mezo">
-                Megjegyzés a futárnak
+                {t('Megjegyzés a futárnak')}
                 <textarea
                     rows="2"
                     maxLength="500"
                     value={cim.megjegyzes}
                     onChange={(event) => frissit('megjegyzes', event.target.value)}
-                    placeholder="Kapucsengő, emelet vagy egyéb hasznos információ (nem kötelező)"
+                    placeholder={t('Kapucsengő, emelet vagy egyéb hasznos információ (nem kötelező)')}
                 />
             </label>
             {alapLehet && (
@@ -78,7 +79,7 @@ const CimUrlap = ({ kezdo, alapLehet, mentes, megse, kuldes }) => {
                         checked={alapertelmezett}
                         onChange={(event) => setAlapertelmezett(event.target.checked)}
                     />
-                    <span>Ez legyen az alapértelmezett szállítási cím</span>
+                    <span>{t('Ez legyen az alapértelmezett szállítási cím')}</span>
                 </label>
             )}
             <div className="profil-gombok">
@@ -87,7 +88,7 @@ const CimUrlap = ({ kezdo, alapLehet, mentes, megse, kuldes }) => {
                     className="profil-gomb profil-gomb-elsodleges"
                     disabled={kuldes}
                 >
-                    {kuldes ? 'Mentés…' : 'Cím mentése'}
+                    {kuldes ? t('Mentés…') : t('Cím mentése')}
                 </button>
                 <button
                     type="button"
@@ -95,7 +96,7 @@ const CimUrlap = ({ kezdo, alapLehet, mentes, megse, kuldes }) => {
                     disabled={kuldes}
                     onClick={megse}
                 >
-                    Mégse
+                    {t('Mégsem')}
                 </button>
             </div>
         </form>
@@ -128,22 +129,21 @@ const SzallitasiCimek = ({ cimek, alapertelmezettCim, frissult }) => {
     };
 
     const torol = (cim) => {
-        if (!window.confirm(`Biztosan törlöd ezt a címet: ${cim.megnevezes}?`)) return;
+        if (!window.confirm(t('Biztosan törlöd ezt a címet: {nev}?', { nev: cim.megnevezes }))) return;
         kuld(`/fiok/cimek/${cim.id}`, 'DELETE');
     };
 
     return (
         <section className="profil-panel profil-urlap">
             <div className="profil-panel-fej">
-                <h2>Szállítási címek</h2>
+                <h2>{t('Szállítási címek')}</h2>
                 <p>
-                    Mentsd el az építkezéseid, telephelyeid címét. A pénztárban egy kattintással
-                    választhatsz közülük, a behajtási információk pedig a rendeléssel együtt a sofőrhöz kerülnek.
+                    {t('Mentsd el az építkezéseid, telephelyeid címét. A pénztárban egy kattintással választhatsz közülük, a behajtási információk pedig a rendeléssel együtt a sofőrhöz kerülnek.')}
                 </p>
             </div>
 
             {cimek.length === 0 && szerkesztett !== 'uj' && (
-                <p className="profil-megjegyzes">Még nincs mentett szállítási címed.</p>
+                <p className="profil-megjegyzes">{t('Még nincs mentett szállítási címed.')}</p>
             )}
 
             {cimek.length > 0 && (
@@ -167,13 +167,13 @@ const SzallitasiCimek = ({ cimek, alapertelmezettCim, frissult }) => {
                             <li key={cim.id} className={`profil-cim-kartya${alap ? ' profil-cim-kartya--alap' : ''}`}>
                                 <div className="profil-cim-kartya-fej">
                                     <strong>{cim.megnevezes}</strong>
-                                    {alap && <span className="profil-cim-jelveny">Alapértelmezett</span>}
+                                    {alap && <span className="profil-cim-jelveny">{t('Alapértelmezett')}</span>}
                                 </div>
                                 <address>
                                     <span>{cim.atvevoNev}</span>
                                     <span>{cimSor(cim)}</span>
-                                    {cim.behajtas && <span><em>Behajtás, lerakodás:</em> {cim.behajtas}</span>}
-                                    {cim.megjegyzes && <span><em>Futárnak:</em> {cim.megjegyzes}</span>}
+                                    {cim.behajtas && <span><em>{t('Behajtás, lerakodás:')}</em> {cim.behajtas}</span>}
+                                    {cim.megjegyzes && <span><em>{t('Futárnak:')}</em> {cim.megjegyzes}</span>}
                                 </address>
                                 <div className="profil-gombok">
                                     <button
@@ -182,7 +182,7 @@ const SzallitasiCimek = ({ cimek, alapertelmezettCim, frissult }) => {
                                         disabled={kuldes || szerkesztett !== null}
                                         onClick={() => setSzerkesztett(cim.id)}
                                     >
-                                        Szerkesztés
+                                        {t('Szerkesztés')}
                                     </button>
                                     {!alap && (
                                         <button
@@ -191,7 +191,7 @@ const SzallitasiCimek = ({ cimek, alapertelmezettCim, frissult }) => {
                                             disabled={kuldes || szerkesztett !== null}
                                             onClick={() => kuld(`/fiok/cimek/${cim.id}`, 'PUT', { ...szallitasiCimMezok(cim), alapertelmezett: true })}
                                         >
-                                            Legyen alapértelmezett
+                                            {t('Legyen alapértelmezett')}
                                         </button>
                                     )}
                                     <button
@@ -200,7 +200,7 @@ const SzallitasiCimek = ({ cimek, alapertelmezettCim, frissult }) => {
                                         disabled={kuldes || szerkesztett !== null}
                                         onClick={() => torol(cim)}
                                     >
-                                        Törlés
+                                        {t('Törlés')}
                                     </button>
                                 </div>
                             </li>
@@ -232,11 +232,11 @@ const SzallitasiCimek = ({ cimek, alapertelmezettCim, frissult }) => {
                             disabled={kuldes}
                             onClick={() => { setUzenet(null); setSzerkesztett('uj'); }}
                         >
-                            + Új cím hozzáadása
+                            + {t('Új cím hozzáadása')}
                         </button>
                     </div>
                 ) : (
-                    <p className="profil-megjegyzes">Legfeljebb {MAX_CIM} címet menthetsz; újhoz törölj egy régit.</p>
+                    <p className="profil-megjegyzes">{t('Legfeljebb {db} címet menthetsz; újhoz törölj egy régit.', { db: MAX_CIM })}</p>
                 )
             )}
         </section>

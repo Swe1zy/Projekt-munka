@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ToastContext } from './ToastContext';
 import './Toast.css';
+import { t } from '../utils/nyelv';
 
 const MAX_ERTESITES = 4;
 const ELETTARTAM = { siker: 4000, hiba: 7000 };
@@ -62,7 +63,7 @@ const Ertesites = ({ ertesites, bezar }) => {
             <button
                 type="button"
                 className="ertesites-bezar"
-                aria-label="Értesítés bezárása"
+                aria-label={t('Értesítés bezárása')}
                 onClick={() => bezar(id)}
             >
                 <svg
@@ -118,7 +119,7 @@ const ToastProvider = ({ children }) => {
             {children}
             <div
                 className="ertesites-lista"
-                aria-label="Értesítések"
+                aria-label={t('Értesítések')}
             >
                 {ertesitesek.map((ertesites) => (
                     <Ertesites

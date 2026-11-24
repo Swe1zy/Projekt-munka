@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
-import { forint, termekKepek } from '../utils/termek';
+import { egysegNev, forint, kategoriaNev, termekKepek } from '../utils/termek';
 import { useBejelentkezesKell } from '../utils/useBejelentkezesKell';
 import './Termek.css';
+import { helyiBeallitas, t } from '../utils/nyelv';
 
 const Termek = ({ termek }) => {
     const { tetelek, hozzaad } = useCart();
@@ -11,25 +12,25 @@ const Termek = ({ termek }) => {
     const bejelentkezve = useBejelentkezesKell();
     const kepek = termekKepek(termek);
     const kosarban = tetelek.find((elem) => elem.id === termek._id)?.mennyiseg ?? 0;
-    const egyseg = termek.egyseg || 'db';
+    const egyseg = egysegNev(termek.egyseg || 'db');
     const keszletIsmert = Number.isFinite(termek.keszlet);
     const keszlet = keszletIsmert ? termek.keszlet : 999;
     const keszletSzoveg = keszletIsmert
-        ? Number(termek.keszlet).toLocaleString('hu-HU', { maximumFractionDigits: 2 })
-        : 'Nem ismert';
+        ? Number(termek.keszlet).toLocaleString(helyiBeallitas(), { maximumFractionDigits: 2 })
+        : t('Nem ismert');
     const vanKeszleten = keszlet > 0;
     const hozzaadando = Math.min(1, keszlet);
 
     const kosarba = () => {
         if (!bejelentkezve()) return;
         hozzaad({ ...termek, kep: kepek[0] }, hozzaadando);
-        toast.siker(`${hozzaadando} ${egyseg} „${termek.nev}” a kosárba került.`);
+        toast.siker(t('{mennyiseg} {egyseg} „{nev}” a kosárba került.', { mennyiseg: hozzaadando, egyseg, nev: termek.nev }));
     };
 
     return (
         <article className="termek-kontener">
             <header className="termek-kartya-fejlec">
-                {termek.kategoria && <span className="termek-kategoria">{termek.kategoria}</span>}
+                {termek.kategoria && <span className="termek-kategoria">{kategoriaNev(termek.kategoria)}</span>}
                 <h2>
                     {/* A link az egész kártyát lefedi, így bárhová kattintva megnyílik a termék. */}
                     <Link className="termek-megnyitas" to={`/termekek/${termek._id}`}>
@@ -49,23 +50,23 @@ const Termek = ({ termek }) => {
                     </div>
                 )}
                 <div className="tartalom-kontener">
-                    <h4>Ár:</h4>
+                    <h4>{t('Ár:')}</h4>
                     <p>{forint(termek.ar)} / {egyseg}</p>
                     <p className={`termek-keszlet ${!keszletIsmert ? 'termek-keszlet-ismeretlen' : vanKeszleten ? 'termek-keszleten' : 'termek-nincs-keszleten'}`}>
-                        {!keszletIsmert ? 'Készlet:' : vanKeszleten ? 'Raktáron:' : 'Nincs raktáron:'}{' '}
+                        {!keszletIsmert ? t('Készlet:') : vanKeszleten ? t('Raktáron:') : t('Nincs raktáron:')}{' '}
                         <strong>{keszletSzoveg} {egyseg}</strong>
                     </p>
-                    <h4>Leírás:</h4>
+                    <h4>{t('Leírás:')}</h4>
                     <p>{termek.leiras}</p>
                 </div>
             </div>
             <footer className="termek-kosar-lab">
                 <button type="button" className="termek-kosarba-gomb" onClick={kosarba} disabled={keszlet < 0.01}>
-                    {keszlet < 0.01 ? 'Elfogyott' : `Kosárba (${hozzaadando} ${egyseg})`}
+                    {keszlet < 0.01 ? t('Elfogyott') : t('Kosárba ({mennyiseg} {egyseg})', { mennyiseg: hozzaadando, egyseg })}
                 </button>
                 {kosarban > 0 && (
                     <span className="termek-kosarban" aria-live="polite">
-                        A kosárban: {kosarban} {egyseg}
+                        {t('A kosárban: {mennyiseg} {egyseg}', { mennyiseg: kosarban, egyseg })}
                     </span>
                 )}
             </footer>

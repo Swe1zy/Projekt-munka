@@ -1,14 +1,16 @@
 import { teljesIdopont } from '../../utils/dashboardFormazas';
+import { rendelesAllapotCimke } from '../../utils/rendelesCimkek';
 import { AllapotIkon } from './AllapotJelveny';
 import './Rendeles.css';
+import { t } from '../../utils/nyelv';
 
-const LEPES_CIMKEK = {
-    feldolgozasra_var: 'Beérkezett',
-    visszaigazolva: 'Visszaigazolva',
-    kiszallitas_alatt: 'Kiszállítás alatt',
-    teljesitve: 'Teljesítve',
-    lemondva: 'Lemondva',
-};
+const lepesCimkek = () => ({
+    feldolgozasra_var: t('Beérkezett'),
+    visszaigazolva: t('Visszaigazolva'),
+    kiszallitas_alatt: t('Kiszállítás alatt'),
+    teljesitve: t('Teljesítve'),
+    lemondva: t('Lemondva'),
+});
 
 // A rendelés útja lépésenként: a megtett lépések dátummal, a hátralévők halványan.
 // Lemondott rendelésnél a megtett lépések után a lemondás zárja a sort.
@@ -39,9 +41,9 @@ const AllapotIdovonal = ({ rendeles }) => {
                             <span className="rendeles-lepes-pont">
                                 <AllapotIkon allapot={lepes} />
                             </span>
-                            <span className="rendeles-lepes-nev">{LEPES_CIMKEK[lepes]}</span>
+                            <span className="rendeles-lepes-nev">{lepesCimkek()[lepes]}</span>
                             <span className="rendeles-lepes-datum">
-                                {bejegyzes ? teljesIdopont(bejegyzes.datum) : 'Még nem történt meg'}
+                                {bejegyzes ? teljesIdopont(bejegyzes.datum) : t('Még nem történt meg')}
                             </span>
                         </li>
                     );
@@ -51,7 +53,7 @@ const AllapotIdovonal = ({ rendeles }) => {
                 <ul className="rendeles-megjegyzesek">
                     {megjegyzesek.map((bejegyzes) => (
                         <li key={`${bejegyzes.allapot}-${bejegyzes.datum}`}>
-                            <strong>{bejegyzes.cimke}</strong>
+                            <strong>{rendelesAllapotCimke(bejegyzes.allapot, bejegyzes.cimke)}</strong>
                             <span>{teljesIdopont(bejegyzes.datum)}</span>
                             <p>{bejegyzes.megjegyzes}</p>
                         </li>

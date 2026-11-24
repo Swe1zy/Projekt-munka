@@ -1,28 +1,31 @@
-const forintFormazo = new Intl.NumberFormat('hu-HU', {
-    style: 'currency',
-    currency: 'HUF',
-    maximumFractionDigits: 0,
-});
-const szamFormazo = new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 2 });
-const tomorFormazo = new Intl.NumberFormat('hu-HU', { notation: 'compact', maximumFractionDigits: 1 });
-const szazalekFormazo = new Intl.NumberFormat('hu-HU', { maximumFractionDigits: 1 });
-const napFormazo = new Intl.DateTimeFormat('hu-HU', { month: 'short', day: 'numeric' });
-const hosszuNapFormazo = new Intl.DateTimeFormat('hu-HU', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
-const honapFormazo = new Intl.DateTimeFormat('hu-HU', { month: 'short' });
-const hosszuHonapFormazo = new Intl.DateTimeFormat('hu-HU', { year: 'numeric', month: 'long' });
-const idopontFormazo = new Intl.DateTimeFormat('hu-HU', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
-const oraFormazo = new Intl.DateTimeFormat('hu-HU', { hour: '2-digit', minute: '2-digit' });
-const teljesIdopontFormazo = new Intl.DateTimeFormat('hu-HU', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+import { helyiBeallitas } from './nyelv';
+import { idegenPenz } from './penznem';
 
-export const teljesIdopont = (datum) => teljesIdopontFormazo.format(new Date(datum));
+// A formázók a felület nyelvét követik (hu-HU, en-GB…); nyelvenként egyszer készülnek el.
+const formazok = new Map();
+const formazo = (Osztaly, opciok) => {
+    const kulcs = `${Osztaly.name}|${helyiBeallitas()}|${JSON.stringify(opciok)}`;
+    if (!formazok.has(kulcs)) formazok.set(kulcs, new Osztaly(helyiBeallitas(), opciok));
+    return formazok.get(kulcs);
+};
+const szamFormazo = (opciok) => formazo(Intl.NumberFormat, opciok);
+const datumFormazoja = (opciok) => formazo(Intl.DateTimeFormat, opciok);
 
-export const forint = (ertek) => forintFormazo.format(ertek || 0);
-export const szam = (ertek) => szamFormazo.format(ertek || 0);
-export const tomorForint = (ertek) => (Math.abs(ertek) < 10000 ? forint(ertek) : `${tomorFormazo.format(ertek)} Ft`);
-export const tomorSzam = (ertek) => (Math.abs(ertek) < 10000 ? szam(ertek) : tomorFormazo.format(ertek));
-export const szazalek = (ertek) => `${szazalekFormazo.format(ertek || 0)}%`;
-export const idopont = (datum) => idopontFormazo.format(new Date(datum));
-export const ora = (datum) => oraFormazo.format(new Date(datum));
+const forintFormazo = () => szamFormazo({ style: 'currency', currency: 'HUF', maximumFractionDigits: 0 });
+const SZAM = { maximumFractionDigits: 2 };
+const TOMOR = { notation: 'compact', maximumFractionDigits: 1 };
+
+export const teljesIdopont = (datum) => datumFormazoja({ year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(datum));
+
+// A forintos összegek a választott megjelenítési pénznemben jelennek meg (utils/penznem.js).
+export const forint = (ertek) => idegenPenz(ertek || 0) ?? forintFormazo().format(ertek || 0);
+export const szam = (ertek) => szamFormazo(SZAM).format(ertek || 0);
+export const tomorForint = (ertek) =>
+    idegenPenz(ertek || 0, { tomor: true }) ?? (Math.abs(ertek) < 10000 ? forint(ertek) : `${szamFormazo(TOMOR).format(ertek)} Ft`);
+export const tomorSzam = (ertek) => (Math.abs(ertek) < 10000 ? szam(ertek) : szamFormazo(TOMOR).format(ertek));
+export const szazalek = (ertek) => `${szamFormazo({ maximumFractionDigits: 1 }).format(ertek || 0)}%`;
+export const idopont = (datum) => datumFormazoja({ month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(datum));
+export const ora = (datum) => datumFormazoja({ hour: '2-digit', minute: '2-digit' }).format(new Date(datum));
 
 // A backend idősor-kulcsai: napi bontásnál „ÉÉÉÉ-HH-NN”, havinál „ÉÉÉÉ-HH”.
 const kulcsDatum = (kulcs) => {
@@ -31,10 +34,10 @@ const kulcsDatum = (kulcs) => {
 };
 
 export const idosorCimke = (kulcs, bontas) =>
-    bontas === 'honap' ? honapFormazo.format(kulcsDatum(kulcs)) : napFormazo.format(kulcsDatum(kulcs));
+    bontas === 'honap' ? datumFormazoja({ month: 'short' }).format(kulcsDatum(kulcs)) : datumFormazoja({ month: 'short', day: 'numeric' }).format(kulcsDatum(kulcs));
 
 export const idosorHosszuCimke = (kulcs, bontas) =>
-    bontas === 'honap' ? hosszuHonapFormazo.format(kulcsDatum(kulcs)) : hosszuNapFormazo.format(kulcsDatum(kulcs));
+    bontas === 'honap' ? datumFormazoja({ year: 'numeric', month: 'long' }).format(kulcsDatum(kulcs)) : datumFormazoja({ year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }).format(kulcsDatum(kulcs));
 
 // Kerek tengelyértékek (1, 2, 2,5, 5 × 10ⁿ lépésközzel).
 export const tengelyErtekek = (maximum, celDarab = 4) => {
@@ -48,15 +51,13 @@ export const tengelyErtekek = (maximum, celDarab = 4) => {
     return ertekek;
 };
 
-const datumFormazo = new Intl.DateTimeFormat('hu-HU', { year: 'numeric', month: 'short', day: 'numeric' });
-const atvetelNapFormazo = new Intl.DateTimeFormat('hu-HU', { month: 'short', day: 'numeric', weekday: 'long', timeZone: 'UTC' });
 
-export const datum = (ertek) => datumFormazo.format(new Date(ertek));
+export const datum = (ertek) => datumFormazoja({ year: 'numeric', month: 'short', day: 'numeric' }).format(new Date(ertek));
 
 // „ÉÉÉÉ-HH-NN” naptári nap (pl. kiszállítás napja) olvasható alakban: „nov. 18., szerda”.
 export const naptariNap = (kulcs) => {
     const [ev, honap, nap] = kulcs.split('-').map(Number);
-    return atvetelNapFormazo.format(new Date(Date.UTC(ev, honap - 1, nap)));
+    return datumFormazoja({ month: 'short', day: 'numeric', weekday: 'long', timeZone: 'UTC' }).format(new Date(Date.UTC(ev, honap - 1, nap)));
 };
 
 // Időtartam emberi alakban: perc, óra vagy nap.
@@ -65,9 +66,9 @@ export const idotartam = (ms) => {
     const perc = ms / 60000;
     if (perc < 60) return `${Math.max(1, Math.round(perc))} perc`;
     const ora = perc / 60;
-    if (ora < 48) return `${szamFormazo.format(Math.round(ora * 10) / 10)} óra`;
-    return `${szamFormazo.format(Math.round((ora / 24) * 10) / 10)} nap`;
+    if (ora < 48) return `${szamFormazo(SZAM).format(Math.round(ora * 10) / 10)} óra`;
+    return `${szamFormazo(SZAM).format(Math.round((ora / 24) * 10) / 10)} nap`;
 };
 
 // Tömeg kg-ban, 1 tonna felett tonnában.
-export const tomeg = (kg) => (kg >= 1000 ? `${szamFormazo.format(Math.round(kg / 100) / 10)} t` : `${szamFormazo.format(Math.round(kg))} kg`);
+export const tomeg = (kg) => (kg >= 1000 ? `${szamFormazo(SZAM).format(Math.round(kg / 100) / 10)} t` : `${szamFormazo(SZAM).format(Math.round(kg))} kg`);

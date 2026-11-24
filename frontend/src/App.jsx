@@ -11,6 +11,8 @@ import Home from './pages/Home';
 import Kosar from './pages/Kosar';
 import Termekek from './pages/Termekek';
 import TermekReszlet from './pages/TermekReszlet';
+import { t, useNyelv } from './utils/nyelv';
+import { useArfolyamAllapot } from './utils/penznem';
 
 // A böngészés fő oldalai azonnal betöltődnek; a többi (pénztár, profil, admin,
 // jogi oldalak) csak megnyitáskor, így a kezdőoldal JavaScriptje jóval kisebb.
@@ -32,10 +34,15 @@ const SutiTajekoztato = lazy(() => import('./pages/SutiTajekoztato'));
 const NemTalalhato = lazy(() => import('./pages/NemTalalhato'));
 
 const OldalBetoltes = () => (
-    <main className="oldal-betoltes" aria-busy="true">Betöltés…</main>
+    <main className="oldal-betoltes" aria-busy="true">{t('Betöltés…')}</main>
 );
 
 function App() {
+    // A szövegeket és az árakat sima függvények adják (t(), forint()), ezért a nyelv,
+    // a pénznem vagy az árfolyam változásakor innen, a gyökérből rajzoljuk újra a teljes felületet.
+    useNyelv();
+    useArfolyamAllapot();
+
     return (
         <div className="app-kontener">
             <BrowserRouter>

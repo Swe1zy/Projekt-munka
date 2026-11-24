@@ -8,9 +8,11 @@ import Telephely from '../components/Telephely';
 import { apiKeres, useLekeres } from '../utils/api';
 import { napCimke, useBeallitasok } from '../utils/beallitasok';
 import { TELEFON_MINTA, TELEFON_PELDA, cimSor } from '../utils/fiok';
-import { forint } from '../utils/termek';
+import { useArfolyamAllapot } from '../utils/penznem';
+import { egysegNev, forint } from '../utils/termek';
 import { useOsszesito } from '../utils/useOsszesito';
 import './Vasarlas.css';
+import { helyiBeallitas, t } from '../utils/nyelv';
 
 const cimResz = (adat) => ({
     iranyitoszam: adat?.iranyitoszam ?? '',
@@ -21,16 +23,16 @@ const cimResz = (adat) => ({
 const CimMezok = ({ cim, frissit, tipus, letiltva = false }) => (
     <div className="vasarlas-cim-mezok">
         <label>
-            Irányítószám *
+            {t('Irányítószám')} *
             <input autoComplete={tipus === 'szallitas' ? 'shipping postal-code' : 'billing postal-code'} inputMode="numeric" maxLength="10" value={cim.iranyitoszam} onChange={(event) => frissit('iranyitoszam', event.target.value)} placeholder="1234" required disabled={letiltva} />
         </label>
         <label>
-            Város *
-            <input autoComplete={tipus === 'szallitas' ? 'shipping address-level2' : 'billing address-level2'} maxLength="100" value={cim.telepules} onChange={(event) => frissit('telepules', event.target.value)} placeholder="Település" required disabled={letiltva} />
+            {t('Város')} *
+            <input autoComplete={tipus === 'szallitas' ? 'shipping address-level2' : 'billing address-level2'} maxLength="100" value={cim.telepules} onChange={(event) => frissit('telepules', event.target.value)} placeholder={t('Település')} required disabled={letiltva} />
         </label>
         <label className="vasarlas-utca-mezo">
-            Utca / házszám / ajtó *
-            <input autoComplete={tipus === 'szallitas' ? 'shipping street-address' : 'billing street-address'} maxLength="200" value={cim.utca} onChange={(event) => frissit('utca', event.target.value)} placeholder="Utca, házszám, emelet, ajtó" required disabled={letiltva} />
+            {t('Utca / házszám / ajtó')} *
+            <input autoComplete={tipus === 'szallitas' ? 'shipping street-address' : 'billing street-address'} maxLength="200" value={cim.utca} onChange={(event) => frissit('utca', event.target.value)} placeholder={t('Utca, házszám, emelet, ajtó')} required disabled={letiltva} />
         </label>
     </div>
 );
@@ -68,6 +70,7 @@ const VasarlasUrlap = ({ user, fiok }) => {
     const [idosav, setIdosav] = useState(fiok?.szallitasiBeallitasok?.idosav || 'delelott');
     const [darus, setDarus] = useState(Boolean(fiok?.szallitasiBeallitasok?.darus));
     const { adat: beallitasok, hiba: beallitasHiba } = useBeallitasok();
+    const penznem = useArfolyamAllapot();
 
     const hazhoz = atvetelModja === 'hazhozszallitas';
     // A választható napok a backendről jönnek (szállítási/nyitvatartási nap, ünnepek, határidő).
@@ -166,7 +169,7 @@ const VasarlasUrlap = ({ user, fiok }) => {
                 }),
             });
             const valasz = await response.json();
-            if (!response.ok) throw new Error(valasz.msg || 'A rendelést nem sikerült rögzíteni.');
+            if (!response.ok) throw new Error(valasz.msg || t('A rendelést nem sikerült rögzíteni.'));
 
             if (user && adatokMentese) await profilFrissitese();
 
@@ -178,7 +181,7 @@ const VasarlasUrlap = ({ user, fiok }) => {
             setRendelesAzonosito(valasz.rendeles.id);
             urit();
         } catch (error) {
-            setHiba(error.message || 'A szerver nem érhető el. Próbáld újra később!');
+            setHiba(error.message || t('A szerver nem érhető el. Próbáld újra később!'));
         } finally {
             setKuldes(false);
         }
@@ -189,22 +192,22 @@ const VasarlasUrlap = ({ user, fiok }) => {
             <main className="vasarlas-oldal">
                 <section className="vasarlas-siker" role="status">
                     <span className="vasarlas-siker-ikon" aria-hidden="true">✓</span>
-                    <span className="vasarlas-felirat">RENDELÉS RÖGZÍTVE</span>
-                    <h1>Köszönjük a rendelésed!</h1>
-                    <p>A rendelésedet megkaptuk. Őrizd meg az azonosítót, ügyintézésnél hasznos lehet.</p>
-                    <div className="vasarlas-azonosito">Rendelésazonosító <strong>{rendelesAzonosito}</strong></div>
-                    <p>A visszaigazolást és a díjbekérőt elküldtük a(z) <strong>{email}</strong> címre.</p>
+                    <span className="vasarlas-felirat">{t('RENDELÉS RÖGZÍTVE')}</span>
+                    <h1>{t('Köszönjük a rendelésed!')}</h1>
+                    <p>{t('A rendelésedet megkaptuk. Őrizd meg az azonosítót, ügyintézésnél hasznos lehet.')}</p>
+                    <div className="vasarlas-azonosito">{t('Rendelésazonosító')} <strong>{rendelesAzonosito}</strong></div>
+                    <p>{t('A visszaigazolást és a díjbekérőt elküldtük a(z) {email} címre.', { email: <strong>{email}</strong> })}</p>
                     {user && (
                         <a className="vasarlas-masodlagos-link" href={`${API_URL}/rendelesek/${rendelesAzonosito}/dijbekero`} target="_blank" rel="noreferrer">
-                            Díjbekérő letöltése (PDF) ↗
+                            {t('Díjbekérő letöltése (PDF)')} ↗
                         </a>
                     )}
                     {user ? (
-                        <Link className="vasarlas-fo-gomb" to="/profil#rendeleseim">Rendelés követése</Link>
+                        <Link className="vasarlas-fo-gomb" to="/profil#rendeleseim">{t('Rendelés követése')}</Link>
                     ) : (
-                        <p>Ha legközelebb bejelentkezve rendelsz, a profilodban követheted a rendelés állapotát.</p>
+                        <p>{t('Ha legközelebb bejelentkezve rendelsz, a profilodban követheted a rendelés állapotát.')}</p>
                     )}
-                    <Link className={user ? 'vasarlas-masodlagos-link' : 'vasarlas-fo-gomb'} to="/termekek">Vissza a termékekhez</Link>
+                    <Link className={user ? 'vasarlas-masodlagos-link' : 'vasarlas-fo-gomb'} to="/termekek">{t('Vissza a termékekhez')}</Link>
                 </section>
             </main>
         );
@@ -214,10 +217,10 @@ const VasarlasUrlap = ({ user, fiok }) => {
         return (
             <main className="vasarlas-oldal">
                 <section className="vasarlas-ures">
-                    <span className="vasarlas-felirat">VÁSÁRLÁS</span>
-                    <h1>Most üres a kosarad</h1>
-                    <p>Tegyél néhány terméket a kosárba, utána itt kényelmesen leadhatod a rendelést.</p>
-                    <Link className="vasarlas-fo-gomb" to="/termekek">Termékek megtekintése</Link>
+                    <span className="vasarlas-felirat">{t('VÁSÁRLÁS')}</span>
+                    <h1>{t('Most üres a kosarad')}</h1>
+                    <p>{t('Tegyél néhány terméket a kosárba, utána itt kényelmesen leadhatod a rendelést.')}</p>
+                    <Link className="vasarlas-fo-gomb" to="/termekek">{t('Termékek megtekintése')}</Link>
                 </section>
             </main>
         );
@@ -226,10 +229,10 @@ const VasarlasUrlap = ({ user, fiok }) => {
     return (
         <main className="vasarlas-oldal">
             <header className="vasarlas-fejlec">
-                <Link className="vasarlas-vissza" to="/kosar">← Vissza a kosárhoz</Link>
-                <span className="vasarlas-felirat">BIZTONSÁGOS RENDELÉSLEADÁS</span>
-                <h1>Fejezd be a vásárlást</h1>
-                <p>Add meg az elérhetőségedet, a szállítási és számlázási adatokat, majd válaszd ki az átvételt.</p>
+                <Link className="vasarlas-vissza" to="/kosar">← {t('Vissza a kosárhoz')}</Link>
+                <span className="vasarlas-felirat">{t('BIZTONSÁGOS RENDELÉSLEADÁS')}</span>
+                <h1>{t('Fejezd be a vásárlást')}</h1>
+                <p>{t('Add meg az elérhetőségedet, a szállítási és számlázási adatokat, majd válaszd ki az átvételt.')}</p>
             </header>
 
             <div className="vasarlas-elrendezes">
@@ -237,17 +240,17 @@ const VasarlasUrlap = ({ user, fiok }) => {
                     <section className="vasarlas-kartya">
                         <div className="vasarlas-szekcio-fej">
                             <span>01</span>
-                            <div><h2>Kapcsolattartás</h2><p>A rendelés egyeztetéséhez szükséges.</p></div>
+                            <div><h2>{t('Kapcsolattartás')}</h2><p>{t('A rendelés egyeztetéséhez szükséges.')}</p></div>
                         </div>
                         <div className="vasarlas-mezok">
                             <label>
-                                E-mail-cím
+                                {t('E-mail-cím')}
                                 <input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="nev@email.hu" required />
                             </label>
                             <label>
-                                Telefonszám{hazhoz ? ' *' : ''}
-                                <input type="tel" autoComplete="tel" pattern={TELEFON_MINTA} title={`Pl. ${TELEFON_PELDA}`} maxLength="40" value={telefon} onChange={(event) => setTelefon(event.target.value)} placeholder={TELEFON_PELDA} required={hazhoz} />
-                                {hazhoz && <small className="vasarlas-segitseg">Kiszállítás előtt ezen a számon keres a sofőr.</small>}
+                                {t('Telefonszám')}{hazhoz ? ' *' : ''}
+                                <input type="tel" autoComplete="tel" pattern={TELEFON_MINTA} title={t('Pl. {pelda}', { pelda: TELEFON_PELDA })} maxLength="40" value={telefon} onChange={(event) => setTelefon(event.target.value)} placeholder={TELEFON_PELDA} required={hazhoz} />
+                                {hazhoz && <small className="vasarlas-segitseg">{t('Kiszállítás előtt ezen a számon keres a sofőr.')}</small>}
                             </label>
                         </div>
                     </section>
@@ -255,37 +258,37 @@ const VasarlasUrlap = ({ user, fiok }) => {
                     <section className="vasarlas-kartya">
                         <div className="vasarlas-szekcio-fej">
                             <span>02</span>
-                            <div><h2>Szállítás</h2><p>* a megjelölt mezők kitöltése kötelező</p></div>
+                            <div><h2>{t('Szállítás')}</h2><p>{t('* a megjelölt mezők kitöltése kötelező')}</p></div>
                         </div>
                         <div className="vasarlas-atvetel-valaszto">
                             <label className={`vasarlas-atvetel-kartya ${atvetelModja === 'hazhozszallitas' ? 'aktiv' : ''}`}>
                                 <input type="radio" name="atvetelModja" value="hazhozszallitas" checked={atvetelModja === 'hazhozszallitas'} onChange={(event) => setAtvetelModja(event.target.value)} />
                                 <span className="vasarlas-atvetel-ikon" aria-hidden="true">⌂</span>
-                                <span><strong>Házhoz szállítás</strong><small>Kérjük, add meg a pontos címet.</small></span>
+                                <span><strong>{t('Házhoz szállítás')}</strong><small>{t('Kérjük, add meg a pontos címet.')}</small></span>
                             </label>
                             <label className={`vasarlas-atvetel-kartya ${atvetelModja === 'szemelyes_atvetel' ? 'aktiv' : ''}`}>
                                 <input type="radio" name="atvetelModja" value="szemelyes_atvetel" checked={atvetelModja === 'szemelyes_atvetel'} onChange={(event) => setAtvetelModja(event.target.value)} />
                                 <span className="vasarlas-atvetel-ikon" aria-hidden="true">⌖</span>
-                                <span><strong>Személyes átvétel</strong><small>Átvétel a Tüzép telephelyén.</small></span>
+                                <span><strong>{t('Személyes átvétel')}</strong><small>{t('Átvétel a Tüzép telephelyén.')}</small></span>
                             </label>
                         </div>
                         {atvetelModja === 'hazhozszallitas' && (
                             <div className="vasarlas-cim-blokk">
                                 {mentettCimek.length > 0 && (
                                     <label className="vasarlas-nev-mezo">
-                                        Szállítási cím
+                                        {t('Szállítási cím')}
                                         <select value={cimValasztas} onChange={(event) => cimValasztasa(event.target.value)}>
                                             {mentettCimek.map((cim) => (
                                                 <option key={cim.id} value={cim.id}>{cim.megnevezes} – {cimSor(cim)}</option>
                                             ))}
-                                            <option value="szamlazasi">A számlázási címre</option>
-                                            <option value="uj">Új cím megadása</option>
+                                            <option value="szamlazasi">{t('A számlázási címre')}</option>
+                                            <option value="uj">{t('Új cím megadása')}</option>
                                         </select>
                                     </label>
                                 )}
                                 <label className="vasarlas-nev-mezo">
-                                    Átvevő neve *
-                                    <input type="text" autoComplete="shipping name" minLength="2" maxLength="120" value={szallitasiEgyezik ? szamlazasiNev : szallitasiNev} onChange={(event) => setSzallitasiNev(event.target.value)} placeholder="Átvevő teljes neve" required disabled={szallitasiEgyezik} />
+                                    {t('Átvevő neve')} *
+                                    <input type="text" autoComplete="shipping name" minLength="2" maxLength="120" value={szallitasiEgyezik ? szamlazasiNev : szallitasiNev} onChange={(event) => setSzallitasiNev(event.target.value)} placeholder={t('Átvevő teljes neve')} required disabled={szallitasiEgyezik} />
                                 </label>
                                 <CimMezok
                                     tipus="szallitas"
@@ -296,16 +299,16 @@ const VasarlasUrlap = ({ user, fiok }) => {
                                 {mentettCimek.length === 0 && (
                                     <label className="vasarlas-egyezik-jelolo">
                                         <input type="checkbox" checked={szallitasiEgyezik} onChange={(event) => cimValasztasa(event.target.checked ? 'szamlazasi' : 'uj')} />
-                                        <span>A szállítási adatok megegyeznek a számlázási adatokkal</span>
+                                        <span>{t('A szállítási adatok megegyeznek a számlázási adatokkal')}</span>
                                     </label>
                                 )}
                                 <label className="vasarlas-megjegyzes-mezo">
-                                    Behajtás, lerakodás
-                                    <textarea rows="2" maxLength="300" value={behajtas} onChange={(event) => setBehajtas(event.target.value)} placeholder="pl. 7,5 t-s súlykorlátozás, 3 m széles kapu, a raklapokat az udvarra kérjük (nem kötelező)" />
+                                    {t('Behajtás, lerakodás')}
+                                    <textarea rows="2" maxLength="300" value={behajtas} onChange={(event) => setBehajtas(event.target.value)} placeholder={t('pl. 7,5 t-s súlykorlátozás, 3 m széles kapu, a raklapokat az udvarra kérjük (nem kötelező)')} />
                                 </label>
                                 <label className="vasarlas-megjegyzes-mezo">
-                                    Megjegyzés a futárnak
-                                    <textarea rows="3" maxLength="500" value={futarnakMegjegyzes} onChange={(event) => setFutarnakMegjegyzes(event.target.value)} placeholder="Kapucsengő, behajtás vagy egyéb hasznos információ (nem kötelező)" />
+                                    {t('Megjegyzés a futárnak')}
+                                    <textarea rows="3" maxLength="500" value={futarnakMegjegyzes} onChange={(event) => setFutarnakMegjegyzes(event.target.value)} placeholder={t('Kapucsengő, behajtás vagy egyéb hasznos információ (nem kötelező)')} />
                                 </label>
                             </div>
                         )}
@@ -313,7 +316,7 @@ const VasarlasUrlap = ({ user, fiok }) => {
                         {beallitasok && (
                             <div className="vasarlas-idopont">
                                 <label className="vasarlas-nap-mezo">
-                                    {hazhoz ? 'Kiszállítás napja *' : 'Átvétel napja *'}
+                                    {hazhoz ? t('Kiszállítás napja') : t('Átvétel napja')} *
                                     <select value={atvetelNapja} onChange={(event) => setNapValasztas(event.target.value)} required>
                                         {napok.map((nap) => (
                                             <option key={nap.datum} value={nap.datum}>{napCimke(nap.datum)}</option>
@@ -322,7 +325,7 @@ const VasarlasUrlap = ({ user, fiok }) => {
                                 </label>
                                 {hazhoz && (
                                     <fieldset className="vasarlas-idosav">
-                                        <legend>Idősáv *</legend>
+                                        <legend>{t('Idősáv')} *</legend>
                                         {beallitasok.kiszallitas.idosavok.map((sav) => (
                                             <label key={sav.kulcs} className={idosav === sav.kulcs ? 'aktiv' : ''}>
                                                 <input type="radio" name="idosav" value={sav.kulcs} checked={idosav === sav.kulcs} onChange={(event) => setIdosav(event.target.value)} />
@@ -332,7 +335,9 @@ const VasarlasUrlap = ({ user, fiok }) => {
                                     </fieldset>
                                 )}
                                 <p className="vasarlas-segitseg">
-                                    {beallitasok.kiszallitas.rendelesiHataridoOra} óráig leadott rendelésnél már a következő {hazhoz ? 'szállítási' : 'nyitvatartási'} nap is választható.
+                                    {hazhoz
+                                        ? t('{ora} óráig leadott rendelésnél már a következő szállítási nap is választható.', { ora: beallitasok.kiszallitas.rendelesiHataridoOra })
+                                        : t('{ora} óráig leadott rendelésnél már a következő nyitvatartási nap is választható.', { ora: beallitasok.kiszallitas.rendelesiHataridoOra })}
                                 </p>
                             </div>
                         )}
@@ -340,8 +345,8 @@ const VasarlasUrlap = ({ user, fiok }) => {
                             <label className="vasarlas-darus">
                                 <input type="checkbox" checked={darus} onChange={(event) => setDarus(event.target.checked)} />
                                 <span>
-                                    <strong>Darus lerakodás</strong>
-                                    <small>Raklapos, nehéz áruhoz ajánlott. +{forint(beallitasok.szallitas.darusPotdij)} fordulónként.</small>
+                                    <strong>{t('Darus lerakodás')}</strong>
+                                    <small>{t('Raklapos, nehéz áruhoz ajánlott. +{dij} fordulónként.', { dij: forint(beallitasok.szallitas.darusPotdij) })}</small>
                                 </span>
                             </label>
                         )}
@@ -353,31 +358,33 @@ const VasarlasUrlap = ({ user, fiok }) => {
                     <section className="vasarlas-kartya">
                         <div className="vasarlas-szekcio-fej">
                             <span>03</span>
-                            <div><h2>Számlázás</h2><p>* a megjelölt mezők kitöltése kötelező</p></div>
+                            <div><h2>{t('Számlázás')}</h2><p>{t('* a megjelölt mezők kitöltése kötelező')}</p></div>
                         </div>
                         <div className="vasarlas-szemely-tipus">
                             <label className={szamlazasiTipus === 'maganszemely' ? 'aktiv' : ''}>
                                 <input type="radio" name="szamlazasiTipus" value="maganszemely" checked={szamlazasiTipus === 'maganszemely'} onChange={(event) => setSzamlazasiTipus(event.target.value)} />
-                                Magánszemély
+                                {t('Magánszemély')}
                             </label>
                             <label className={szamlazasiTipus === 'ceg' ? 'aktiv' : ''}>
                                 <input type="radio" name="szamlazasiTipus" value="ceg" checked={szamlazasiTipus === 'ceg'} onChange={(event) => setSzamlazasiTipus(event.target.value)} />
-                                Cég / jogi személy
+                                {t('Cég / jogi személy')}
                             </label>
                         </div>
                         <label className="vasarlas-nev-mezo">
-                            {szamlazasiTipus === 'ceg' ? 'Cég neve *' : 'Számlázási név *'}
-                            <input type="text" autoComplete="billing name" minLength="2" maxLength="120" value={szamlazasiNev} onChange={(event) => setSzamlazasiNev(event.target.value)} placeholder={szamlazasiTipus === 'ceg' ? 'Cég teljes neve' : 'Számlán szereplő teljes név'} required />
+                            {szamlazasiTipus === 'ceg' ? t('Cég neve') : t('Számlázási név')} *
+                            <input type="text" autoComplete="billing name" minLength="2" maxLength="120" value={szamlazasiNev} onChange={(event) => setSzamlazasiNev(event.target.value)} placeholder={szamlazasiTipus === 'ceg' ? t('Cég teljes neve') : t('Számlán szereplő teljes név')} required />
                         </label>
                         {szamlazasiTipus === 'ceg' && (
                             <label className="vasarlas-adoszam-mezo">
-                                Adószám *
+                                {t('Adószám')} *
                                 <input type="text" autoComplete="off" maxLength="32" value={adoszam} onChange={(event) => setAdoszam(event.target.value)} placeholder="12345678-1-12" required />
                                 {beallitasok && (
                                     <small className="vasarlas-segitseg">
-                                        Érvényes adószámmal céges mennyiségi kedvezmény jár: {beallitasok.cegesKedvezmenySavok
-                                            .map((sav) => `${forint(sav.minimum)} felett ${sav.szazalek}%`)
-                                            .join(', ')}.
+                                        {t('Érvényes adószámmal céges mennyiségi kedvezmény jár: {savok}.', {
+                                            savok: beallitasok.cegesKedvezmenySavok
+                                                .map((sav) => t('{osszeg} felett {szazalek}%', { osszeg: forint(sav.minimum), szazalek: sav.szazalek }))
+                                                .join(', '),
+                                        })}
                                     </small>
                                 )}
                             </label>
@@ -388,8 +395,8 @@ const VasarlasUrlap = ({ user, fiok }) => {
                             frissit={(mezo, ertek) => cimFrissit(setSzamlazasiAdatok, mezo, ertek)}
                         />
                         <label className="vasarlas-megjegyzes-mezo">
-                            Megjegyzés az ügyfélszolgálatnak
-                            <textarea rows="3" maxLength="500" value={szamlazasiMegjegyzes} onChange={(event) => setSzamlazasiMegjegyzes(event.target.value)} placeholder="Opcionális megjegyzés" />
+                            {t('Megjegyzés az ügyfélszolgálatnak')}
+                            <textarea rows="3" maxLength="500" value={szamlazasiMegjegyzes} onChange={(event) => setSzamlazasiMegjegyzes(event.target.value)} placeholder={t('Opcionális megjegyzés')} />
                         </label>
                         {user && (
                             <>
@@ -397,13 +404,13 @@ const VasarlasUrlap = ({ user, fiok }) => {
                                     <input type="checkbox" checked={adatokMentese} onChange={(event) => setAdatokMentese(event.target.checked)} />
                                     <span>
                                         {mentettAdatok
-                                            ? 'A profilom frissítése ezekkel az adatokkal (számlázás, telefonszám, szállítási cím)'
-                                            : 'Adataim mentése a profilomba a következő rendeléshez (számlázás, telefonszám, szállítási cím)'}
+                                            ? t('A profilom frissítése ezekkel az adatokkal (számlázás, telefonszám, szállítási cím)')
+                                            : t('Adataim mentése a profilomba a következő rendeléshez (számlázás, telefonszám, szállítási cím)')}
                                     </span>
                                 </label>
                                 {mentettAdatok && (
                                     <p className="vasarlas-segitseg">
-                                        Az űrlapot a profilodban mentett adatokkal töltöttük ki. <Link to="/profil#adataim">Mentett adatok kezelése</Link>
+                                        {t('Az űrlapot a profilodban mentett adatokkal töltöttük ki.')} <Link to="/profil#adataim">{t('Mentett adatok kezelése')}</Link>
                                     </p>
                                 )}
                             </>
@@ -413,41 +420,41 @@ const VasarlasUrlap = ({ user, fiok }) => {
                     <section className="vasarlas-kartya">
                         <div className="vasarlas-szekcio-fej">
                             <span>04</span>
-                            <div><h2>Fizetési mód</h2><p>Válaszd ki, hogyan szeretnéd rendezni a rendelést.</p></div>
+                            <div><h2>{t('Fizetési mód')}</h2><p>{t('Válaszd ki, hogyan szeretnéd rendezni a rendelést.')}</p></div>
                         </div>
                         <div className="vasarlas-szemely-tipus">
                             <label className={fizetesiMod === 'atutalas' ? 'aktiv' : ''}>
                                 <input type="radio" name="fizetesiMod" value="atutalas" checked={fizetesiMod === 'atutalas'} onChange={(event) => setFizetesiMod(event.target.value)} />
-                                Banki átutalás / díjbekérő
+                                {t('Banki átutalás / díjbekérő')}
                             </label>
                             <label className={fizetesiMod === 'stripe' ? 'aktiv' : ''}>
                                 <input type="radio" name="fizetesiMod" value="stripe" checked={fizetesiMod === 'stripe'} onChange={(event) => setFizetesiMod(event.target.value)} />
-                                Bankkártya (Stripe)
+                                {t('Bankkártya (Stripe)')}
                             </label>
                         </div>
                         <p className="vasarlas-segitseg">
                             {fizetesiMod === 'stripe'
-                                ? 'A rendelés összegét a Stripe biztonságos fizetési oldalán tudod kifizetni.'
-                                : 'A rendelés rögzítése után e-mailben küldjük a díjbekérőt.'}
+                                ? t('A rendelés összegét a Stripe biztonságos fizetési oldalán tudod kifizetni.')
+                                : t('A rendelés rögzítése után e-mailben küldjük a díjbekérőt.')}
                         </p>
                     </section>
 
                     {hiba && <p className="vasarlas-hiba" role="alert">{hiba}</p>}
                     <button className="vasarlas-fo-gomb vasarlas-leadas" type="submit" disabled={kuldes || !atvetelNapja || minimumHiany > 0 || elonezet.keszlethiany.length > 0}>
-                        {kuldes ? 'Feldolgozás…' : fizetesiMod === 'stripe' ? 'Tovább a bankkártyás fizetéshez' : 'Rendelés leadása'}
+                        {kuldes ? t('Feldolgozás…') : fizetesiMod === 'stripe' ? t('Tovább a bankkártyás fizetéshez') : t('Rendelés leadása')}
                         {!kuldes && <span aria-hidden="true">→</span>}
                     </button>
                     <p className="vasarlas-megjegyzes">
                         {fizetesiMod === 'stripe'
-                            ? 'A fizetési adataidat a Stripe kezeli; a kártyaadatok nem jutnak el az áruház szerverére.'
-                            : 'A rendelés leadásával még nem történik online fizetés.'}
+                            ? t('A fizetési adataidat a Stripe kezeli; a kártyaadatok nem jutnak el az áruház szerverére.')
+                            : t('A rendelés leadásával még nem történik online fizetés.')}
                     </p>
                 </form>
 
                 <aside className="vasarlas-osszegzes">
                     <div className="vasarlas-osszegzes-fej">
-                        <div><span className="vasarlas-felirat">ÖSSZESÍTÉS</span><h2>A kosarad</h2></div>
-                        <Link to="/kosar">Módosítás</Link>
+                        <div><span className="vasarlas-felirat">{t('ÖSSZESÍTÉS')}</span><h2>{t('A kosarad')}</h2></div>
+                        <Link to="/kosar">{t('Módosítás')}</Link>
                     </div>
                     <ul className="vasarlas-tetelek">
                         {tetelek.map((tetel) => (
@@ -456,7 +463,7 @@ const VasarlasUrlap = ({ user, fiok }) => {
                                     {tetel.kep ? <img src={tetel.kep} alt="" /> : tetel.nev.charAt(0)}
                                     <small>{tetel.mennyiseg}</small>
                                 </span>
-                                <span className="vasarlas-tetel-adat"><strong>{tetel.nev}</strong><small>{tetel.mennyiseg} {tetel.egyseg || 'db'} × {forint(tetel.ar)}</small></span>
+                                <span className="vasarlas-tetel-adat"><strong>{tetel.nev}</strong><small>{tetel.mennyiseg} {egysegNev(tetel.egyseg || 'db')} × {forint(tetel.ar)}</small></span>
                                 <strong className="vasarlas-tetel-ar">{forint(Math.round(tetel.ar * tetel.mennyiseg * 100) / 100)}</strong>
                             </li>
                         ))}
@@ -466,32 +473,44 @@ const VasarlasUrlap = ({ user, fiok }) => {
                             <OsszesitoSorok
                                 osszesites={osszesites}
                                 atvetelModja={atvetelModja}
-                                szallitasHelyett={hazhoz && !ervenyesIrsz ? 'add meg az irányítószámot' : undefined}
-                                vegosszegCimke={osszesites.szallitasSzamolhato ? 'Fizetendő' : 'Fizetendő (szállítás nélkül)'}
+                                szallitasHelyett={hazhoz && !ervenyesIrsz ? t('add meg az irányítószámot') : undefined}
+                                vegosszegCimke={osszesites.szallitasSzamolhato ? t('Fizetendő') : t('Fizetendő (szállítás nélkül)')}
                             />
                         </div>
                     ) : (
-                        <div className="vasarlas-vegosszeg"><span>Termékek</span><strong>{forint(vegosszeg)}</strong></div>
+                        <div className="vasarlas-vegosszeg"><span>{t('Termékek')}</span><strong>{forint(vegosszeg)}</strong></div>
                     )}
                     {elonezet.hiba && <p className="vasarlas-figyelmeztetes" role="alert">{elonezet.hiba}</p>}
                     {minimumHiany > 0 && (
                         <p className="vasarlas-figyelmeztetes" role="alert">
-                            Házhozszállítás {forint(osszesites.minimumRendelesiErtek)} termékérték felett kérhető. Még {forint(minimumHiany)} hiányzik, vagy válaszd a személyes átvételt.
+                            {t('Házhozszállítás {minimum} termékérték felett kérhető. Még {hiany} hiányzik, vagy válaszd a személyes átvételt.', {
+                                minimum: forint(osszesites.minimumRendelesiErtek),
+                                hiany: forint(minimumHiany),
+                            })}
                         </p>
                     )}
                     {elonezet.keszlethiany.map((hiany) => (
                         <p key={hiany.termekId} className="vasarlas-figyelmeztetes" role="alert">
-                            „{hiany.nev}”: készleten csak {hiany.keszlet} van, módosítsd a mennyiséget a kosárban.
+                            {t('„{nev}”: készleten csak {keszlet} van, módosítsd a mennyiséget a kosárban.', { nev: hiany.nev, keszlet: hiany.keszlet })}
                         </p>
                     ))}
                     {osszesites?.arajanlatAjanlott && (
                         <div className="vasarlas-arajanlat">
-                            <strong>Nagy tétel?</strong>
-                            <span>Ekkora mennyiségre egyedi árajánlatot is adunk.</span>
-                            <Link to="/arajanlat">Árajánlatot kérek →</Link>
+                            <strong>{t('Nagy tétel?')}</strong>
+                            <span>{t('Ekkora mennyiségre egyedi árajánlatot is adunk.')}</span>
+                            <Link to="/arajanlat">{t('Árajánlatot kérek')} →</Link>
                         </div>
                     )}
-                    <p className="vasarlas-szallitas-info">A szállítási díjat a cím, a tömeg és a lerakodás módja alapján számoljuk.</p>
+                    {penznem.kod !== 'HUF' && (
+                        <p className="vasarlas-szallitas-info">
+                            {t('A {penznem} árak tájékoztató jellegűek.', { penznem: penznem.kod })}
+                            {penznem.arfolyamok.datum ? ` ${t('(EKB-árfolyam, {datum})', { datum: penznem.arfolyamok.datum })}` : ''}{' '}
+                            {t('A fizetés forintban történik: {osszeg}.', {
+                                osszeg: <strong>{(osszesites?.vegosszeg ?? vegosszeg).toLocaleString(helyiBeallitas())} Ft</strong>,
+                            })}
+                        </p>
+                    )}
+                    <p className="vasarlas-szallitas-info">{t('A szállítási díjat a cím, a tömeg és a lerakodás módja alapján számoljuk.')}</p>
                 </aside>
             </div>
         </main>
@@ -507,7 +526,7 @@ const Vasarlas = () => {
     if (!authReady || fiok.betoltes) {
         return (
             <main className="vasarlas-oldal">
-                <section className="vasarlas-ures" aria-busy="true"><p>Pénztár betöltése…</p></section>
+                <section className="vasarlas-ures" aria-busy="true"><p>{t('Pénztár betöltése…')}</p></section>
             </main>
         );
     }

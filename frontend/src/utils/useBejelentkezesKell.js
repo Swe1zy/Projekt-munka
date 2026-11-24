@@ -2,13 +2,14 @@ import { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
+import { t } from './nyelv';
 
 /**
  * Kosárba tétel előtti ellenőrzés. Bejelentkezett felhasználónál `true`-t ad
  * vissza. Kijelentkezettnél értesítést mutat, a bejelentkezési oldalra visz
  * (ahonnan belépés után ide tér vissza), és `false`-t ad.
  */
-export const useBejelentkezesKell = (uzenet = 'A kosárba tételhez jelentkezz be!') => {
+export const useBejelentkezesKell = (uzenet = t('A kosárba tételhez jelentkezz be!')) => {
     const { user, authReady } = useAuth();
     const { hiba } = useToast();
     const navigate = useNavigate();

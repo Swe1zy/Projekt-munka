@@ -1,0 +1,14 @@
+/*
+ * Héber felület: csak a szövegek íródnak jobbról balra, az oldal elrendezése
+ * (menü, oszlopok, gombok, ikonok helye) a megszokott, balról jobbra marad.
+ *
+ * Ezért a <html> nem kap dir="rtl"-t (az tükrözné a flex- és grid-elrendezést),
+ * hanem minden elem szövege a saját tartalma alapján kapja az irányát:
+ *  - a héber mondatok jobbról balra íródnak, és jobbra igazodnak (text-align: start),
+ *  - a magyar terméknevek, e-mail-címek, számok balról jobbra maradnak.
+ * A unicode-bidi nem öröklődik, ezért kell minden elemre kimondani.
+ * A lang attribútumot a utils/nyelv.js állítja be.
+ */
+html[lang='he'] * {
+    unicode-bidi: plaintext;
+}

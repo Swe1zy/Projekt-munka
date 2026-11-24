@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { apiKeres } from '../../utils/api';
 import Uzenet from './Uzenet';
+import { t } from '../../utils/nyelv';
 
 const MIN_JELSZO_HOSSZ = 8;
 
@@ -18,7 +19,7 @@ const JelszoModositas = () => {
         setUzenet(null);
 
         if (ujJelszo !== ujJelszoMegerosites) {
-            setUzenet({ tipus: 'hiba', szoveg: 'A két új jelszó nem egyezik!' });
+            setUzenet({ tipus: 'hiba', szoveg: t('A két új jelszó nem egyezik!') });
             return;
         }
 
@@ -46,11 +47,11 @@ const JelszoModositas = () => {
             onSubmit={bekuld}
         >
             <div className="profil-panel-fej">
-                <h2>Jelszó módosítása</h2>
+                <h2>{t('Jelszó módosítása')}</h2>
             </div>
 
             <label className="auth-mezo">
-                Jelenlegi jelszó
+                {t('Jelenlegi jelszó')}
                 <input
                     type="password"
                     autoComplete="current-password"
@@ -61,7 +62,7 @@ const JelszoModositas = () => {
             </label>
             <div className="profil-mezo-par">
                 <label className="auth-mezo">
-                    Új jelszó
+                    {t('Új jelszó')}
                     <input
                         type="password"
                         autoComplete="new-password"
@@ -70,10 +71,10 @@ const JelszoModositas = () => {
                         onChange={(event) => setUjJelszo(event.target.value)}
                         required
                     />
-                    <small>Legalább {MIN_JELSZO_HOSSZ} karakter.</small>
+                    <small>{t('Legalább {db} karakter.', { db: MIN_JELSZO_HOSSZ })}</small>
                 </label>
                 <label className="auth-mezo">
-                    Új jelszó megerősítése
+                    {t('Új jelszó megerősítése')}
                     <input
                         type="password"
                         autoComplete="new-password"
@@ -92,7 +93,7 @@ const JelszoModositas = () => {
                     className="auth-gomb"
                     disabled={kuldes}
                 >
-                    {kuldes ? 'Mentés…' : 'Jelszó módosítása'}
+                    {kuldes ? t('Mentés…') : t('Jelszó módosítása')}
                 </button>
             </div>
         </form>

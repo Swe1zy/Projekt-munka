@@ -5,13 +5,14 @@ import { API_URL } from '../config';
 import { MAX_MENNYISEG, useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import { termekRaklapon, useBeallitasok } from '../utils/beallitasok';
-import { forint, termekKepek } from '../utils/termek';
+import { egysegNev, forint, kategoriaNev, termekKepek } from '../utils/termek';
 import { useBejelentkezesKell } from '../utils/useBejelentkezesKell';
 import './TermekReszlet.css';
+import { helyiBeallitas, t } from '../utils/nyelv';
 
 const VisszaLink = () => (
     <Link className="termek-reszlet-vissza" to="/termekek">
-        ← Vissza a termékekhez
+        ← {t('Vissza a termékekhez')}
     </Link>
 );
 
@@ -31,7 +32,7 @@ const Galeria = ({ nev, kepek }) => {
     return (
         <div className="termek-reszlet-galeria">
             <div className="termek-reszlet-fokep">
-                <img src={kepek[aktiv]} alt={`${nev} – ${aktiv + 1}. kép`} />
+                <img src={kepek[aktiv]} alt={t('{nev} – {szam}. kép', { nev, szam: aktiv + 1 })} />
             </div>
             {kepek.length > 1 && (
                 <div className="termek-reszlet-belyegkepek">
@@ -39,7 +40,7 @@ const Galeria = ({ nev, kepek }) => {
                         <button
                             key={`${kep}-${index}`}
                             type="button"
-                            aria-label={`${index + 1}. kép megjelenítése`}
+                            aria-label={t('{szam}. kép megjelenítése', { szam: index + 1 })}
                             aria-pressed={index === aktiv}
                             onClick={() => setAktiv(index)}
                         >
@@ -60,6 +61,7 @@ const Vasarlas = ({ termek, kep }) => {
     const bejelentkezve = useBejelentkezesKell();
     const kosarban = tetelek.find((elem) => elem.id === termek._id)?.mennyiseg ?? 0;
     const egyseg = termek.egyseg || 'db';
+    const egysegFelirat = egysegNev(egyseg);
     const keszlet = Number.isFinite(termek.keszlet) ? termek.keszlet : MAX_MENNYISEG;
     // Ha a termék már a kosárban van, annak mennyiségéből indulunk, és azt írjuk felül.
     const [mennyiseg, setMennyiseg] = useState(kosarban || Math.min(1, keszlet));
@@ -69,17 +71,17 @@ const Vasarlas = ({ termek, kep }) => {
         if (!bejelentkezve()) return;
         if (kosarban > 0) {
             mennyisegBeallit(termek._id, mennyiseg);
-            toast.siker(`„${termek.nev}” mennyisége a kosárban: ${mennyiseg} ${egyseg}.`);
+            toast.siker(t('„{nev}” mennyisége a kosárban: {mennyiseg} {egyseg}.', { nev: termek.nev, mennyiseg, egyseg: egysegFelirat }));
         } else {
             hozzaad({ ...termek, kep }, mennyiseg);
-            toast.siker(`${mennyiseg} ${egyseg} „${termek.nev}” a kosárba került.`);
+            toast.siker(t('{mennyiseg} {egyseg} „{nev}” a kosárba került.', { mennyiseg, egyseg: egysegFelirat, nev: termek.nev }));
         }
     };
 
     return (
-        <section className="termek-reszlet-vasarlas" aria-label="Vásárlás">
+        <section className="termek-reszlet-vasarlas" aria-label={t('Vásárlás')}>
             <div className="termek-reszlet-mennyiseg-sor">
-                <span className="termek-reszlet-cimke">Mennyiség</span>
+                <span className="termek-reszlet-cimke">{t('Mennyiség')}</span>
                 <MennyisegValaszto
                     className="termek-reszlet-mennyiseg"
                     nev={termek.nev}
@@ -88,16 +90,19 @@ const Vasarlas = ({ termek, kep }) => {
                     beallit={setMennyiseg}
                     max={keszlet}
                 />
-                <span>Elérhető: {termek.keszlet ?? '—'} {egyseg}</span>
+                <span>{t('Elérhető: {mennyiseg} {egyseg}', { mennyiseg: termek.keszlet ?? '—', egyseg: egysegFelirat })}</span>
             </div>
             <div className="termek-reszlet-osszesen">
-                <span>Összesen</span>
+                <span>{t('Összesen')}</span>
                 <strong>{forint(Math.round(termek.ar * mennyiseg * 100) / 100)}</strong>
             </div>
             {raklapon && beallitasok && (
                 <p className="termek-reszlet-raklap">
-                    Raklapos áru: {raklapon.toLocaleString('hu-HU')} {termek.egyseg}/raklap. Raklaponként {forint(beallitasok.raklapBetetdij)} betétdíj,
-                    ami a raklap visszahozásakor visszajár.
+                    {t('Raklapos áru: {mennyiseg} {egyseg}/raklap. Raklaponként {dij} betétdíj, ami a raklap visszahozásakor visszajár.', {
+                        mennyiseg: raklapon.toLocaleString(helyiBeallitas()),
+                        egyseg: egysegFelirat,
+                        dij: forint(beallitasok.raklapBetetdij),
+                    })}
                 </p>
             )}
             <button
@@ -107,14 +112,14 @@ const Vasarlas = ({ termek, kep }) => {
                 disabled={!valtozott || keszlet < 0.01}
             >
                 {kosarban === 0
-                                        ? `Kosárba (${mennyiseg} ${egyseg})`
+                    ? t('Kosárba ({mennyiseg} {egyseg})', { mennyiseg, egyseg: egysegFelirat })
                     : valtozott
-                                            ? `Kosár frissítése (${mennyiseg} ${egyseg})`
-                      : 'A kosárban van'}
+                        ? t('Kosár frissítése ({mennyiseg} {egyseg})', { mennyiseg, egyseg: egysegFelirat })
+                        : t('A kosárban van')}
             </button>
             {kosarban > 0 && (
                 <p className="termek-reszlet-kosarban" aria-live="polite">
-                    A kosárban: {kosarban} {egyseg} · <Link to="/kosar">Ugrás a kosárhoz</Link>
+                    {t('A kosárban: {mennyiseg} {egyseg}', { mennyiseg: kosarban, egyseg: egysegFelirat })} · <Link to="/kosar">{t('Ugrás a kosárhoz')}</Link>
                 </p>
             )}
         </section>
@@ -137,13 +142,13 @@ const TermekAdatok = ({ id }) => {
                 const valasz = await response.json().catch(() => ({}));
 
                 if (!response.ok) {
-                    setHiba(valasz.msg || 'A termék betöltése nem sikerült.');
+                    setHiba(valasz.msg || t('A termék betöltése nem sikerült.'));
                     return;
                 }
                 setTermek(valasz.termek);
             } catch (error) {
                 if (error.name !== 'AbortError') {
-                    setHiba('A szerver nem érhető el. Próbáld újra később!');
+                    setHiba(t('A szerver nem érhető el. Próbáld újra később!'));
                 }
             }
         })();
@@ -163,7 +168,7 @@ const TermekAdatok = ({ id }) => {
     if (!termek) {
         return (
             <p className="termek-reszlet-betoltes" aria-live="polite">
-                Betöltés…
+                {t('Betöltés…')}
             </p>
         );
     }
@@ -177,13 +182,13 @@ const TermekAdatok = ({ id }) => {
                 <Galeria nev={termek.nev} kepek={kepek} />
                 <div className="termek-reszlet-adatok">
                     {termek.kategoria && (
-                        <span className="termek-reszlet-kategoria">{termek.kategoria}</span>
+                        <span className="termek-reszlet-kategoria">{kategoriaNev(termek.kategoria)}</span>
                     )}
                     <h1>{termek.nev}</h1>
                     <p className="termek-reszlet-ar">
-                        {forint(termek.ar)} <span>/ {termek.egyseg || 'db'}</span>
+                        {forint(termek.ar)} <span>/ {egysegNev(termek.egyseg || 'db')}</span>
                     </p>
-                    <h2>Leírás</h2>
+                    <h2>{t('Leírás')}</h2>
                     <p className="termek-reszlet-leiras">{termek.leiras}</p>
                     <Vasarlas termek={termek} kep={kepek[0]} />
                 </div>

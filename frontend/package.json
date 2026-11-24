@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "sotet-tema": "node scripts/sotet-tema.mjs",
+    "forditas-ellenorzes": "node scripts/forditas-ellenorzes.mjs",
     "predev": "npm run sotet-tema",
     "dev": "vite",
     "prebuild": "npm run sotet-tema",

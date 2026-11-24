@@ -4,9 +4,10 @@ import { useCart } from '../context/CartContext';
 import { useToast } from '../context/ToastContext';
 import OsszesitoSorok from '../components/arazas/OsszesitoSorok';
 import { useBeallitasok } from '../utils/beallitasok';
-import { forint } from '../utils/termek';
+import { egysegNev, forint, kategoriaNev } from '../utils/termek';
 import { useOsszesito } from '../utils/useOsszesito';
 import './Kosar.css';
+import { t } from '../utils/nyelv';
 
 const Ikon = ({ children }) => (
     <svg
@@ -37,22 +38,22 @@ const Kosar = () => {
 
     const tetelTorlese = (tetel) => {
         torol(tetel.id);
-        toast.siker(`„${tetel.nev}” törölve a kosárból.`);
+        toast.siker(t('„{nev}” törölve a kosárból.', { nev: tetel.nev }));
     };
 
     const kosarUritese = () => {
         urit();
-        toast.siker('A kosár kiürült.');
+        toast.siker(t('A kosár kiürült.'));
     };
 
     return (
         <div className="kosar-kontener">
             <header className="kosar-fejlec">
-                <span className="kosar-felirat">KOSÁR</span>
-                <h1>Kosarad</h1>
+                <span className="kosar-felirat">{t('KOSÁR')}</span>
+                <h1>{t('Kosarad')}</h1>
                 {tetelek.length > 0 && (
                     <p>
-                        {tetelek.length} féle termék van a kosaradban.
+                        {t('{db} féle termék van a kosaradban.', { db: tetelek.length })}
                     </p>
                 )}
             </header>
@@ -64,15 +65,15 @@ const Kosar = () => {
                         <circle cx="20" cy="21" r="1" />
                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                     </Ikon>
-                    <h2>A kosarad üres</h2>
-                    <p>Válogass az építőanyagaink közül, és tedd kosárba, amire szükséged van.</p>
+                    <h2>{t('A kosarad üres')}</h2>
+                    <p>{t('Válogass az építőanyagaink közül, és tedd kosárba, amire szükséged van.')}</p>
                     <Link className="kosar-gomb-elso" to="/termekek">
-                        Tovább a termékekhez
+                        {t('Tovább a termékekhez')}
                     </Link>
                 </section>
             ) : (
                 <div className="kosar-elrendezes">
-                    <ul className="kosar-lista" aria-label="Kosár tartalma">
+                    <ul className="kosar-lista" aria-label={t('Kosár tartalma')}>
                         {tetelek.map((tetel) => (
                             <li className="kosar-tetel" key={tetel.id}>
                                 <div className="kosar-kep">
@@ -84,12 +85,12 @@ const Kosar = () => {
                                 </div>
                                 <div className="kosar-adatok">
                                     {tetel.kategoria && (
-                                        <span className="kosar-kategoria">{tetel.kategoria}</span>
+                                        <span className="kosar-kategoria">{kategoriaNev(tetel.kategoria)}</span>
                                     )}
                                     <h2>
                                         <Link to={`/termekek/${tetel.id}`}>{tetel.nev}</Link>
                                     </h2>
-                                    <p>{forint(tetel.ar)} / {tetel.egyseg || 'db'}</p>
+                                    <p>{forint(tetel.ar)} / {egysegNev(tetel.egyseg || 'db')}</p>
                                 </div>
                                 <MennyisegValaszto
                                     className="kosar-mennyiseg"
@@ -105,7 +106,7 @@ const Kosar = () => {
                                 <button
                                     type="button"
                                     className="kosar-torles"
-                                    aria-label={`${tetel.nev} törlése a kosárból`}
+                                    aria-label={t('{nev} törlése a kosárból', { nev: tetel.nev })}
                                     onClick={() => tetelTorlese(tetel)}
                                 >
                                     <Ikon>
@@ -115,60 +116,62 @@ const Kosar = () => {
                                         <path d="M10 11v6" />
                                         <path d="M14 11v6" />
                                     </Ikon>
-                                    Törlés
+                                    {t('Törlés')}
                                 </button>
                             </li>
                         ))}
                     </ul>
 
-                    <aside className="kosar-osszegzo" aria-label="Összegzés">
-                        <h2>Összegzés</h2>
+                    <aside className="kosar-osszegzo" aria-label={t('Összegzés')}>
+                        <h2>{t('Összegzés')}</h2>
                         {osszesites ? (
                             <div className={elonezet.betoltes ? 'kosar-arazas kosar-arazas--frissul' : 'kosar-arazas'}>
                                 <OsszesitoSorok
                                     osszesites={{ ...osszesites, szallitas: null }}
                                     atvetelModja="hazhozszallitas"
-                                    szallitasHelyett="a pénztárban, cím alapján"
-                                    vegosszegCimke="Összesen (szállítás nélkül)"
+                                    szallitasHelyett={t('a pénztárban, cím alapján')}
+                                    vegosszegCimke={t('Összesen (szállítás nélkül)')}
                                 />
                             </div>
                         ) : (
                             <dl>
                                 <div>
-                                    <dt>Termékek</dt>
-                                    <dd>{tetelek.length} féle termék</dd>
+                                    <dt>{t('Termékek')}</dt>
+                                    <dd>{t('{db} féle termék', { db: tetelek.length })}</dd>
                                 </div>
                                 <div className="kosar-vegosszeg">
-                                    <dt>Végösszeg</dt>
+                                    <dt>{t('Végösszeg')}</dt>
                                     <dd>{forint(vegosszeg)}</dd>
                                 </div>
                             </dl>
                         )}
                         {elonezet.keszlethiany.map((hiany) => (
                             <p key={hiany.termekId} className="kosar-figyelmeztetes" role="alert">
-                                „{hiany.nev}”: készleten csak {hiany.keszlet} van.
+                                {t('„{nev}”: készleten csak {keszlet} van.', { nev: hiany.nev, keszlet: hiany.keszlet })}
                             </p>
                         ))}
                         {osszesites?.arajanlatAjanlott && (
                             <div className="kosar-arajanlat">
-                                <strong>Nagy tétel?</strong>
-                                <span>Ekkora mennyiségre egyedi árajánlatot is adunk.</span>
-                                <Link to="/arajanlat">Árajánlatot kérek →</Link>
+                                <strong>{t('Nagy tétel?')}</strong>
+                                <span>{t('Ekkora mennyiségre egyedi árajánlatot is adunk.')}</span>
+                                <Link to="/arajanlat">{t('Árajánlatot kérek')} →</Link>
                             </div>
                         )}
                         {beallitasok && (
                             <p className="kosar-ceges-info">
-                                Céges vásárlóként, érvényes adószámmal mennyiségi kedvezmény jár: {beallitasok.cegesKedvezmenySavok
-                                    .map((sav) => `${forint(sav.minimum)} felett ${sav.szazalek}%`)
-                                    .join(', ')}.
+                                {t('Céges vásárlóként, érvényes adószámmal mennyiségi kedvezmény jár: {savok}.', {
+                                    savok: beallitasok.cegesKedvezmenySavok
+                                        .map((sav) => t('{osszeg} felett {szazalek}%', { osszeg: forint(sav.minimum), szazalek: sav.szazalek }))
+                                        .join(', '),
+                                })}
                             </p>
                         )}
                         <Link className="kosar-gomb-masodik" to="/termekek">
-                            Vásárlás folytatása
+                            {t('Vásárlás folytatása')}
                         </Link>
-                        <Link className="kosar-vasarlas" to="/vasarlas">Vásárlás</Link>
+                        <Link className="kosar-vasarlas" to="/vasarlas">{t('Vásárlás')}</Link>
                         <button type="button" className="kosar-uritese" onClick={kosarUritese}>
-                            Kosár ürítése
+                            {t('Kosár ürítése')}
                         </button>
                     </aside>
                 </div>

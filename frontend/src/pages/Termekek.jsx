@@ -4,6 +4,7 @@ import './Termekek.css';
 import KategoriaValaszto from '../components/KategoriaValaszto';
 import Termek from '../components/Termek';
 import { API_URL } from '../config';
+import { t } from '../utils/nyelv';
 
 const KATEGORIAK = [
     'Falazóanyagok',
@@ -49,12 +50,12 @@ const Termekek = () => {
                 const valasz = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(valasz.msg || 'A termékek betöltése nem sikerült.');
+                    throw new Error(valasz.msg || t('A termékek betöltése nem sikerült.'));
                 }
                 setTermekek(valasz.termekek);
             } catch (error) {
                 if (error.name !== 'AbortError') {
-                    setHiba(error.message || 'A szerver nem érhető el. Próbáld újra később!');
+                    setHiba(error.message || t('A szerver nem érhető el. Próbáld újra később!'));
                 }
             } finally {
                 if (!controller.signal.aborted) setBetoltes(false);
@@ -86,20 +87,20 @@ const Termekek = () => {
     return (
         <div className="termekek-kontener">
             <header className="termekek-fejlec">
-                <span className="termekek-felirat">VÁLASZTÉKUNK</span>
-                <h1>Termékeink</h1>
-                <p>Fedezd fel építőanyagainkat, és találd meg gyorsan, amire a munkádhoz szükséged van.</p>
+                <span className="termekek-felirat">{t('VÁLASZTÉKUNK')}</span>
+                <h1>{t('Termékeink')}</h1>
+                <p>{t('Fedezd fel építőanyagainkat, és találd meg gyorsan, amire a munkádhoz szükséged van.')}</p>
             </header>
             <div className="termekek-elrendezes">
-                <aside className="termek-szuro-oldalsav" aria-label="Termékek szűrése">
+                <aside className="termek-szuro-oldalsav" aria-label={t('Termékek szűrése')}>
                     <div className="termek-szuro-fejlec">
-                        <h2>Szűrők</h2>
+                        <h2>{t('Szűrők')}</h2>
                         {(kivalasztottKategoriak.length > 0 || minAr !== '' || maxAr !== '') && (
-                            <span className="termek-szuro-aktiv">Aktív</span>
+                            <span className="termek-szuro-aktiv">{t('Aktív')}</span>
                         )}
                     </div>
                     <div className="termek-szuro-kategoria-blokk">
-                        <span className="termek-szuro-cim">Kategória</span>
+                        <span className="termek-szuro-cim">{t('Kategória')}</span>
                         <KategoriaValaszto
                             kategoriak={KATEGORIAK}
                             kivalasztott={kivalasztottKategoriak}
@@ -107,34 +108,34 @@ const Termekek = () => {
                         />
                     </div>
                     <fieldset className="termek-ar-szuro">
-                        <legend>Ártartomány (Ft)</legend>
+                        <legend>{t('Ártartomány (Ft)')}</legend>
                         <label>
-                            Minimum ár
-                            <input type="number" min="0" step="0.01" value={minAr} onChange={(event) => setMinAr(event.target.value)} placeholder="Nincs minimum" />
+                            {t('Minimum ár')}
+                            <input type="number" min="0" step="0.01" value={minAr} onChange={(event) => setMinAr(event.target.value)} placeholder={t('Nincs minimum')} />
                         </label>
                         <label>
-                            Maximum ár
-                            <input type="number" min="0" step="0.01" value={maxAr} onChange={(event) => setMaxAr(event.target.value)} placeholder="Nincs maximum" />
+                            {t('Maximum ár')}
+                            <input type="number" min="0" step="0.01" value={maxAr} onChange={(event) => setMaxAr(event.target.value)} placeholder={t('Nincs maximum')} />
                         </label>
                     </fieldset>
-                    <button className="termek-szuro-torles" type="button" onClick={szurokTorlese}>Szűrők törlése</button>
+                    <button className="termek-szuro-torles" type="button" onClick={szurokTorlese}>{t('Szűrők törlése')}</button>
                 </aside>
                 <main className="termekek-tartalom">
                     <div className="termek-kereso">
-                        <label htmlFor="termek-kereses">Termék keresése név vagy kategória alapján</label>
+                        <label htmlFor="termek-kereses">{t('Termék keresése név vagy kategória alapján')}</label>
                         <input
                             id="termek-kereses"
                             type="search"
                             value={kereses}
                             onChange={(event) => setKereses(event.target.value)}
-                            placeholder="Kezdj el gépelni…"
+                            placeholder={t('Kezdj el gépelni…')}
                             autoComplete="off"
                         />
                     </div>
                     {hiba && <p className="termek-keresesi-hiba" role="alert">{hiba}</p>}
-                    {betoltes && <p className="termek-keresesi-allapot" aria-live="polite">Keresés…</p>}
+                    {betoltes && <p className="termek-keresesi-allapot" aria-live="polite">{t('Keresés…')}</p>}
                     {!betoltes && !hiba && termekek.length === 0 && (
-                        <p className="termek-keresesi-allapot">Nincs a keresésnek megfelelő termék.</p>
+                        <p className="termek-keresesi-allapot">{t('Nincs a keresésnek megfelelő termék.')}</p>
                     )}
                     <div id="termekek-kontener" aria-live="polite">
                         {termekek.map((termek) => (

@@ -15,14 +15,15 @@ import {
     tetoSzamitas,
     vekonyagyazatu,
 } from '../utils/kalkulator';
-import { termekKepek } from '../utils/termek';
+import { egysegNev, termekKepek } from '../utils/termek';
 import './Kalkulator.css';
+import { t } from '../utils/nyelv';
 
 const FULEK = [
-    { kulcs: 'fal', cim: 'Fal', alcim: 'Falazóelem, habarcs' },
-    { kulcs: 'beton', cim: 'Beton', alcim: 'Kész beton vagy sóder + cement' },
-    { kulcs: 'teto', cim: 'Tető', alcim: 'Cserép, alátétfólia' },
-    { kulcs: 'szigeteles', cim: 'Szigetelés', alcim: 'Hőszigetelő táblák' },
+    { kulcs: 'fal', cim: () => t('Fal'), alcim: () => t('Falazóelem, habarcs') },
+    { kulcs: 'beton', cim: () => t('Beton'), alcim: () => t('Kész beton vagy sóder + cement') },
+    { kulcs: 'teto', cim: () => t('Tető'), alcim: () => t('Cserép, alátétfólia') },
+    { kulcs: 'szigeteles', cim: () => t('Szigetelés'), alcim: () => t('Hőszigetelő táblák') },
 ];
 
 const SzamMezo = ({ cimke, ertek, beallit, egyseg, placeholder, segitseg }) => (
@@ -51,12 +52,12 @@ const TermekValaszto = ({ cimke, lista, termek, beallit }) => (
             <select value={termek?._id ?? ''} onChange={(event) => beallit(event.target.value)}>
                 {lista.map((elem) => (
                     <option key={elem._id} value={elem._id}>
-                        {elem.nev} — {forint(elem.ar)}/{elem.egyseg}
+                        {elem.nev} — {forint(elem.ar)}/{egysegNev(elem.egyseg)}
                     </option>
                 ))}
             </select>
         ) : (
-            <small>Jelenleg nincs ilyen termék a kínálatban.</small>
+            <small>{t('Jelenleg nincs ilyen termék a kínálatban.')}</small>
         )}
     </label>
 );
@@ -105,7 +106,7 @@ const Kalkulator = () => {
         fetch(`${API_URL}/frontend-termekek`, { signal: vezerlo.signal })
             .then(async (response) => {
                 const adat = await response.json().catch(() => ({}));
-                if (!response.ok) throw new Error(adat.msg || 'A termékeket nem sikerült betölteni.');
+                if (!response.ok) throw new Error(adat.msg || t('A termékeket nem sikerült betölteni.'));
                 setTermekAllapot({ betoltve: true, termekek: adat.termekek, hiba: '' });
             })
             .catch((error) => {
@@ -161,23 +162,23 @@ const Kalkulator = () => {
         const korlatozott = [];
         for (const sor of kosarSorok) {
             const elerheto = Math.min(sor.termek.keszlet, MAX_MENNYISEG);
-            if (sor.mennyiseg > elerheto) korlatozott.push(`${sor.termek.nev}: csak ${szam(elerheto)} ${sor.termek.egyseg}`);
+            if (sor.mennyiseg > elerheto) korlatozott.push(t('{nev}: csak {mennyiseg} {egyseg}', { nev: sor.termek.nev, mennyiseg: szam(elerheto), egyseg: egysegNev(sor.termek.egyseg) }));
             hozzaad({ ...sor.termek, kep: termekKepek(sor.termek)[0] }, sor.mennyiseg);
         }
-        toast.siker(`${kosarSorok.length} tétel a kosárba került.`);
-        if (korlatozott.length) toast.hiba(`Készlet miatt kevesebb került a kosárba – ${korlatozott.join('; ')}.`);
+        toast.siker(t('{db} tétel a kosárba került.', { db: kosarSorok.length }));
+        if (korlatozott.length) toast.hiba(t('Készlet miatt kevesebb került a kosárba – {lista}.', { lista: korlatozott.join('; ') }));
         setKosarba(true);
     };
 
     return (
         <main className="kalkulator">
             <header className="kalk-fejlec">
-                <span>ANYAGSZÜKSÉGLET-KALKULÁTOR</span>
-                <h1>Mennyi anyag kell?</h1>
-                <p>Add meg a méreteket, válassz terméket, és egy kattintással kosárba teheted a szükséges mennyiséget.</p>
+                <span>{t('ANYAGSZÜKSÉGLET-KALKULÁTOR')}</span>
+                <h1>{t('Mennyi anyag kell?')}</h1>
+                <p>{t('Add meg a méreteket, válassz terméket, és egy kattintással kosárba teheted a szükséges mennyiséget.')}</p>
             </header>
 
-            <div className="kalk-fulek" role="tablist" aria-label="Kalkulátor típusa">
+            <div className="kalk-fulek" role="tablist" aria-label={t('Kalkulátor típusa')}>
                 {FULEK.map((elem) => (
                     <button
                         key={elem.kulcs}
@@ -186,8 +187,8 @@ const Kalkulator = () => {
                         aria-selected={elem.kulcs === ful}
                         onClick={() => fulValtas(elem.kulcs)}
                     >
-                        <strong>{elem.cim}</strong>
-                        <small>{elem.alcim}</small>
+                        <strong>{elem.cim()}</strong>
+                        <small>{elem.alcim()}</small>
                     </button>
                 ))}
             </div>
@@ -195,38 +196,38 @@ const Kalkulator = () => {
             {termekAllapot.hiba && <p className="kalk-hiba" role="alert">{termekAllapot.hiba}</p>}
 
             <div className="kalk-racs" role="tabpanel">
-                <section className="kalk-kartya" aria-label="Méretek és termékek">
+                <section className="kalk-kartya" aria-label={t('Méretek és termékek')}>
                     {ful === 'fal' && (
                         <>
-                            <h2>Fal méretei</h2>
+                            <h2>{t('Fal méretei')}</h2>
                             <div className="kalk-mezok">
-                                <SzamMezo cimke="Fal hossza" egyseg="m" ertek={fal.hossz} beallit={mezo(setFal, 'hossz')} segitseg="Több falnál a hosszak összege." />
-                                <SzamMezo cimke="Fal magassága" egyseg="m" ertek={fal.magassag} beallit={mezo(setFal, 'magassag')} />
-                                <SzamMezo cimke="Nyílászárók" egyseg="m²" ertek={fal.nyilaszarok} beallit={mezo(setFal, 'nyilaszarok')} segitseg="Ajtók, ablakok összes felülete." />
-                                <SzamMezo cimke="Ráhagyás" egyseg="%" ertek={fal.raHagyas} beallit={mezo(setFal, 'raHagyas')} segitseg="Törés, vágás." />
+                                <SzamMezo cimke={t('Fal hossza')} egyseg="m" ertek={fal.hossz} beallit={mezo(setFal, 'hossz')} segitseg={t('Több falnál a hosszak összege.')} />
+                                <SzamMezo cimke={t('Fal magassága')} egyseg="m" ertek={fal.magassag} beallit={mezo(setFal, 'magassag')} />
+                                <SzamMezo cimke={t('Nyílászárók')} egyseg="m²" ertek={fal.nyilaszarok} beallit={mezo(setFal, 'nyilaszarok')} segitseg={t('Ajtók, ablakok összes felülete.')} />
+                                <SzamMezo cimke={t('Ráhagyás')} egyseg="%" ertek={fal.raHagyas} beallit={mezo(setFal, 'raHagyas')} segitseg={t('Törés, vágás.')} />
                             </div>
-                            <h2>Anyagok</h2>
+                            <h2>{t('Anyagok')}</h2>
                             <div className="kalk-mezok">
-                                <TermekValaszto cimke="Falazóelem" lista={jeloltek.falazoelem} termek={falazoelem} beallit={termekBeallit('falazoelem')} />
+                                <TermekValaszto cimke={t('Falazóelem')} lista={jeloltek.falazoelem} termek={falazoelem} beallit={termekBeallit('falazoelem')} />
                                 <SzamMezo
-                                    cimke="Falvastagság"
+                                    cimke={t('Falvastagság')}
                                     egyseg="cm"
                                     ertek={fal.vastagsag}
                                     placeholder={String(nevbolVastagsag ?? 30)}
                                     beallit={mezo(setFal, 'vastagsag')}
-                                    segitseg={nevbolVastagsag ? 'A termék nevéből; felülírható.' : 'A habarcsigényhez.'}
+                                    segitseg={nevbolVastagsag ? t('A termék nevéből; felülírható.') : t('A habarcsigényhez.')}
                                 />
                                 <Valto
-                                    cimke="Falazás módja"
+                                    cimke={t('Falazás módja')}
                                     ertek={falVekony ? 'vekony' : 'hagyomanyos'}
                                     beallit={(ertek) => setFal((elozo) => ({ ...elozo, vekony: ertek === 'vekony' }))}
                                     opciok={[
-                                        { ertek: 'hagyomanyos', cimke: 'Habarccsal' },
-                                        { ertek: 'vekony', cimke: 'Vékonyágyazatú ragasztóval' },
+                                        { ertek: 'hagyomanyos', cimke: t('Habarccsal') },
+                                        { ertek: 'vekony', cimke: t('Vékonyágyazatú ragasztóval') },
                                     ]}
                                 />
                                 {!falVekony && (
-                                    <TermekValaszto cimke="Homok a habarcshoz" lista={jeloltek.homok} termek={homok} beallit={termekBeallit('homok')} />
+                                    <TermekValaszto cimke={t('Homok a habarcshoz')} lista={jeloltek.homok} termek={homok} beallit={termekBeallit('homok')} />
                                 )}
                             </div>
                         </>
@@ -234,28 +235,28 @@ const Kalkulator = () => {
 
                     {ful === 'beton' && (
                         <>
-                            <h2>Betonozandó rész</h2>
+                            <h2>{t('Betonozandó rész')}</h2>
                             <div className="kalk-mezok">
-                                <SzamMezo cimke="Hossz" egyseg="m" ertek={beton.hossz} beallit={mezo(setBeton, 'hossz')} />
-                                <SzamMezo cimke="Szélesség" egyseg="m" ertek={beton.szelesseg} beallit={mezo(setBeton, 'szelesseg')} />
-                                <SzamMezo cimke="Vastagság" egyseg="cm" ertek={beton.vastagsag} beallit={mezo(setBeton, 'vastagsag')} segitseg="Aljzat 10–15 cm, sávalap mélysége pl. 80 cm." />
-                                <SzamMezo cimke="Ráhagyás" egyseg="%" ertek={beton.raHagyas} beallit={mezo(setBeton, 'raHagyas')} />
+                                <SzamMezo cimke={t('Hossz')} egyseg="m" ertek={beton.hossz} beallit={mezo(setBeton, 'hossz')} />
+                                <SzamMezo cimke={t('Szélesség')} egyseg="m" ertek={beton.szelesseg} beallit={mezo(setBeton, 'szelesseg')} />
+                                <SzamMezo cimke={t('Vastagság')} egyseg="cm" ertek={beton.vastagsag} beallit={mezo(setBeton, 'vastagsag')} segitseg={t('Aljzat 10–15 cm, sávalap mélysége pl. 80 cm.')} />
+                                <SzamMezo cimke={t('Ráhagyás')} egyseg="%" ertek={beton.raHagyas} beallit={mezo(setBeton, 'raHagyas')} />
                             </div>
-                            <h2>Anyagok</h2>
+                            <h2>{t('Anyagok')}</h2>
                             <div className="kalk-mezok">
                                 <Valto
-                                    cimke="Beton"
+                                    cimke={t('Beton')}
                                     ertek={beton.mod}
                                     beallit={mezo(setBeton, 'mod')}
                                     opciok={[
-                                        { ertek: 'kesz', cimke: 'Kész beton (mixer)' },
-                                        { ertek: 'sajat', cimke: 'Saját keverés' },
+                                        { ertek: 'kesz', cimke: t('Kész beton (mixer)') },
+                                        { ertek: 'sajat', cimke: t('Saját keverés') },
                                     ]}
                                 />
                                 {beton.mod === 'kesz' ? (
-                                    <TermekValaszto cimke="Betontípus" lista={jeloltek.kesz} termek={kesz} beallit={termekBeallit('kesz')} />
+                                    <TermekValaszto cimke={t('Betontípus')} lista={jeloltek.kesz} termek={kesz} beallit={termekBeallit('kesz')} />
                                 ) : (
-                                    <TermekValaszto cimke="Sóder" lista={jeloltek.soder} termek={soder} beallit={termekBeallit('soder')} />
+                                    <TermekValaszto cimke={t('Sóder')} lista={jeloltek.soder} termek={soder} beallit={termekBeallit('soder')} />
                                 )}
                             </div>
                         </>
@@ -263,33 +264,33 @@ const Kalkulator = () => {
 
                     {ful === 'teto' && (
                         <>
-                            <h2>Tető</h2>
+                            <h2>{t('Tető')}</h2>
                             <div className="kalk-mezok">
                                 <Valto
-                                    cimke="Mit ismersz?"
+                                    cimke={t('Mit ismersz?')}
                                     ertek={teto.mod}
                                     beallit={mezo(setTeto, 'mod')}
                                     opciok={[
-                                        { ertek: 'alapterulet', cimke: 'Alapterület + hajlásszög' },
-                                        { ertek: 'felulet', cimke: 'Tetőfelület' },
+                                        { ertek: 'alapterulet', cimke: t('Alapterület + hajlásszög') },
+                                        { ertek: 'felulet', cimke: t('Tetőfelület') },
                                     ]}
                                 />
                                 {teto.mod === 'alapterulet' ? (
                                     <>
-                                        <SzamMezo cimke="Tető alapterülete" egyseg="m²" ertek={teto.alapterulet} beallit={mezo(setTeto, 'alapterulet')} segitseg="Felülnézetben, ereszekkel együtt." />
-                                        <SzamMezo cimke="Hajlásszög" egyseg="°" ertek={teto.hajlasszog} beallit={mezo(setTeto, 'hajlasszog')} />
+                                        <SzamMezo cimke={t('Tető alapterülete')} egyseg="m²" ertek={teto.alapterulet} beallit={mezo(setTeto, 'alapterulet')} segitseg={t('Felülnézetben, ereszekkel együtt.')} />
+                                        <SzamMezo cimke={t('Hajlásszög')} egyseg="°" ertek={teto.hajlasszog} beallit={mezo(setTeto, 'hajlasszog')} />
                                     </>
                                 ) : (
-                                    <SzamMezo cimke="Tetőfelület" egyseg="m²" ertek={teto.felulet} beallit={mezo(setTeto, 'felulet')} />
+                                    <SzamMezo cimke={t('Tetőfelület')} egyseg="m²" ertek={teto.felulet} beallit={mezo(setTeto, 'felulet')} />
                                 )}
-                                <SzamMezo cimke="Ráhagyás" egyseg="%" ertek={teto.raHagyas} beallit={mezo(setTeto, 'raHagyas')} segitseg="Vágás, élek, gerinc." />
+                                <SzamMezo cimke={t('Ráhagyás')} egyseg="%" ertek={teto.raHagyas} beallit={mezo(setTeto, 'raHagyas')} segitseg={t('Vágás, élek, gerinc.')} />
                             </div>
-                            <h2>Anyagok</h2>
+                            <h2>{t('Anyagok')}</h2>
                             <div className="kalk-mezok">
-                                <TermekValaszto cimke="Tetőfedés" lista={jeloltek.fedes} termek={fedes} beallit={termekBeallit('fedes')} />
-                                <Jelolo cimke="Alátétfólia is kell" ertek={teto.folia} beallit={mezo(setTeto, 'folia')} />
+                                <TermekValaszto cimke={t('Tetőfedés')} lista={jeloltek.fedes} termek={fedes} beallit={termekBeallit('fedes')} />
+                                <Jelolo cimke={t('Alátétfólia is kell')} ertek={teto.folia} beallit={mezo(setTeto, 'folia')} />
                                 {teto.folia && (
-                                    <TermekValaszto cimke="Alátétfólia" lista={jeloltek.alatetFolia} termek={alatetFolia} beallit={termekBeallit('alatetFolia')} />
+                                    <TermekValaszto cimke={t('Alátétfólia')} lista={jeloltek.alatetFolia} termek={alatetFolia} beallit={termekBeallit('alatetFolia')} />
                                 )}
                             </div>
                         </>
@@ -297,27 +298,27 @@ const Kalkulator = () => {
 
                     {ful === 'szigeteles' && (
                         <>
-                            <h2>Szigetelendő felület</h2>
+                            <h2>{t('Szigetelendő felület')}</h2>
                             <div className="kalk-mezok">
-                                <SzamMezo cimke="Felület" egyseg="m²" ertek={szig.felulet} beallit={mezo(setSzig, 'felulet')} segitseg="Homlokzatnál: kerület × magasság." />
-                                <SzamMezo cimke="Nyílászárók" egyseg="m²" ertek={szig.nyilaszarok} beallit={mezo(setSzig, 'nyilaszarok')} />
-                                <SzamMezo cimke="Ráhagyás" egyseg="%" ertek={szig.raHagyas} beallit={mezo(setSzig, 'raHagyas')} />
+                                <SzamMezo cimke={t('Felület')} egyseg="m²" ertek={szig.felulet} beallit={mezo(setSzig, 'felulet')} segitseg={t('Homlokzatnál: kerület × magasság.')} />
+                                <SzamMezo cimke={t('Nyílászárók')} egyseg="m²" ertek={szig.nyilaszarok} beallit={mezo(setSzig, 'nyilaszarok')} />
+                                <SzamMezo cimke={t('Ráhagyás')} egyseg="%" ertek={szig.raHagyas} beallit={mezo(setSzig, 'raHagyas')} />
                             </div>
-                            <h2>Anyagok</h2>
+                            <h2>{t('Anyagok')}</h2>
                             <div className="kalk-mezok">
-                                <TermekValaszto cimke="Hőszigetelés" lista={jeloltek.szigetelo} termek={szigetelo} beallit={termekBeallit('szigetelo')} />
-                                <Jelolo cimke="Homlokzati (ragasztott) szigetelés" ertek={szig.homlokzat} beallit={mezo(setSzig, 'homlokzat')} segitseg="Ragasztóigény becslése." />
+                                <TermekValaszto cimke={t('Hőszigetelés')} lista={jeloltek.szigetelo} termek={szigetelo} beallit={termekBeallit('szigetelo')} />
+                                <Jelolo cimke={t('Homlokzati (ragasztott) szigetelés')} ertek={szig.homlokzat} beallit={mezo(setSzig, 'homlokzat')} segitseg={t('Ragasztóigény becslése.')} />
                             </div>
                         </>
                     )}
                 </section>
 
-                <section className="kalk-kartya kalk-eredmeny" aria-label="Eredmény" aria-live="polite">
-                    <h2>Eredmény</h2>
+                <section className="kalk-kartya kalk-eredmeny" aria-label={t('Eredmény')} aria-live="polite">
+                    <h2>{t('Eredmény')}</h2>
                     {!termekAllapot.betoltve ? (
-                        <p className="kalk-ures">Termékek betöltése…</p>
+                        <p className="kalk-ures">{t('Termékek betöltése…')}</p>
                     ) : eredmeny.sorok.length === 0 ? (
-                        <p className="kalk-ures">Add meg a méreteket a számításhoz.</p>
+                        <p className="kalk-ures">{t('Add meg a méreteket a számításhoz.')}</p>
                     ) : (
                         <>
                             {eredmeny.osszegzes && <p className="kalk-osszegzes">{eredmeny.osszegzes}</p>}
@@ -328,7 +329,7 @@ const Kalkulator = () => {
                                             <>
                                                 <input
                                                     type="checkbox"
-                                                    aria-label={`${sor.szerep} kosárba tétele`}
+                                                    aria-label={t('{nev} kosárba tétele', { nev: sor.szerep })}
                                                     checked={!kihagyott[sorKulcs(sor)]}
                                                     onChange={(event) => setKihagyott((elozo) => ({ ...elozo, [sorKulcs(sor)]: !event.target.checked }))}
                                                 />
@@ -337,12 +338,12 @@ const Kalkulator = () => {
                                                     <strong>{sor.termek.nev}</strong>
                                                     <small>{sor.leiras}</small>
                                                     {sor.mennyiseg > sor.termek.keszlet && (
-                                                        <small className="kalk-keszlet">Készleten csak {szam(sor.termek.keszlet)} {sor.termek.egyseg} van.</small>
+                                                        <small className="kalk-keszlet">{t('Készleten csak {mennyiseg} {egyseg} van.', { mennyiseg: szam(sor.termek.keszlet), egyseg: egysegNev(sor.termek.egyseg) })}</small>
                                                     )}
                                                 </div>
                                                 <div className="kalk-sor-mennyiseg">
-                                                    <strong>{szam(sor.mennyiseg)} {sor.termek.egyseg}</strong>
-                                                    {sor.darab && <small>{sor.darab.becsult ? 'kb. ' : '≈ '}{szam(sor.darab.ertek)} {sor.darab.nev}</small>}
+                                                    <strong>{szam(sor.mennyiseg)} {egysegNev(sor.termek.egyseg)}</strong>
+                                                    {sor.darab && <small>{sor.darab.becsult ? `${t('kb.')} ` : '≈ '}{szam(sor.darab.ertek)} {sor.darab.nev}</small>}
                                                     <small>{forint(sor.termek.ar * sor.mennyiseg)}</small>
                                                 </div>
                                             </>
@@ -355,7 +356,7 @@ const Kalkulator = () => {
                                                 </div>
                                                 <div className="kalk-sor-mennyiseg">
                                                     <strong>{sor.info}</strong>
-                                                    <small>tájékoztató</small>
+                                                    <small>{t('tájékoztató')}</small>
                                                 </div>
                                             </>
                                         )}
@@ -363,16 +364,15 @@ const Kalkulator = () => {
                                 ))}
                             </ul>
                             <div className="kalk-osszesen">
-                                <span>Kiválasztott termékek</span>
+                                <span>{t('Kiválasztott termékek')}</span>
                                 <strong>{forint(osszesen)}</strong>
                             </div>
                             <button type="button" className="kalk-gomb" disabled={!kosarSorok.length} onClick={kosarbaTesz}>
-                                Kosárba teszem ({kosarSorok.length} tétel)
+                                {t('Kosárba teszem ({db} tétel)', { db: kosarSorok.length })}
                             </button>
-                            {kosarba && <Link className="kalk-kosar-link" to="/kosar">Tovább a kosárhoz →</Link>}
+                            {kosarba && <Link className="kalk-kosar-link" to="/kosar">{t('Tovább a kosárhoz')} →</Link>}
                             <p className="kalk-megjegyzes">
-                                Az eredmény tájékoztató becslés; a pontos mennyiség a gyártói adatoktól és a kivitelezéstől függ.
-                                A raklapok betétdíját és a szállítást a kosár és a pénztár számolja.
+                                {t('Az eredmény tájékoztató becslés; a pontos mennyiség a gyártói adatoktól és a kivitelezéstől függ. A raklapok betétdíját és a szállítást a kosár és a pénztár számolja.')}
                             </p>
                         </>
                     )}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MAX_MENNYISEG } from '../context/CartContext';
 import './MennyisegValaszto.css';
+import { t } from '../utils/nyelv';
 
 const MennyisegValaszto = ({ ertek, beallit, nev, max = MAX_MENNYISEG, egyseg = 'm³', className = '' }) => {
     // Gépelés közben az üres mező is megengedett, kifelé csak érvényes szám megy.
@@ -24,11 +25,11 @@ const MennyisegValaszto = ({ ertek, beallit, nev, max = MAX_MENNYISEG, egyseg = 
         <div
             className={`mennyiseg-valaszto ${className}`.trim()}
             role="group"
-            aria-label={`${nev} mennyisége`}
+            aria-label={t('{nev} mennyisége', { nev })}
         >
             <button
                 type="button"
-                aria-label="Mennyiség csökkentése"
+                aria-label={t('Mennyiség csökkentése')}
                 disabled={ertek <= minimum}
                 onClick={() => beallit(egyseg === 'db'
                     ? Math.max(minimum, ertek - lepes)
@@ -43,13 +44,13 @@ const MennyisegValaszto = ({ ertek, beallit, nev, max = MAX_MENNYISEG, egyseg = 
                 max={max}
                 step={lepes}
                 value={szerkesztett ?? ertek}
-                aria-label="Mennyiség"
+                aria-label={t('Mennyiség')}
                 onChange={valtozas}
                 onBlur={() => setSzerkesztett(null)}
             />
             <button
                 type="button"
-                aria-label="Mennyiség növelése"
+                aria-label={t('Mennyiség növelése')}
                 disabled={ertek >= max}
                 onClick={() => beallit(egyseg === 'db'
                     ? Math.min(max, ertek + lepes)

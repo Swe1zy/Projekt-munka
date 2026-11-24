@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { apiKeres, fajlLetoltes } from '../../utils/api';
 import Uzenet from './Uzenet';
+import { t } from '../../utils/nyelv';
 
 // Adatok letöltése és a fiók végleges törlése.
 const FiokKezeles = () => {
@@ -50,10 +51,9 @@ const FiokKezeles = () => {
         <>
             <section className="profil-panel profil-urlap">
                 <div className="profil-panel-fej">
-                    <h2>Adataim letöltése</h2>
+                    <h2>{t('Adataim letöltése')}</h2>
                     <p>
-                        Egy fájlban letöltheted a fiókod adatait, a mentett címeidet, a rendeléseidet
-                        és az árajánlatkéréseidet (JSON formátumban).
+                        {t('Egy fájlban letöltheted a fiókod adatait, a mentett címeidet, a rendeléseidet és az árajánlatkéréseidet (JSON formátumban).')}
                     </p>
                 </div>
                 <Uzenet uzenet={letoltesUzenet} />
@@ -64,24 +64,23 @@ const FiokKezeles = () => {
                         disabled={letoltes}
                         onClick={adatokLetoltese}
                     >
-                        {letoltes ? 'Összeállítás…' : 'Adatok letöltése'}
+                        {letoltes ? t('Összeállítás…') : t('Adatok letöltése')}
                     </button>
                 </div>
             </section>
 
             <section className="profil-panel profil-urlap profil-panel-veszely">
                 <div className="profil-panel-fej">
-                    <h2>Fiók törlése</h2>
+                    <h2>{t('Fiók törlése')}</h2>
                     <p>
-                        A törlés végleges: megszűnik a fiókod, törlődnek a mentett címeid és az
-                        árajánlatkéréseid. A korábbi rendeléseid adatait a számviteli szabályok
-                        miatt a fiókodról leválasztva megőrizzük, de többé nem tudsz belépni és
-                        követni őket. Részletek az <Link to="/aszf">ÁSZF-ben</Link>.
+                        {t('A törlés végleges: megszűnik a fiókod, törlődnek a mentett címeid és az árajánlatkéréseid. A korábbi rendeléseid adatait a számviteli szabályok miatt a fiókodról leválasztva megőrizzük, de többé nem tudsz belépni és követni őket. Részletek: {aszf}.', {
+                            aszf: <Link to="/aszf">{t('ÁSZF')}</Link>,
+                        })}
                     </p>
                 </div>
 
                 {admin ? (
-                    <p className="profil-megjegyzes">Az admin fiók itt nem törölhető.</p>
+                    <p className="profil-megjegyzes">{t('Az admin fiók itt nem törölhető.')}</p>
                 ) : !torlesNyitva ? (
                     <div className="profil-gombok">
                         <button
@@ -89,7 +88,7 @@ const FiokKezeles = () => {
                             className="profil-gomb profil-gomb-veszely"
                             onClick={() => setTorlesNyitva(true)}
                         >
-                            Fiók törlése…
+                            {t('Fiók törlése…')}
                         </button>
                     </div>
                 ) : (
@@ -98,7 +97,7 @@ const FiokKezeles = () => {
                         onSubmit={fiokTorlese}
                     >
                         <label className="auth-mezo">
-                            A törlés megerősítéséhez add meg a jelszavad
+                            {t('A törlés megerősítéséhez add meg a jelszavad')}
                             <input
                                 type="password"
                                 autoComplete="current-password"
@@ -115,7 +114,7 @@ const FiokKezeles = () => {
                                 className="profil-gomb profil-gomb-veszely profil-gomb-veszely-teli"
                                 disabled={torles}
                             >
-                                {torles ? 'Törlés…' : 'Végleg törlöm a fiókomat'}
+                                {torles ? t('Törlés…') : t('Végleg törlöm a fiókomat')}
                             </button>
                             <button
                                 type="button"
@@ -127,7 +126,7 @@ const FiokKezeles = () => {
                                     setTorlesUzenet(null);
                                 }}
                             >
-                                Mégsem
+                                {t('Mégsem')}
                             </button>
                         </div>
                     </form>

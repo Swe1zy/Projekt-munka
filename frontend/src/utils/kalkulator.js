@@ -1,3 +1,5 @@
+import { helyiBeallitas, t } from './nyelv';
+
 // Anyagszükséglet-kalkulátor: a számítás alapjai egy helyen. Ezek tájékoztató,
 // gyakorlati értékek – a pontos mennyiség a gyártói adatoktól és a kivitelezéstől függ.
 export const EGYUTTHATOK = {
@@ -34,8 +36,8 @@ export const kosarMennyiseg = (mennyiseg, egyseg) =>
 
 export const zsak = (kg) => kerekitFelfele(kg / EGYUTTHATOK.cementZsakKg, 0);
 
-// Magyar számformátum a leírásokhoz (22,5 m²).
-const hu = (ertek) => ertek.toLocaleString('hu-HU', { maximumFractionDigits: 2 });
+// Számformátum a leírásokhoz a felület nyelvén (22,5 m² / 22.5 m²).
+const hu = (ertek) => ertek.toLocaleString(helyiBeallitas(), { maximumFractionDigits: 2 });
 
 const szam = (ertek) => {
     const n = Number(String(ertek).replace(',', '.'));
@@ -93,11 +95,11 @@ export const falSzamitas = ({ hossz, magassag, nyilaszarok, raHagyas, vastagsag,
         const db = darabPerEgyseg(falazoelem);
         sorok.push({
             kulcs: 'falazoelem',
-            szerep: 'Falazóelem',
-            leiras: `${hu(netto)} m² fal + ${szam(raHagyas)}% ráhagyás`,
+            szerep: t('Falazóelem'),
+            leiras: t('{felulet} m² fal + {szazalek}% ráhagyás', { felulet: hu(netto), szazalek: szam(raHagyas) }),
             termek: falazoelem,
             mennyiseg,
-            darab: db ? { ertek: Math.ceil(mennyiseg * db.ertek), becsult: db.becsult, nev: 'db' } : null,
+            darab: db ? { ertek: Math.ceil(mennyiseg * db.ertek), becsult: db.becsult, nev: t('db') } : null,
         });
     }
 
@@ -105,30 +107,30 @@ export const falSzamitas = ({ hossz, magassag, nyilaszarok, raHagyas, vastagsag,
         const kg = netto * vastag * EGYUTTHATOK.ragasztoKgPerCm;
         sorok.push({
             kulcs: 'ragaszto',
-            szerep: 'Falazóragasztó',
-            leiras: `vékonyágyazatú falazás, ${vastag} cm-es fal`,
-            info: `≈ ${Math.ceil(kg)} kg, azaz ${zsak(kg)} zsák (25 kg)`,
+            szerep: t('Falazóragasztó'),
+            leiras: t('vékonyágyazatú falazás, {vastagsag} cm-es fal', { vastagsag: vastag }),
+            info: `≈ ${t('{kg} kg, azaz {zsak} zsák (25 kg)', { kg: Math.ceil(kg), zsak: zsak(kg) })}`,
         });
     } else if (netto > 0) {
         const habarcsM3 = (netto * vastag * EGYUTTHATOK.habarcsLiterPerCm) / 1000;
         if (homok) {
             sorok.push({
                 kulcs: 'homok',
-                szerep: 'Falazóhomok a habarcshoz',
-                leiras: `≈ ${hu(habarcsM3)} m³ habarcs (${hu(vastag)} cm-es fal)`,
+                szerep: t('Falazóhomok a habarcshoz'),
+                leiras: `≈ ${t('{terfogat} m³ habarcs ({vastagsag} cm-es fal)', { terfogat: hu(habarcsM3), vastagsag: hu(vastag) })}`,
                 termek: homok,
                 mennyiseg: kosarMennyiseg(habarcsM3 * EGYUTTHATOK.habarcsHomokM3, homok.egyseg),
             });
         }
         sorok.push({
             kulcs: 'habarcs-cement',
-            szerep: 'Cement a habarcshoz',
-            leiras: `${EGYUTTHATOK.habarcsCementKg} kg / m³ habarcs`,
-            info: `≈ ${zsak(habarcsM3 * EGYUTTHATOK.habarcsCementKg)} zsák (25 kg)`,
+            szerep: t('Cement a habarcshoz'),
+            leiras: t('{kg} kg / m³ habarcs', { kg: EGYUTTHATOK.habarcsCementKg }),
+            info: `≈ ${t('{zsak} zsák (25 kg)', { zsak: zsak(habarcsM3 * EGYUTTHATOK.habarcsCementKg) })}`,
         });
     }
 
-    return { sorok, osszegzes: netto > 0 ? `${hu(netto)} m² nettó falfelület` : null };
+    return { sorok, osszegzes: netto > 0 ? t('{felulet} m² nettó falfelület', { felulet: hu(netto) }) : null };
 };
 
 export const betonSzamitas = ({ hossz, szelesseg, vastagsag, raHagyas, mod }, { kesz, soder }) => {
@@ -140,8 +142,8 @@ export const betonSzamitas = ({ hossz, szelesseg, vastagsag, raHagyas, mod }, { 
         if (kesz) {
             sorok.push({
                 kulcs: 'beton',
-                szerep: 'Kész beton',
-                leiras: `${hu(terfogat)} m³ ráhagyással`,
+                szerep: t('Kész beton'),
+                leiras: t('{terfogat} m³ ráhagyással', { terfogat: hu(terfogat) }),
                 termek: kesz,
                 // Mixerbetont tizedköbméterre kerekítve rendelünk.
                 mennyiseg: Math.max(kerekitFelfele(terfogat, 1), 0.1),
@@ -151,27 +153,27 @@ export const betonSzamitas = ({ hossz, szelesseg, vastagsag, raHagyas, mod }, { 
         if (soder) {
             sorok.push({
                 kulcs: 'soder',
-                szerep: 'Sóder',
-                leiras: `${hu(EGYUTTHATOK.betonSoderM3)} m³ / m³ beton`,
+                szerep: t('Sóder'),
+                leiras: t('{terfogat} m³ / m³ beton', { terfogat: hu(EGYUTTHATOK.betonSoderM3) }),
                 termek: soder,
                 mennyiseg: kosarMennyiseg(terfogat * EGYUTTHATOK.betonSoderM3, soder.egyseg),
             });
         }
         sorok.push({
             kulcs: 'cement',
-            szerep: 'Cement',
-            leiras: `${EGYUTTHATOK.betonCementKg} kg / m³ beton`,
-            info: `${zsak(terfogat * EGYUTTHATOK.betonCementKg)} zsák (25 kg)`,
+            szerep: t('Cement'),
+            leiras: t('{kg} kg / m³ beton', { kg: EGYUTTHATOK.betonCementKg }),
+            info: t('{zsak} zsák (25 kg)', { zsak: zsak(terfogat * EGYUTTHATOK.betonCementKg) }),
         });
         sorok.push({
             kulcs: 'viz',
-            szerep: 'Víz',
-            leiras: `${EGYUTTHATOK.betonVizLiter} liter / m³ beton`,
-            info: `≈ ${Math.ceil(terfogat * EGYUTTHATOK.betonVizLiter)} liter`,
+            szerep: t('Víz'),
+            leiras: t('{liter} liter / m³ beton', { liter: EGYUTTHATOK.betonVizLiter }),
+            info: `≈ ${t('{liter} liter', { liter: Math.ceil(terfogat * EGYUTTHATOK.betonVizLiter) })}`,
         });
     }
 
-    return { sorok, osszegzes: `${hu(terfogat)} m³ beton (${szam(raHagyas)}% ráhagyással)` };
+    return { sorok, osszegzes: t('{terfogat} m³ beton ({szazalek}% ráhagyással)', { terfogat: hu(terfogat), szazalek: szam(raHagyas) }) };
 };
 
 export const tetoSzamitas = ({ felulet, alapterulet, hajlasszog, mod, raHagyas, folia }, { fedes, alatetFolia }) => {
@@ -186,24 +188,24 @@ export const tetoSzamitas = ({ felulet, alapterulet, hajlasszog, mod, raHagyas, 
         const db = darabPerEgyseg(fedes, 'cserep');
         sorok.push({
             kulcs: 'fedes',
-            szerep: 'Tetőfedő anyag',
-            leiras: `${hu(tetoFelulet)} m² tető + ${szam(raHagyas)}% vágási ráhagyás`,
+            szerep: t('Tetőfedő anyag'),
+            leiras: t('{felulet} m² tető + {szazalek}% vágási ráhagyás', { felulet: hu(tetoFelulet), szazalek: szam(raHagyas) }),
             termek: fedes,
             mennyiseg,
-            darab: db ? { ertek: Math.ceil(mennyiseg * db.ertek), becsult: db.becsult, nev: 'db cserép' } : null,
+            darab: db ? { ertek: Math.ceil(mennyiseg * db.ertek), becsult: db.becsult, nev: t('db cserép') } : null,
         });
     }
     if (folia && alatetFolia) {
         sorok.push({
             kulcs: 'folia',
-            szerep: 'Alátétfólia',
-            leiras: `${Math.round(EGYUTTHATOK.foliaAtfedes * 100)}% átfedéssel`,
+            szerep: t('Alátétfólia'),
+            leiras: t('{szazalek}% átfedéssel', { szazalek: Math.round(EGYUTTHATOK.foliaAtfedes * 100) }),
             termek: alatetFolia,
             mennyiseg: kosarMennyiseg(tetoFelulet * (1 + EGYUTTHATOK.foliaAtfedes), alatetFolia.egyseg),
         });
     }
 
-    return { sorok, osszegzes: `${hu(tetoFelulet)} m² tetőfelület` };
+    return { sorok, osszegzes: t('{felulet} m² tetőfelület', { felulet: hu(tetoFelulet) }) };
 };
 
 export const szigetelesSzamitas = ({ felulet, nyilaszarok, raHagyas, homlokzat }, { szigetelo }) => {
@@ -216,24 +218,24 @@ export const szigetelesSzamitas = ({ felulet, nyilaszarok, raHagyas, homlokzat }
         const db = darabPerEgyseg(szigetelo);
         sorok.push({
             kulcs: 'szigetelo',
-            szerep: 'Hőszigetelő anyag',
-            leiras: `${hu(netto)} m² + ${szam(raHagyas)}% ráhagyás`,
+            szerep: t('Hőszigetelő anyag'),
+            leiras: t('{felulet} m² + {szazalek}% ráhagyás', { felulet: hu(netto), szazalek: szam(raHagyas) }),
             termek: szigetelo,
             mennyiseg,
-            darab: db ? { ertek: Math.ceil(mennyiseg * db.ertek - 1e-9), becsult: db.becsult, nev: 'tábla' } : null,
+            darab: db ? { ertek: Math.ceil(mennyiseg * db.ertek - 1e-9), becsult: db.becsult, nev: t('tábla') } : null,
         });
     }
     if (homlokzat) {
         const kg = netto * EGYUTTHATOK.szigetelesRagasztoKg;
         sorok.push({
             kulcs: 'ragaszto',
-            szerep: 'Ragasztó- és ágyazóhabarcs',
-            leiras: `${EGYUTTHATOK.szigetelesRagasztoKg} kg / m²`,
-            info: `≈ ${zsak(kg)} zsák (25 kg)`,
+            szerep: t('Ragasztó- és ágyazóhabarcs'),
+            leiras: t('{kg} kg / m²', { kg: EGYUTTHATOK.szigetelesRagasztoKg }),
+            info: `≈ ${t('{zsak} zsák (25 kg)', { zsak: zsak(kg) })}`,
         });
     }
 
-    return { sorok, osszegzes: `${hu(netto)} m² szigetelendő felület` };
+    return { sorok, osszegzes: t('{felulet} m² szigetelendő felület', { felulet: hu(netto) }) };
 };
 
 // --- Melyik termék melyik szerepre választható --------------------------------------

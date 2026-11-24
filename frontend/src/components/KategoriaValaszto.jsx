@@ -1,5 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+import { kategoriaNev } from '../utils/termek';
 import './KategoriaValaszto.css';
+import { t } from '../utils/nyelv';
 
 const ikonUtak = {
     osszes: (
@@ -134,14 +136,14 @@ const KategoriaValaszto = ({ kategoriak, kivalasztott, valaszt }) => {
     };
 
     // Az első csempe az „Összes”, utána a kategóriák.
-    const elemek = [{ nev: '', felirat: 'Összes', ikon: 'osszes' }].concat(
-        kategoriak.map((nev) => ({ nev, felirat: nev, ikon: KATEGORIA_IKONOK[nev] ?? 'osszes' })),
+    const elemek = [{ nev: '', felirat: t('Összes'), ikon: 'osszes' }].concat(
+        kategoriak.map((nev) => ({ nev, felirat: kategoriaNev(nev), ikon: KATEGORIA_IKONOK[nev] ?? 'osszes' })),
     );
     const aktivNev = kivalasztott.length === 1 ? kivalasztott[0] : kivalasztott.length === 0 ? '' : null;
 
     const gombFelirat = kivalasztott.length > 1
-        ? `Több kategória (${kivalasztott.length})`
-        : aktivNev || 'Összes kategória';
+        ? t('Több kategória ({db})', { db: kivalasztott.length })
+        : aktivNev ? kategoriaNev(aktivNev) : t('Összes kategória');
     const gombIkon = kivalasztott.length > 1
         ? 'tobb'
         : elemek.find((elem) => elem.nev === aktivNev)?.ikon ?? 'osszes';
@@ -226,7 +228,7 @@ const KategoriaValaszto = ({ kategoriak, kivalasztott, valaszt }) => {
                 className="kv-gomb"
                 aria-expanded={nyitva}
                 aria-controls={panelId}
-                aria-label={`Kategória választása: ${gombFelirat}`}
+                aria-label={t('Kategória választása: {nev}', { nev: gombFelirat })}
                 onClick={() => (nyitva ? bezar() : setNyitva(true))}
             >
                 <span className="kv-gomb-ikon">
@@ -239,7 +241,7 @@ const KategoriaValaszto = ({ kategoriak, kivalasztott, valaszt }) => {
             {nyitva && (
                 <div id={panelId} ref={panelRef} className={`kv-panel${elhelyezes.felfele ? ' kv-panel--felfele' : ''}`}
                     style={elhelyezes.maxMagassag ? { maxHeight: elhelyezes.maxMagassag, overflowY: 'auto' } : undefined}
-                    role="group" aria-label="Kategóriák">
+                    role="group" aria-label={t('Kategóriák')}>
                     {elemek.map((elem, index) => {
                         const aktiv = elem.nev === aktivNev;
                         return (

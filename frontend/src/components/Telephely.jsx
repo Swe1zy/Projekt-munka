@@ -1,5 +1,6 @@
 import { hetNapNeve } from '../utils/beallitasok';
 import './arazas/Arazas.css';
+import { t } from '../utils/nyelv';
 
 // A hét hétfővel kezdődik a nyitvatartási táblában.
 const SORREND = [1, 2, 3, 4, 5, 6, 0];
@@ -22,24 +23,24 @@ const Telephely = ({ telephely, nyitvatartas }) => {
                     <a href={`tel:${telephely.telefon.replace(/\s/g, '')}`}>{telephely.telefon}</a>
                     <a href={`mailto:${telephely.email}`}>{telephely.email}</a>
                 </address>
-                <dl className="telephely-nyitvatartas" aria-label="Nyitvatartás">
+                <dl className="telephely-nyitvatartas" aria-label={t('Nyitvatartás')}>
                     {SORREND.map((nap) => {
                         const sor = nyitvatartas.find((elem) => elem.nap === nap);
                         return (
                             <div key={nap} className={nap === ma ? 'telephely-ma' : undefined}>
                                 <dt>{hetNapNeve(nap)}</dt>
-                                <dd>{!sor || sor.zarva ? 'zárva' : `${sor.nyit}–${sor.zar}`}</dd>
+                                <dd>{!sor || sor.zarva ? t('zárva') : `${sor.nyit}–${sor.zar}`}</dd>
                             </div>
                         );
                     })}
                 </dl>
             </div>
             <div className="telephely-terkep">
-                <iframe title={`${telephely.nev} térképen`} src={terkepUrl} loading="lazy" />
+                <iframe title={t('{nev} térképen', { nev: telephely.nev })} src={terkepUrl} loading="lazy" />
             </div>
             <div className="telephely-utvonal">
-                <a href={utvonal} target="_blank" rel="noreferrer">Útvonaltervezés ↗</a>
-                <a href={nagyTerkep} target="_blank" rel="noreferrer">Nagyobb térkép ↗</a>
+                <a href={utvonal} target="_blank" rel="noreferrer">{t('Útvonaltervezés')} ↗</a>
+                <a href={nagyTerkep} target="_blank" rel="noreferrer">{t('Nagyobb térkép')} ↗</a>
             </div>
         </div>
     );

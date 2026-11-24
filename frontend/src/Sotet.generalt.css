@@ -275,6 +275,27 @@
     background: var(--nav-kiemeles)
 }
 
+:root[data-tema='sotet'] .nav-valaszto select {
+    border: 1px solid var(--nav-vonal);
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='#ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+            no-repeat right 0.55rem center / 0.9rem,
+        transparent;
+    color: var(--nav-szoveg-eros)
+}
+
+:root[data-tema='sotet'] .nav-valaszto select:hover {
+    background-color: var(--nav-halvany)
+}
+
+:root[data-tema='sotet'] .nav-valaszto select:focus-visible {
+    outline: 2px solid var(--nav-kiemeles-vilagos)
+}
+
+:root[data-tema='sotet'] .nav-valaszto option {
+    background: var(--nav-panel);
+    color: var(--nav-szoveg-eros)
+}
+
 :root[data-tema='sotet'] .nav-auth-gomb {
     color: var(--nav-szoveg-eros)
 }
@@ -366,6 +387,10 @@
 }
 
 @media screen and (max-width: 860px) {
+
+    :root[data-tema='sotet'] .nav-valasztok--mobil {
+    border-top: 1px solid var(--nav-vonal)
+}
 
     :root[data-tema='sotet'] .nav-mobil-gomb {
     border: 0;
@@ -3509,6 +3534,40 @@
 }
 
 :root[data-tema='sotet'] .tema-opcio-szoveg small {
+    color: #9a9fa6
+}
+
+:root[data-tema='sotet'] .beallitas-valaszto {
+    border: 0
+}
+
+:root[data-tema='sotet'] .beallitas-opcio {
+    border: 1.5px solid #414448;
+    background: #252525
+}
+
+:root[data-tema='sotet'] .beallitas-opcio:hover {
+    border-color: #6f4e34
+}
+
+:root[data-tema='sotet'] .beallitas-opcio:has(input:checked) {
+    border-color: #bd6a3d;
+    box-shadow: 0 0 0 3px rgb(189 106 61 / 0.2)
+}
+
+:root[data-tema='sotet'] .beallitas-opcio:has(input:focus-visible) {
+    outline: 3px solid rgb(249 115 22 / 0.45)
+}
+
+:root[data-tema='sotet'] .beallitas-opcio input {
+    accent-color: #bd6a3d
+}
+
+:root[data-tema='sotet'] .beallitas-opcio strong {
+    color: #ccd0d8
+}
+
+:root[data-tema='sotet'] .beallitas-opcio small {
     color: #9a9fa6
 }
 

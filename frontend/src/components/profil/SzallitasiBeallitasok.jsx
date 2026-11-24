@@ -3,6 +3,7 @@ import { apiKeres } from '../../utils/api';
 import { useBeallitasok } from '../../utils/beallitasok';
 import { forint } from '../../utils/termek';
 import Uzenet from './Uzenet';
+import { t } from '../../utils/nyelv';
 
 // A pénztár alapértékei házhozszállításnál: darus lerakodás és a kedvelt idősáv.
 const SzallitasiBeallitasok = ({ beallitasok, frissult }) => {
@@ -34,8 +35,8 @@ const SzallitasiBeallitasok = ({ beallitasok, frissult }) => {
             onSubmit={bekuld}
         >
             <div className="profil-panel-fej">
-                <h2>Kiszállítási beállítások</h2>
-                <p>Házhozszállításnál a pénztár ezekkel az értékekkel indul, rendeléskor módosíthatod őket.</p>
+                <h2>{t('Kiszállítási beállítások')}</h2>
+                <p>{t('Házhozszállításnál a pénztár ezekkel az értékekkel indul, rendeléskor módosíthatod őket.')}</p>
             </div>
 
             <label className="auth-jelolo">
@@ -45,19 +46,19 @@ const SzallitasiBeallitasok = ({ beallitasok, frissult }) => {
                     onChange={(event) => setDarus(event.target.checked)}
                 />
                 <span>
-                    Darus lerakodást kérek alapértelmezésként
-                    {uzlet?.szallitas?.darusPotdij ? ` (+${forint(uzlet.szallitas.darusPotdij)} fordulónként)` : ''}
+                    {t('Darus lerakodást kérek alapértelmezésként')}
+                    {uzlet?.szallitas?.darusPotdij ? ` ${t('(+{dij} fordulónként)', { dij: forint(uzlet.szallitas.darusPotdij) })}` : ''}
                 </span>
             </label>
 
             <fieldset className="profil-csoport">
-                <legend>Kedvelt idősáv</legend>
+                <legend>{t('Kedvelt idősáv')}</legend>
                 <div
                     className="profil-valaszto"
                     role="radiogroup"
-                    aria-label="Kedvelt idősáv"
+                    aria-label={t('Kedvelt idősáv')}
                 >
-                    {[{ kulcs: '', cimke: 'Mindegy' }, ...idosavok].map((sav) => (
+                    {[{ kulcs: '', cimke: t('Mindegy') }, ...idosavok].map((sav) => (
                         <label key={sav.kulcs || 'mindegy'} className={idosav === sav.kulcs ? 'aktiv' : undefined}>
                             <input
                                 type="radio"
@@ -79,7 +80,7 @@ const SzallitasiBeallitasok = ({ beallitasok, frissult }) => {
                     className="auth-gomb"
                     disabled={kuldes}
                 >
-                    {kuldes ? 'Mentés…' : 'Beállítások mentése'}
+                    {kuldes ? t('Mentés…') : t('Beállítások mentése')}
                 </button>
             </div>
         </form>

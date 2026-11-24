@@ -4,6 +4,7 @@ import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import './Auth.css';
+import { t } from '../utils/nyelv';
 
 const Login = () => {
     const { user, login } = useAuth();
@@ -37,11 +38,11 @@ const Login = () => {
             const valasz = await response.json();
 
             if (response.ok) {
-                siker(`Sikeres bejelentkezés! Üdv, ${valasz.user.nev}!`);
+                siker(t('Sikeres bejelentkezés! Üdv, {nev}!', { nev: valasz.user.nev }));
                 login(valasz.user);
             } else hiba(valasz.msg);
         } catch {
-            hiba('A szerver nem érhető el. Próbáld újra később!');
+            hiba(t('A szerver nem érhető el. Próbáld újra később!'));
         } finally {
             setKuldes(false);
         }
@@ -53,9 +54,9 @@ const Login = () => {
                 className="auth-kartya"
                 onSubmit={bekuld}
             >
-                <h1>Bejelentkezés</h1>
+                <h1>{t('Bejelentkezés')}</h1>
                 <p className="auth-leiras">
-                    Add meg az adataidat a belépéshez.
+                    {t('Add meg az adataidat a belépéshez.')}
                 </p>
 
                 {location.state?.uzenet && (
@@ -68,7 +69,7 @@ const Login = () => {
                 )}
 
                 <label className="auth-mezo">
-                    E-mail cím
+                    {t('E-mail cím')}
                     <input
                         data-teszt-loginemail="email"
                         type="email"
@@ -79,7 +80,7 @@ const Login = () => {
                     />
                 </label>
                 <label className="auth-mezo">
-                    Jelszó
+                    {t('Jelszó')}
                     <input
                         data-teszt-loginjelszo="jelszo"
                         type="password"
@@ -96,11 +97,11 @@ const Login = () => {
                     className="auth-gomb"
                     disabled={kuldes}
                 >
-                    {kuldes ? 'Belépés…' : 'Belépés'}
+                    {kuldes ? t('Belépés…') : t('Belépés')}
                 </button>
 
                 <p className="auth-lablec">
-                    Még nincs fiókod? <Link to="/register">Regisztráció</Link>
+                    {t('Még nincs fiókod?')} <Link to="/register">{t('Regisztráció')}</Link>
                 </p>
             </form>
         </div>

@@ -1,3 +1,5 @@
+import { t } from '../../utils/nyelv';
+
 // Irányítószám, település és utca mezői a profil mentett címeihez.
 const CimMezok = ({ cim, frissit, tipus }) => {
     const elotag = tipus === 'szallitas' ? 'shipping' : 'billing';
@@ -5,14 +7,14 @@ const CimMezok = ({ cim, frissit, tipus }) => {
     return (
         <div className="profil-cim-mezok">
             <label className="auth-mezo">
-                Irányítószám
+                {t('Irányítószám')}
                 <input
                     type="text"
                     inputMode="numeric"
                     autoComplete={`${elotag} postal-code`}
                     pattern="\d{4}"
                     maxLength="4"
-                    title="4 számjegy"
+                    title={t('4 számjegy')}
                     value={cim.iranyitoszam}
                     onChange={(event) => frissit('iranyitoszam', event.target.value)}
                     placeholder="1234"
@@ -20,7 +22,7 @@ const CimMezok = ({ cim, frissit, tipus }) => {
                 />
             </label>
             <label className="auth-mezo">
-                Település
+                {t('Település')}
                 <input
                     type="text"
                     autoComplete={`${elotag} address-level2`}
@@ -32,7 +34,7 @@ const CimMezok = ({ cim, frissit, tipus }) => {
                 />
             </label>
             <label className="auth-mezo profil-cim-utca">
-                Utca, házszám, emelet, ajtó
+                {t('Utca, házszám, emelet, ajtó')}
                 <input
                     type="text"
                     autoComplete={`${elotag} street-address`}

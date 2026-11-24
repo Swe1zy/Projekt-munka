@@ -3,6 +3,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { API_URL } from '../config';
+import { t } from '../utils/nyelv';
 
 const Logout = () => {
     const { user, logout } = useAuth();
@@ -19,7 +20,7 @@ const Logout = () => {
             credentials: 'include',
         }).catch(() => {}).finally(() => {
             logout();
-            siker('Sikeresen kijelentkeztél!');
+            siker(t('Sikeresen kijelentkeztél!'));
         });
     }, [user, logout, siker]);
 

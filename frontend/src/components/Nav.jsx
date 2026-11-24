@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
+import { NYELVEK, nyelvValtas, t, useNyelv } from '../utils/nyelv';
+import { PENZNEMEK, penznemValtas, usePenznem } from '../utils/penznem';
 import './Nav.css';
 
 const ikonUtak = {
@@ -109,6 +111,8 @@ const Nav = () => {
     const { tetelek } = useCart();
     const kosarTetelSzam = tetelek.length;
     const { pathname } = useLocation();
+    const penznem = usePenznem();
+    const nyelv = useNyelv();
     const [nyitva, setNyitva] = useState(false);
     const [mobilNyitva, setMobilNyitva] = useState(false);
     const [elozoUtvonal, setElozoUtvonal] = useState(pathname);
@@ -176,7 +180,7 @@ const Nav = () => {
                 type="button"
                 className={`nav-fiok-gomb${user ? '' : ' nav-ikon-gomb'}`}
                 ref={gombRef}
-                aria-label={user ? `Fiók: ${user.nev}` : 'Fiók'}
+                aria-label={user ? t('Fiók: {nev}', { nev: user.nev }) : t('Fiók')}
                 aria-expanded={nyitva}
                 aria-controls="nav-fiok-menu"
                 onClick={() => setNyitva((elozo) => !elozo)}
@@ -210,7 +214,7 @@ const Nav = () => {
                                 className="nav-fiok-elem"
                             >
                                 <Ikon nev="profil" />
-                                Profilom
+                                {t('Profilom')}
                             </NavLink>
                             <NavLink
                                 to="/profil#rendeleseim"
@@ -218,7 +222,7 @@ const Nav = () => {
                                 end
                             >
                                 <Ikon nev="rendelesek" />
-                                Rendeléseim
+                                {t('Rendeléseim')}
                             </NavLink>
                             <hr className="nav-fiok-elv" />
                             <NavLink
@@ -227,7 +231,7 @@ const Nav = () => {
                                 className="nav-fiok-elem nav-fiok-kilep"
                             >
                                 <Ikon nev="kilepes" />
-                                Kilépés
+                                {t('Kilépés')}
                             </NavLink>
                         </>
                     ) : (
@@ -238,7 +242,7 @@ const Nav = () => {
                                 className="nav-fiok-elem"
                             >
                                 <Ikon nev="belepes" />
-                                Bejelentkezés
+                                {t('Bejelentkezés')}
                             </NavLink>
                             <NavLink
                                 data-teszt-reg="regisztracio"
@@ -246,7 +250,7 @@ const Nav = () => {
                                 className="nav-fiok-elem"
                             >
                                 <Ikon nev="regisztracio" />
-                                Regisztráció
+                                {t('Regisztráció')}
                             </NavLink>
                         </>
                     )}
@@ -257,17 +261,54 @@ const Nav = () => {
 
     const menuBezar = () => setMobilNyitva(false);
 
+    // Nyelv- és pénznemválasztó. Asztali nézetben a sáv jobb oldalán, mobilon a
+    // lenyíló menü alján jelenik meg (a CSS mindig csak az egyiket mutatja).
+    const valasztok = (hely) => (
+        <div className={`nav-valasztok nav-valasztok--${hely}`}>
+            <label className="nav-valaszto" title={t('Nyelv')}>
+                <span className="nav-rejtett">{t('Nyelv')}</span>
+                <select
+                    data-teszt-nyelv={hely}
+                    value={nyelv}
+                    onChange={(event) => nyelvValtas(event.target.value)}
+                >
+                    {NYELVEK.map((opcio) => (
+                        <option key={opcio.kod} value={opcio.kod} lang={opcio.kod}>
+                            {opcio.cimke}
+                        </option>
+                    ))}
+                </select>
+            </label>
+
+            <label className="nav-valaszto" title={t('Megjelenítési pénznem – a fizetés forintban történik')}>
+                <span className="nav-rejtett">{t('Pénznem')}</span>
+                <select
+                    data-teszt-penznem={hely}
+                    value={penznem}
+                    onChange={(event) => penznemValtas(event.target.value)}
+                >
+                    {PENZNEMEK.map((opcio) => (
+                        <option key={opcio.kod} value={opcio.kod}>
+                            {opcio.jel === opcio.kod ? opcio.kod : `${opcio.kod} (${opcio.jel})`}
+                        </option>
+                    ))}
+                </select>
+            </label>
+        </div>
+    );
+
+
     return (
         <nav
             className="nav-kontener"
-            aria-label="Főmenü"
+            aria-label={t('Főmenü')}
         >
             <div className="nav-bal">
                 <button
                     ref={mobilGombRef}
                     type="button"
                     className={`nav-mobil-gomb${mobilNyitva ? ' nav-mobil-gomb--nyitva' : ''}`}
-                    aria-label={mobilNyitva ? 'Navigáció bezárása' : 'Navigáció megnyitása'}
+                    aria-label={mobilNyitva ? t('Navigáció bezárása') : t('Navigáció megnyitása')}
                     aria-expanded={mobilNyitva}
                     aria-controls="nav-linkek"
                     onClick={() => setMobilNyitva((elozo) => !elozo)}
@@ -280,7 +321,7 @@ const Nav = () => {
                 <Link
                     to="/"
                     className="nav-marka"
-                    aria-label="Tüzép – főoldal"
+                    aria-label={t('Tüzép – főoldal')}
                     onClick={menuBezar}
                 >
                     <span className="nav-marka-jel">
@@ -288,7 +329,7 @@ const Nav = () => {
                     </span>
                     <span className="nav-marka-szoveg">
                         <strong>Tüzép</strong>
-                        <small>Építőanyag-kereskedés</small>
+                        <small>{t('Építőanyag-kereskedés')}</small>
                     </span>
                 </Link>
             </div>
@@ -297,7 +338,7 @@ const Nav = () => {
                 <button
                     type="button"
                     className="nav-mobil-hatter"
-                    aria-label="Navigáció bezárása"
+                    aria-label={t('Navigáció bezárása')}
                     onClick={menuBezar}
                 />
             )}
@@ -311,10 +352,10 @@ const Nav = () => {
                     end
                     onClick={menuBezar}
                 >
-                    Főoldal
+                    {t('Főoldal')}
                 </NavLink>
-                <NavLink to="/termekek" onClick={menuBezar}>Termékek</NavLink>
-                <NavLink to="/kalkulator" onClick={menuBezar}>Kalkulátor</NavLink>
+                <NavLink to="/termekek" onClick={menuBezar}>{t('Termékek')}</NavLink>
+                <NavLink to="/kalkulator" onClick={menuBezar}>{t('Kalkulátor')}</NavLink>
                 {/* A rendelések, árajánlatok és a termékkezelés a dashboardról érhető el,
                     ezért az admin aloldalakon is a Dashboard menüpont marad kiemelve. */}
                 {user?.role === 'admin' && (
@@ -323,19 +364,22 @@ const Nav = () => {
                         className={({ isActive }) => (isActive || pathname.startsWith('/admin/') ? 'nav-link--aktiv' : undefined)}
                         onClick={menuBezar}
                     >
-                        Dashboard
+                        {t('Dashboard')}
                     </NavLink>
                 )}
+                {valasztok('mobil')}
             </div>
 
             <div className="nav-jobb">
+                {valasztok('asztali')}
+
                 {/* A kosár gomb csak bejelentkezett felhasználónak látszik */}
                 {user && (
                     <NavLink
                         to="/kosar"
                         className="nav-ikon-gomb nav-kosar-gomb"
                         aria-label={
-                            kosarTetelSzam > 0 ? `Kosár, ${kosarTetelSzam} féle termék` : 'Kosár'
+                            kosarTetelSzam > 0 ? t('Kosár, {db} féle termék', { db: kosarTetelSzam }) : t('Kosár')
                         }
                     >
                         <Ikon nev="kosar" />
@@ -357,14 +401,14 @@ const Nav = () => {
                             to="/login"
                             className="nav-auth-gomb"
                         >
-                            Bejelentkezés
+                            {t('Bejelentkezés')}
                         </NavLink>
                         <NavLink
                             data-teszt-noprofilreg="regisztracio"
                             to="/register"
                             className="nav-auth-gomb nav-auth-gomb--kiemelt"
                         >
-                            Regisztráció
+                            {t('Regisztráció')}
                         </NavLink>
                     </div>
                 )}

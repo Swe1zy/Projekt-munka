@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { API_URL } from '../config';
+import { t } from './nyelv';
 
 // Hitelesített JSON-kérés a backendhez. Hibánál a szerver üzenetével dob, a
 // `status` mezőből a hívó a HTTP-státuszt is megkapja.
@@ -15,12 +16,12 @@ export const apiKeres = async (utvonal, { method = 'GET', body, signal } = {}) =
         });
     } catch (error) {
         if (error.name === 'AbortError') throw error;
-        throw new Error('A szerver nem érhető el. Próbáld újra később!', { cause: error });
+        throw new Error(t('A szerver nem érhető el. Próbáld újra később!'), { cause: error });
     }
 
     const adat = await response.json().catch(() => ({}));
     if (!response.ok) {
-        const hiba = new Error(adat.msg || 'Váratlan hiba történt. Próbáld újra később!');
+        const hiba = new Error(adat.msg || t('Váratlan hiba történt. Próbáld újra később!'));
         hiba.status = response.status;
         throw hiba;
     }
@@ -33,11 +34,11 @@ export const fajlLetoltes = async (utvonal, alapFajlnev) => {
     try {
         response = await fetch(`${API_URL}${utvonal}`, { credentials: 'include' });
     } catch (error) {
-        throw new Error('A szerver nem érhető el. Próbáld újra később!', { cause: error });
+        throw new Error(t('A szerver nem érhető el. Próbáld újra később!'), { cause: error });
     }
     if (!response.ok) {
         const adat = await response.json().catch(() => ({}));
-        throw new Error(adat.msg || 'A letöltés nem sikerült.');
+        throw new Error(adat.msg || t('A letöltés nem sikerült.'));
     }
 
     const blob = await response.blob();

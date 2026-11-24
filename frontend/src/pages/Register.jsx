@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { API_URL } from '../config';
 import { useAuth } from '../context/AuthContext';
 import './Auth.css';
+import { t } from '../utils/nyelv';
 
 const MIN_JELSZO_HOSSZ = 8;
 
@@ -31,13 +32,13 @@ const Register = () => {
         setHiba('');
 
         if (jelszo !== jelszoMegerosites) {
-            setHiba('A két jelszó nem egyezik!');
+            setHiba(t('A két jelszó nem egyezik!'));
             return;
         }
 
         if (!aszfElfogadva) {
             setHiba(
-                'A regisztrációhoz el kell fogadnod az Általános Szerződési Feltételeket!',
+                t('A regisztrációhoz el kell fogadnod az Általános Szerződési Feltételeket!'),
             );
             return;
         }
@@ -57,7 +58,7 @@ const Register = () => {
                 navigate('/login', { state: { uzenet: valasz.msg } });
             else setHiba(valasz.msg);
         } catch {
-            setHiba('A szerver nem érhető el. Próbáld újra később!');
+            setHiba(t('A szerver nem érhető el. Próbáld újra később!'));
         } finally {
             setKuldes(false);
         }
@@ -69,13 +70,13 @@ const Register = () => {
                 className="auth-kartya"
                 onSubmit={bekuld}
             >
-                <h1>Regisztráció</h1>
+                <h1>{t('Regisztráció')}</h1>
                 <p className="auth-leiras">
-                    Hozd létre a fiókodat pár lépésben.
+                    {t('Hozd létre a fiókodat pár lépésben.')}
                 </p>
 
                 <label className="auth-mezo">
-                    Név
+                    {t('Név')}
                     <input
                         data-teszt-regnev="nev"
                         type="text"
@@ -88,7 +89,7 @@ const Register = () => {
                     />
                 </label>
                 <label className="auth-mezo">
-                    E-mail cím
+                    {t('E-mail cím')}
                     <input
                         data-teszt-regemail="email"
                         type="email"
@@ -100,7 +101,7 @@ const Register = () => {
                     />
                 </label>
                 <label className="auth-mezo">
-                    Jelszó
+                    {t('Jelszó')}
                     <input
                         data-teszt-regjelszo="jelszo"
                         type="password"
@@ -110,10 +111,10 @@ const Register = () => {
                         onChange={(event) => setJelszo(event.target.value)}
                         required
                     />
-                    <small>Legalább {MIN_JELSZO_HOSSZ} karakter.</small>
+                    <small>{t('Legalább {db} karakter.', { db: MIN_JELSZO_HOSSZ })}</small>
                 </label>
                 <label className="auth-mezo">
-                    Jelszó megerősítése
+                    {t('Jelszó megerősítése')}
                     <input
                         data-teszt-regjelszomegerosites="jelszoMegerosites"
                         type="password"
@@ -137,16 +138,18 @@ const Register = () => {
                         required
                     />
                     <span>
-                        Elolvastam és elfogadom az{' '}
                         {/* Új lapon nyílik, hogy a már kitöltött űrlap ne vesszen el. */}
-                        <Link
-                            to="/aszf"
-                            target="_blank"
-                            rel="noreferrer"
-                        >
-                            Általános Szerződési Feltételeket
-                        </Link>
-                        .
+                        {t('Elolvastam és elfogadom az {aszf}.', {
+                            aszf: (
+                                <Link
+                                    to="/aszf"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                >
+                                    {t('Általános Szerződési Feltételeket')}
+                                </Link>
+                            ),
+                        })}
                     </span>
                 </label>
 
@@ -165,11 +168,11 @@ const Register = () => {
                     className="auth-gomb"
                     disabled={kuldes}
                 >
-                    {kuldes ? 'Regisztráció…' : 'Regisztráció'}
+                    {kuldes ? t('Regisztráció…') : t('Regisztráció')}
                 </button>
 
                 <p className="auth-lablec">
-                    Már van fiókod? <Link to="/login">Bejelentkezés</Link>
+                    {t('Már van fiókod?')} <Link to="/login">{t('Bejelentkezés')}</Link>
                 </p>
             </form>
         </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { apiKeres } from '../../utils/api';
 import { datum } from '../../utils/dashboardFormazas';
 import Uzenet from './Uzenet';
+import { t } from '../../utils/nyelv';
 
 // E-mail-értesítések: a rendelés állapotváltozásai és az akciós hírlevél.
 const ErtesitesiBeallitasok = ({ beallitasok, frissult }) => {
@@ -34,8 +35,8 @@ const ErtesitesiBeallitasok = ({ beallitasok, frissult }) => {
             onSubmit={bekuld}
         >
             <div className="profil-panel-fej">
-                <h2>E-mail-értesítések</h2>
-                <p>A rendelés visszaigazolását és a díjbekérőt mindig elküldjük, a többit itt választhatod ki.</p>
+                <h2>{t('E-mail-értesítések')}</h2>
+                <p>{t('A rendelés visszaigazolását és a díjbekérőt mindig elküldjük, a többit itt választhatod ki.')}</p>
             </div>
 
             <label className="auth-jelolo">
@@ -45,9 +46,9 @@ const ErtesitesiBeallitasok = ({ beallitasok, frissult }) => {
                     onChange={(event) => setAllapotValtozas(event.target.checked)}
                 />
                 <span>
-                    <strong>Rendelésem állapota</strong>
+                    <strong>{t('Rendelésem állapota')}</strong>
                     <br />
-                    Szólj, amikor a rendelésemet visszaigazolják, útnak indul, teljesül vagy lemondják.
+                    {t('Szólj, amikor a rendelésemet visszaigazolják, útnak indul, teljesül vagy lemondják.')}
                 </span>
             </label>
 
@@ -58,12 +59,11 @@ const ErtesitesiBeallitasok = ({ beallitasok, frissult }) => {
                     onChange={(event) => setHirlevel(event.target.checked)}
                 />
                 <span>
-                    <strong>Akciós hírlevél</strong>
+                    <strong>{t('Akciós hírlevél')}</strong>
                     <br />
-                    Hozzájárulok, hogy a Tüzép az e-mail-címemre akciós ajánlatokat és szezonális
-                    tájékoztatót küldjön. A hozzájárulást itt bármikor visszavonhatom.
+                    {t('Hozzájárulok, hogy a Tüzép az e-mail-címemre akciós ajánlatokat és szezonális tájékoztatót küldjön. A hozzájárulást itt bármikor visszavonhatom.')}
                     {beallitasok.hirlevel && beallitasok.hirlevelIdopont && (
-                        <small className="profil-megjegyzes"> Feliratkozva: {datum(beallitasok.hirlevelIdopont)}.</small>
+                        <small className="profil-megjegyzes"> {t('Feliratkozva: {datum}.', { datum: datum(beallitasok.hirlevelIdopont) })}</small>
                     )}
                 </span>
             </label>
@@ -75,7 +75,7 @@ const ErtesitesiBeallitasok = ({ beallitasok, frissult }) => {
                     className="auth-gomb"
                     disabled={kuldes}
                 >
-                    {kuldes ? 'Mentés…' : 'Értesítések mentése'}
+                    {kuldes ? t('Mentés…') : t('Értesítések mentése')}
                 </button>
             </div>
         </form>

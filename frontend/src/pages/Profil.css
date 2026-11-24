@@ -927,6 +927,63 @@
     line-height: 1.4;
 }
 
+/* Nyelv- és pénznemválasztó: kisebb kártyák, a téma kártyáival azonos stílusban */
+.beallitas-valaszto {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9.5rem), 1fr));
+    gap: 0.65rem;
+    margin: 1.1rem 0 0;
+    padding: 0;
+    border: 0;
+}
+
+.beallitas-opcio {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 0.6rem;
+    row-gap: 0.1rem;
+    padding: 0.7rem 0.85rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 0.85rem;
+    background: #ffffff;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.beallitas-opcio:hover {
+    border-color: #d89a69;
+}
+
+.beallitas-opcio:has(input:checked) {
+    border-color: #bd6a3d;
+    box-shadow: 0 0 0 3px rgba(189, 106, 61, 0.2);
+}
+
+.beallitas-opcio:has(input:focus-visible) {
+    outline: 3px solid rgba(249, 115, 22, 0.45);
+    outline-offset: 2px;
+}
+
+.beallitas-opcio input {
+    grid-row: span 2;
+    width: 1.05rem;
+    height: 1.05rem;
+    margin: 0;
+    accent-color: #bd6a3d;
+    cursor: pointer;
+}
+
+.beallitas-opcio strong {
+    color: #0f172a;
+    font-size: 0.95rem;
+}
+
+.beallitas-opcio small {
+    color: #64748b;
+    font-size: 0.8rem;
+}
+
 /* Előnézeti minta: kicsi „oldal” menüsávval és egy kártyával */
 .tema-minta {
     display: grid;

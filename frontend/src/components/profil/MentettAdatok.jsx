@@ -5,6 +5,7 @@ import { ervenyesAdoszam } from '../../utils/fiok';
 import { forint } from '../../utils/termek';
 import CimMezok from './CimMezok';
 import Uzenet from './Uzenet';
+import { t } from '../../utils/nyelv';
 
 const uresCim = () => ({ iranyitoszam: '', telepules: '', utca: '' });
 const cimResz = (adat) => ({
@@ -22,15 +23,15 @@ const KedvezmenyJelzes = ({ adoszam }) => {
     if (!ervenyesAdoszam(adoszam)) {
         return (
             <p className="profil-kedvezmeny profil-kedvezmeny--nem">
-                Ez az adószám nem a megszokott formátumú (12345678-1-12), ezért céges kedvezmény nem jár rá.
+                {t('Ez az adószám nem a megszokott formátumú (12345678-1-12), ezért céges kedvezmény nem jár rá.')}
             </p>
         );
     }
     return (
         <p className="profil-kedvezmeny">
-            <strong>✓ Jogosult vagy céges mennyiségi kedvezményre.</strong>
+            <strong>✓ {t('Jogosult vagy céges mennyiségi kedvezményre.')}</strong>
             {savok.length > 0 && (
-                <span> {savok.map((sav) => `${forint(sav.minimum)} felett ${sav.szazalek}%`).join(', ')} a termékek árából.</span>
+                <span> {t('{savok} a termékek árából.', { savok: savok.map((sav) => t('{osszeg} felett {szazalek}%', { osszeg: forint(sav.minimum), szazalek: sav.szazalek })).join(', ') })}</span>
             )}
         </p>
     );
@@ -83,14 +84,14 @@ const MentettAdatok = ({ mentettAdatok, frissult }) => {
             onSubmit={bekuld}
         >
             <div className="profil-panel-fej">
-                <h2>Számlázási adatok</h2>
-                <p>A pénztár ezekkel az adatokkal tölti ki előre az űrlapot, rendeléskor még módosíthatod őket.</p>
+                <h2>{t('Számlázási adatok')}</h2>
+                <p>{t('A pénztár ezekkel az adatokkal tölti ki előre az űrlapot, rendeléskor még módosíthatod őket.')}</p>
             </div>
 
             <div
                 className="profil-valaszto"
                 role="radiogroup"
-                aria-label="Számlázás típusa"
+                aria-label={t('Számlázás típusa')}
             >
                 <label className={tipus === 'maganszemely' ? 'aktiv' : undefined}>
                     <input
@@ -100,7 +101,7 @@ const MentettAdatok = ({ mentettAdatok, frissult }) => {
                         checked={tipus === 'maganszemely'}
                         onChange={(event) => setTipus(event.target.value)}
                     />
-                    Magánszemély
+                    {t('Magánszemély')}
                 </label>
                 <label className={tipus === 'ceg' ? 'aktiv' : undefined}>
                     <input
@@ -110,13 +111,13 @@ const MentettAdatok = ({ mentettAdatok, frissult }) => {
                         checked={tipus === 'ceg'}
                         onChange={(event) => setTipus(event.target.value)}
                     />
-                    Cég / jogi személy
+                    {t('Cég / jogi személy')}
                 </label>
             </div>
 
             <div className="profil-mezo-par">
                 <label className="auth-mezo">
-                    {tipus === 'ceg' ? 'Cég neve' : 'Számlázási név'}
+                    {tipus === 'ceg' ? t('Cég neve') : t('Számlázási név')}
                     <input
                         type="text"
                         autoComplete="billing name"
@@ -129,7 +130,7 @@ const MentettAdatok = ({ mentettAdatok, frissult }) => {
                 </label>
                 {tipus === 'ceg' && (
                     <label className="auth-mezo">
-                        Adószám
+                        {t('Adószám')}
                         <input
                             type="text"
                             autoComplete="off"
@@ -158,7 +159,7 @@ const MentettAdatok = ({ mentettAdatok, frissult }) => {
                     className="auth-gomb"
                     disabled={kuldes}
                 >
-                    {kuldes ? 'Mentés…' : 'Számlázási adatok mentése'}
+                    {kuldes ? t('Mentés…') : t('Számlázási adatok mentése')}
                 </button>
                 {mentettAdatok && (
                     <button
@@ -167,7 +168,7 @@ const MentettAdatok = ({ mentettAdatok, frissult }) => {
                         disabled={kuldes}
                         onClick={torol}
                     >
-                        Mentett adatok törlése
+                        {t('Mentett adatok törlése')}
                     </button>
                 )}
             </div>

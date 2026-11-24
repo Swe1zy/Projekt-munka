@@ -1,5 +1,7 @@
 import { napCimke } from '../../utils/beallitasok';
+import { atvetelModCimke } from '../../utils/rendelesCimkek';
 import './Rendeles.css';
+import { t } from '../../utils/nyelv';
 
 const RendelesCimek = ({ rendeles }) => {
     const szamlazas = rendeles.szamlazasiAdatok;
@@ -8,15 +10,15 @@ const RendelesCimek = ({ rendeles }) => {
     return (
         <>
             <address className="rendeles-cim">
-                <h4>Számlázás</h4>
+                <h4>{t('Számlázás')}</h4>
                 <strong>{szamlazas.nev}</strong>
-                <span>{szamlazas.tipus === 'ceg' ? `Cég · adószám: ${szamlazas.adoszam}` : 'Magánszemély'}</span>
+                <span>{szamlazas.tipus === 'ceg' ? t('Cég · adószám: {adoszam}', { adoszam: szamlazas.adoszam }) : t('Magánszemély')}</span>
                 <span>{szamlazas.iranyitoszam} {szamlazas.telepules}, {szamlazas.utca}</span>
-                {rendeles.telefon && <span>Tel.: <a href={`tel:${rendeles.telefon.replace(/[^\d+]/g, '')}`}>{rendeles.telefon}</a></span>}
-                {szamlazas.megjegyzes && <span>Megjegyzés: {szamlazas.megjegyzes}</span>}
+                {rendeles.telefon && <span>{t('Tel.:')} <a href={`tel:${rendeles.telefon.replace(/[^\d+]/g, '')}`}>{rendeles.telefon}</a></span>}
+                {szamlazas.megjegyzes && <span>{t('Megjegyzés:')} {szamlazas.megjegyzes}</span>}
             </address>
             <address className="rendeles-cim">
-                <h4>{rendeles.atvetelCimke}</h4>
+                <h4>{atvetelModCimke(rendeles.atvetelModja, rendeles.atvetelCimke)}</h4>
                 {rendeles.atvetelNapja && (
                     <span className="rendeles-idopont">
                         {napCimke(rendeles.atvetelNapja)}{rendeles.idosavCimke ? `, ${rendeles.idosavCimke}` : ''}
@@ -26,11 +28,11 @@ const RendelesCimek = ({ rendeles }) => {
                     <>
                         <strong>{szallitas.atvevoNev}</strong>
                         <span>{szallitas.iranyitoszam} {szallitas.telepules}, {szallitas.utca}</span>
-                        {szallitas.megjegyzes && <span>Futárnak: {szallitas.megjegyzes}</span>}
-                        {szallitas.behajtas && <span>Behajtás, lerakodás: {szallitas.behajtas}</span>}
+                        {szallitas.megjegyzes && <span>{t('Futárnak:')} {szallitas.megjegyzes}</span>}
+                        {szallitas.behajtas && <span>{t('Behajtás, lerakodás:')} {szallitas.behajtas}</span>}
                     </>
                 ) : (
-                    <span>Átvétel a telephelyen</span>
+                    <span>{t('Átvétel a telephelyen')}</span>
                 )}
             </address>
         </>

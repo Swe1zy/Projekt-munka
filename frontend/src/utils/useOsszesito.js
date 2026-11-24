@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { API_URL } from '../config';
+import { t } from './nyelv';
 
 /**
  * Díj-előnézet a backendtől (termékérték, céges kedvezmény, szállítási díj,
@@ -23,7 +24,7 @@ export const useOsszesito = (keres) => {
             })
                 .then(async (response) => {
                     const adat = await response.json().catch(() => ({}));
-                    if (!response.ok) throw new Error(adat.msg || 'A díjakat nem sikerült kiszámolni.');
+                    if (!response.ok) throw new Error(adat.msg || t('A díjakat nem sikerült kiszámolni.'));
                     setValasz({ kulcs, adat, hiba: '' });
                 })
                 .catch((error) => {

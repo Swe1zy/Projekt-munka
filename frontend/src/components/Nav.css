@@ -172,6 +172,60 @@
     gap: 0.35rem;
 }
 
+/* Nyelv- és pénznemválasztó. Mobilon a lenyíló menü alján jelenik meg. */
+.nav-valasztok {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.nav-valasztok--mobil {
+    display: none;
+}
+
+/* A legördülők: visszafogott, a sávba simuló legördülő */
+.nav-valaszto select {
+    height: 2.5rem;
+    padding: 0 1.9rem 0 0.7rem;
+    border: 1px solid var(--nav-vonal);
+    border-radius: 0.6rem;
+    background:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")
+            no-repeat right 0.55rem center / 0.9rem,
+        transparent;
+    color: var(--nav-szoveg-eros);
+    font: inherit;
+    font-size: 0.85rem;
+    font-weight: 650;
+    cursor: pointer;
+    appearance: none;
+    transition: background-color 0.2s ease;
+}
+
+.nav-valaszto select:hover {
+    background-color: var(--nav-halvany);
+}
+
+.nav-valaszto select:focus-visible {
+    outline: 2px solid var(--nav-kiemeles-vilagos);
+    outline-offset: 2px;
+}
+
+/* A lenyíló lista is a sáv sötét színeit kapja (ahol a böngésző engedi) */
+.nav-valaszto option {
+    background: var(--nav-panel);
+    color: var(--nav-szoveg-eros);
+}
+
+.nav-rejtett {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
 .nav-auth-gomb {
     display: inline-flex;
     align-items: center;
@@ -418,8 +472,25 @@
         margin-left: auto;
     }
 
-    .nav-auth {
+    .nav-auth,
+    .nav-valasztok--asztali {
         display: none;
+    }
+
+    .nav-valasztok--mobil {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: auto;
+        padding: 0.85rem 0.4rem 0;
+        border-top: 1px solid var(--nav-vonal);
+    }
+
+    .nav-valasztok--mobil .nav-valaszto {
+        flex: 1;
+    }
+
+    .nav-valasztok--mobil select {
+        width: 100%;
     }
 
     .nav-marka-jel {

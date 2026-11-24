@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { API_URL } from '../config';
+import { helyiBeallitas, t } from './nyelv';
 
 // Az üzleti beállítások (telephely, nyitvatartás, díjak, választható napok) a
 // backendről jönnek. Rövid ideig gyorsítótárazzuk, mert több oldal is használja.
@@ -10,7 +11,7 @@ export const beallitasokBetoltese = () => {
     if (!gyorsitotar || Date.now() - gyorsitotar.ido > ERVENYESSEG_MS) {
         const igeret = fetch(`${API_URL}/beallitasok`).then(async (response) => {
             const adat = await response.json().catch(() => ({}));
-            if (!response.ok) throw new Error(adat.msg || 'A beállításokat nem sikerült betölteni.');
+            if (!response.ok) throw new Error(adat.msg || t('A beállításokat nem sikerült betölteni.'));
             return adat;
         });
         igeret.catch(() => {
@@ -49,14 +50,16 @@ export const termekRaklapon = (termek, beallitasok) => {
     return beallitasok?.kategoriaAlapertekek?.[termek.kategoria]?.[termek.egyseg]?.raklapon ?? null;
 };
 
-const NAP_NEVEK = ['vasárnap', 'hétfő', 'kedd', 'szerda', 'csütörtök', 'péntek', 'szombat'];
-const datumFormazo = new Intl.DateTimeFormat('hu-HU', { month: 'long', day: 'numeric' });
-
-// „ÉÉÉÉ-HH-NN” → „november 17., kedd”
+// „ÉÉÉÉ-HH-NN” → „november 17., kedd” (a felület nyelvén)
 export const napCimke = (datumKulcs) => {
     const [ev, honap, nap] = datumKulcs.split('-').map(Number);
     const datum = new Date(ev, honap - 1, nap);
-    return `${datumFormazo.format(datum)}, ${NAP_NEVEK[datum.getDay()]}`;
+    const helyi = helyiBeallitas();
+    const nap1 = new Intl.DateTimeFormat(helyi, { month: 'long', day: 'numeric' }).format(datum);
+    const hetNap = new Intl.DateTimeFormat(helyi, { weekday: 'long' }).format(datum);
+    return `${nap1}, ${hetNap}`;
 };
 
-export const hetNapNeve = (nap) => NAP_NEVEK[nap];
+// 0 = vasárnap … 6 = szombat. 2023. január 1. vasárnapra esett.
+export const hetNapNeve = (nap) =>
+    new Intl.DateTimeFormat(helyiBeallitas(), { weekday: 'long' }).format(new Date(2023, 0, 1 + nap));

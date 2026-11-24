@@ -4,6 +4,7 @@ import { apiKeres } from '../../utils/api';
 import { datum } from '../../utils/dashboardFormazas';
 import { TELEFON_MINTA, TELEFON_PELDA } from '../../utils/fiok';
 import Uzenet from './Uzenet';
+import { t } from '../../utils/nyelv';
 
 // Név, e-mail-cím és telefonszám módosítása. Az e-mail a belépési azonosító, ezért a
 // megváltoztatásához a szerver a jelenlegi jelszót is kéri. `frissult` a szerver
@@ -51,30 +52,30 @@ const ProfilAdatok = ({ fiok, frissult }) => {
             onSubmit={bekuld}
         >
             <div className="profil-panel-fej">
-                <h2>Személyes adatok</h2>
-                <p>A neved a fiókodban és a menüben jelenik meg, az e-mail-címeddel lépsz be.</p>
+                <h2>{t('Személyes adatok')}</h2>
+                <p>{t('A neved a fiókodban és a menüben jelenik meg, az e-mail-címeddel lépsz be.')}</p>
             </div>
 
             <dl className="profil-fiok-info">
                 {fiok.regisztralt && (
                     <div>
-                        <dt>Regisztráltál</dt>
+                        <dt>{t('Regisztráltál')}</dt>
                         <dd>{datum(fiok.regisztralt)}</dd>
                     </div>
                 )}
                 <div>
-                    <dt>Általános Szerződési Feltételek</dt>
+                    <dt>{t('Általános Szerződési Feltételek')}</dt>
                     <dd>
                         {fiok.aszfElfogadas
-                            ? `${fiok.aszfElfogadas.verzio} verzió, elfogadva: ${datum(fiok.aszfElfogadas.idopont)}`
-                            : 'Nincs rögzített elfogadás'}
+                            ? t('{verzio} verzió, elfogadva: {datum}', { verzio: fiok.aszfElfogadas.verzio, datum: datum(fiok.aszfElfogadas.idopont) })
+                            : t('Nincs rögzített elfogadás')}
                     </dd>
                 </div>
             </dl>
 
             <div className="profil-mezo-par">
                 <label className="auth-mezo">
-                    Név
+                    {t('Név')}
                     <input
                         type="text"
                         autoComplete="name"
@@ -87,7 +88,7 @@ const ProfilAdatok = ({ fiok, frissult }) => {
                     />
                 </label>
                 <label className="auth-mezo">
-                    E-mail cím
+                    {t('E-mail cím')}
                     <input
                         type="email"
                         autoComplete="email"
@@ -99,25 +100,25 @@ const ProfilAdatok = ({ fiok, frissult }) => {
                     />
                 </label>
                 <label className="auth-mezo">
-                    Telefonszám
+                    {t('Telefonszám')}
                     <input
                         type="tel"
                         autoComplete="tel"
                         pattern={TELEFON_MINTA}
-                        title={`Pl. ${TELEFON_PELDA}`}
+                        title={t('Pl. {pelda}', { pelda: TELEFON_PELDA })}
                         maxLength="40"
                         value={telefon}
                         onChange={(event) => setTelefon(event.target.value)}
                         placeholder={TELEFON_PELDA}
                         disabled={admin}
                     />
-                    <small>Kiszállításkor ezen a számon keres a sofőr. A pénztár ezzel tölti ki előre a mezőt.</small>
+                    <small>{t('Kiszállításkor ezen a számon keres a sofőr. A pénztár ezzel tölti ki előre a mezőt.')}</small>
                 </label>
             </div>
 
             {emailValtozott && (
                 <label className="auth-mezo">
-                    Jelenlegi jelszó
+                    {t('Jelenlegi jelszó')}
                     <input
                         type="password"
                         autoComplete="current-password"
@@ -126,15 +127,14 @@ const ProfilAdatok = ({ fiok, frissult }) => {
                         required
                     />
                     <small>
-                        Az e-mail-cím módosítását a jelszavaddal kell megerősítened. A korábbi
-                        rendeléseid visszaigazolásai a régi címen maradnak.
+                        {t('Az e-mail-cím módosítását a jelszavaddal kell megerősítened. A korábbi rendeléseid visszaigazolásai a régi címen maradnak.')}
                     </small>
                 </label>
             )}
 
             {admin && (
                 <p className="profil-megjegyzes">
-                    Az admin fiók neve és e-mail-címe a szerver beállításaiban módosítható.
+                    {t('Az admin fiók neve és e-mail-címe a szerver beállításaiban módosítható.')}
                 </p>
             )}
             <Uzenet uzenet={uzenet} />
@@ -146,7 +146,7 @@ const ProfilAdatok = ({ fiok, frissult }) => {
                         className="auth-gomb"
                         disabled={kuldes}
                     >
-                        {kuldes ? 'Mentés…' : 'Adatok mentése'}
+                        {kuldes ? t('Mentés…') : t('Adatok mentése')}
                     </button>
                 </div>
             )}

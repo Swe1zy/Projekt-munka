@@ -7,6 +7,7 @@ import {
     sutiOlvas,
 } from '../utils/sutik';
 import './SutiSav.css';
+import { t } from '../utils/nyelv';
 
 // Tájékoztató sáv: az oldal csak elengedhetetlen sütiket használ, ezekhez nem kell
 // hozzájárulás, a látogatót viszont tájékoztatni kell róluk.
@@ -26,13 +27,13 @@ const SutiSav = () => {
     return (
         <section
             className="suti-sav"
-            aria-label="Tájékoztatás a sütikről"
+            aria-label={t('Tájékoztatás a sütikről')}
         >
             <p>
-                Az oldal csak a működéséhez <strong>elengedhetetlen sütiket</strong>{' '}
-                használ (bejelentkezés, kosár, fizetés). Statisztikai vagy
-                hirdetési sütiket nem alkalmazunk.{' '}
-                <Link to="/sutik">Részletek a sütitájékoztatóban</Link>
+                {t('Az oldal csak a működéséhez {kiemelt} használ (bejelentkezés, kosár, fizetés). Statisztikai vagy hirdetési sütiket nem alkalmazunk.', {
+                    kiemelt: <strong>{t('elengedhetetlen sütiket')}</strong>,
+                })}{' '}
+                <Link to="/sutik">{t('Részletek a sütitájékoztatóban')}</Link>
             </p>
             <button
                 data-teszt-sutifogadas="rendben"
@@ -40,7 +41,7 @@ const SutiSav = () => {
                 className="suti-sav-gomb"
                 onClick={tudomasulVesz}
             >
-                Rendben
+                {t('Rendben')}
             </button>
         </section>
     );
