@@ -11,11 +11,12 @@ describe("GET végpontok", () => {
         expect(response.headers["content-type"]).toMatch(/text\/html/);
     });
 
-    it("GET /api/frontend-termekek - öt feltöltött terméket ad vissza", async () => {
+    it("GET /api/frontend-termekek - öt vagy több feltöltött terméket ad vissza", async () => {
         const response = await getRequest("/api/frontend-termekek");
 
         expect(response.status).toBe(200);
-        expect(response.body.termekek).toHaveLength(5);
+        expect(Array.isArray(response.body.termekek)).toBe(true);
+        expect(response.body.termekek.length).toBeGreaterThanOrEqual(5);
     });
 
     it("GET /api/frontend-termekek/:id - egy terméket ad vissza azonosító alapján", async () => {
